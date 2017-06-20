@@ -6,7 +6,10 @@ from uis.websourceuipart import WebSourceUIPart
 
 class AnalogSourceUIPart(WebSourceUIPart):
     def __init__(self):
-        super().__init__(id=ModuleID.ANALOG_SOURCE, name="A")
+        super().__init__(id=ModuleID.ANALOG_SOURCE, name="Analog")
 
-    def _fillSelectorCont(self, container: gui.Widget):
+    def _fillTrackContainer(self, container: gui.Widget) -> None:
+        container.append(gui.Label(text=self.name))
+
+    def _fillSelectorContainer(self, container: gui.Widget) -> None:
         pass

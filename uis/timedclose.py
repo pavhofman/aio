@@ -20,7 +20,7 @@ class TimedClose:
         else:
             if self._timer.is_alive():
                 # cancel and reschedule
-                self._closeTimer()
+                self.closeTimer()
                 # new timer
                 self._startTimer()
 
@@ -30,9 +30,11 @@ class TimedClose:
 
         self._timer.start()
 
-    def _closeTimer(self):
-        self._timer.cancel()
-        self._timer.join()
+    def closeTimer(self):
+        if self._timer is not None:
+            self._timer.cancel()
+            self._timer.join()
+            self._timer = None
 
     def _timerFinished(self):
         # just showing the main screen

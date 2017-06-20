@@ -20,14 +20,11 @@ class UI(MsgConsumer, abc.ABC):
     # noinspection PyShadowingBuiltins
     def __init__(self, id: ModuleID, dispatcher: Dispatcher):
         # call the thread class
-        super().__init__(id=id, dispatcher=dispatcher)
+        MsgConsumer.__init__(self, id=id, dispatcher=dispatcher)
         self._volume = 0
         self.sources = self._initSourceParts()
         self.sourcesByID = self._convertToMap(self.sources)
-
-    @abc.abstractmethod
-    def _initSourceParts(self) -> List['SourceUIPart']:
-        pass
+        self.activeSource = None
 
     @staticmethod
     def _convertToMap(sources: List['SourceUIPart']) -> DefaultDict[ModuleID, SourceUIPart]:
@@ -42,14 +39,14 @@ class UI(MsgConsumer, abc.ABC):
     def stop(self):
         super().stop()
 
-    # consuming the message
-
     def _getUISourceFor(self, msg) -> 'SourceUIPart':
         sourceID = msg.fromID
         # converting to enum object
         modID = ModuleID(sourceID)
         source = self._getUISource(modID)
         return source
+
+    # consuming the message
 
     def _consume(self, msg: 'Message'):
         if msg.typeID == MsgID.CURRENT_VOL_INFO:
@@ -74,4 +71,10 @@ class UI(MsgConsumer, abc.ABC):
             newStatus = SourceStatus(msg.value)
             if newStatus != source.status:
                 source.status = newStatus
+                if newStatus.isActive():
+                    self.activeSource = source
                 logging.debug("Changed status of UI Source " + source.__class__.__name__ + " to " + str(source.status))
+
+    @abc.abstractmethod
+    def _initSourceParts(self) -> List['SourceUIPart']:
+        pass

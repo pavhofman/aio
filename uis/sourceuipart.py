@@ -9,7 +9,7 @@ class SourceUIPart:
         self.status = SourceStatus.UNAVAILABLE
 
     def isSelected(self):
-        return self.status.isSelected()
+        return self.status.isActive()
 
     def setStatus(self, newStatus: SourceStatus):
         self.status = newStatus

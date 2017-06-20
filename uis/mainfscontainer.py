@@ -15,14 +15,30 @@ class MainFSContainer(gui.Widget):
         self._app = app
         self.style['display'] = 'block'
         self.style['overflow'] = 'hidden'
-        subContainerLeft = gui.Widget(width=400)
-        subContainerLeft.style['display'] = 'block'
-        subContainerLeft.style['overflow'] = 'auto'
-        subContainerLeft.style['text-align'] = 'center'
-        self._currentLeftContainer = subContainerLeft
+        self._noTrackContainer = self._createNoSourceTrackContainer()
+        self._trackContainer = self._noTrackContainer
+        self.append(self._trackContainer)
         self._overviewContainer = OverviewPanel(app)
-        self.append(subContainerLeft)
         self.append(self._overviewContainer)
+
+    @staticmethod
+    def _createNoSourceTrackContainer() -> gui.Widget:
+        container = gui.Widget(width=400)
+        container.style['display'] = 'block'
+        container.style['overflow'] = 'auto'
+        container.style['text-align'] = 'center'
+        container.append(gui.Label(text="No active source"))
+        return container
 
     def setVolume(self, value: int):
         self._overviewContainer.setVolume(value)
+
+    def setTrackContainer(self, container: gui.Widget) -> None:
+        if container is not self._trackContainer:
+            self.empty()
+            self._trackContainer = container
+            self.append(self._trackContainer)
+            self.append(self._overviewContainer)
+
+    def setNoTrackContainer(self):
+        self.setTrackContainer(self._noTrackContainer)

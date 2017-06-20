@@ -56,7 +56,7 @@ class VolumeFSContainer(gui.Widget, TimedClose):
 
     # noinspection PyUnusedLocal
     def _volSliderMouseDown(self, emitter, x, y):
-        self._closeTimer()
+        self.closeTimer()
 
     # noinspection PyUnusedLocal
     def _volSliderMouseUp(self, emitter, x, y):

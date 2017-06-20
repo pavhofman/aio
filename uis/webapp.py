@@ -6,13 +6,14 @@ from remi import App, gui
 
 import globals
 from dispatcher import Dispatcher
+from groupid import GroupID
 from moduleid import ModuleID
 from msgid import MsgID
 from msgs.integermsg import IntegerMsg
 from msgs.message import Message
 from sourcestatus import SourceStatus
+from uis.activatesourcefscontainer import ActivateSourceFSContainer
 from uis.mainfscontainer import MainFSContainer
-from uis.sourceselfscontainer import SourceSelFSContainer
 from uis.timedclose import TimedClose
 from uis.volumefscontainer import VolumeFSContainer
 
@@ -35,7 +36,7 @@ class WebApp(App):
         self._webui = webui
 
         self._initSources()
-        self._rootContainer = self._getRootContainer()
+        self._rootContainer = self._createRootContainer()
 
         """
         rootContainer holds the following fullscreen containers
@@ -53,16 +54,17 @@ class WebApp(App):
         self._currentFSContainer = self._prevFSContainer = self._mainFSContainer
         self._setFSContainer(self._mainFSContainer)
         self._volFSContainer = VolumeFSContainer(self)
-        self._sourceSelFSContainer = SourceSelFSContainer(self)
+        self._activateSourceFSContainer = ActivateSourceFSContainer(self)
 
         # returning the root widget
         return self._rootContainer
 
-    # delayed initialization after app started
+    # noinspection PyAttributeOutsideInit
     def _initSources(self):
         for source in self._webui.sources:  # type: WebSourceUIPart
-            source.appRunning(self)
+            source.appIsRunning(self)
 
+    # delayed initialization after app started
     def getDispatcher(self) -> Dispatcher:
         return self._webui.dispatcher
 
@@ -86,7 +88,7 @@ class WebApp(App):
             container.activateTimer()
 
     @staticmethod
-    def _getRootContainer() -> gui.Widget:
+    def _createRootContainer() -> gui.Widget:
         container = gui.Widget(width=WIDTH, height=HEIGHT, margin='0px auto',
                                layout_orientation=gui.Widget.LAYOUT_HORIZONTAL)
         container.style['display'] = 'block'
@@ -125,18 +127,48 @@ class WebApp(App):
     def showVolFSContainer(self):
         self._setFSContainer(self._volFSContainer)
 
-    def showSourceSelFSContainer(self):
-        self._setFSContainer(self._sourceSelFSContainer)
+    def showActivateSourceFSContainer(self):
+        self._setFSContainer(self._activateSourceFSContainer)
 
     def showPrevFSContainer(self):
+        if isinstance(self._currentFSContainer, TimedClose):
+            self._currentFSContainer.closeTimer()
         self._setFSContainer(self._prevFSContainer)
 
     def _setSourceStatus(self, sourceID: ModuleID, statusID: int):
         source = self._getSource(sourceID)
-        source.setStatus(SourceStatus(statusID))
+        status = SourceStatus(statusID)
+        # update source
+        source.setStatus(status)
+        # update trackcontainer
+        if status.isActive():
+            self._mainFSContainer.setTrackContainer(source.getTrackContainer())
+
+        elif self.getActiveSource() is None:
+            # deactivated
+            self._mainFSContainer.setNoTrackContainer()
 
     def getSources(self) -> List['WebSourceUIPart']:
         return self._webui.sources
 
     def _getSource(self, sourceID: ModuleID) -> 'WebSourceUIPart':
         return self._webui.sourcesByID[sourceID]
+
+    def getActiveSource(self) -> Optional['WebSourceUIPart']:
+        for source in self.getSources():
+            if source.status.isActive():
+                return source
+        return None
+
+    def switchSource(self, source: 'WebSourceUIPart', activate: bool) -> None:
+        msg = self._createActivationMsg(source, activate)
+        self.getDispatcher().distribute(msg)
+
+    def _createActivationMsg(self, source: 'WebSourceUIPart', activate: bool) -> IntegerMsg:
+        if activate:
+            return IntegerMsg(value=source.id.value, fromID=self.getID(), typeID=MsgID.ACTIVATE_SOURCE,
+                              groupID=GroupID.SOURCE)
+        else:
+            # deactivate this specific source
+            return IntegerMsg(value=SourceStatus.NOT_ACTIVE.value, fromID=self.getID(), typeID=MsgID.SET_SOURCE_STATUS,
+                              forID=source.id)

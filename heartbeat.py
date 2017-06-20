@@ -21,7 +21,7 @@ class Heartbeat(Thread):
         self.__event = Event()
         self.setDaemon(True)
         # unique ID among modules of same type
-        # self.start()
+        self.start()
 
     def stop(self):
         self.__event.set()
@@ -36,6 +36,7 @@ class Heartbeat(Thread):
             self.dispatcher.distribute(msg)
             msg = RequestMsg(ModuleID.HEARTBEAT, typeID=MsgID.REQ_CURRENT_VOL_INFO, forID=ModuleID.VOLUME_OPERATOR)
             self.dispatcher.distribute(msg)
+            self.stop()
 
     def close(self):
         self.stop()

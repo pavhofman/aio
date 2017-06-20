@@ -6,7 +6,10 @@ from uis.websourceuipart import WebSourceUIPart
 
 class FileSourceUIPart(WebSourceUIPart):
     def __init__(self):
-        super().__init__(id=ModuleID.FILE_SOURCE, name="F")
+        super().__init__(id=ModuleID.FILE_SOURCE, name="File")
 
-    def _fillSelectorCont(self, container: gui.Widget):
+    def _fillTrackContainer(self, container: gui.Widget) -> None:
+        container.append(gui.Label(text=self.name))
+
+    def _fillSelectorContainer(self, container: gui.Widget) -> None:
         pass

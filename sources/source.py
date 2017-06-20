@@ -16,6 +16,7 @@ class Source(MsgConsumer, abc.ABC):
     Source representation. Only one instance for each source within the network
     """
 
+    # noinspection PyShadowingBuiltins
     def __init__(self, id: ModuleID, dispatcher: Dispatcher, initStatus=SourceStatus.UNAVAILABLE):
         # call the thread class
         super().__init__(id=id, dispatcher=dispatcher)
@@ -57,7 +58,7 @@ class Source(MsgConsumer, abc.ABC):
                     self.__sendSourceStatus()
         else:
             # activate some other source, i.e. deactivate myself if active
-            if self.status.isSelected():
+            if self.status.isActive():
                 if self._deactive():
                     self.__sendSourceStatus()
 
@@ -75,5 +76,5 @@ class Source(MsgConsumer, abc.ABC):
         :return: if status changed
         """
         # TODO - pretizit v potomcich
-        self.status = SourceStatus.NOT_SELECTED
+        self.status = SourceStatus.NOT_ACTIVE
         return True

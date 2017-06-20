@@ -34,7 +34,7 @@ class OverviewPanel(gui.Widget):
 
     # noinspection PyUnusedLocal
     def _onSourcesPanelClicked(self, widget):
-        self._app.showSourceSelFSContainer()
+        self._app.showActivateSourceFSContainer()
 
     def _onSettingsButtonPressed(self, widget):
         pass
