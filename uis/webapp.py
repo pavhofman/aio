@@ -1,11 +1,11 @@
 import logging
-from queue import Empty
+from queue import Empty, Queue
 from typing import Optional, TYPE_CHECKING, List
 
 from remi import App, gui
 
-import globals
-from dispatcher import Dispatcher
+import globalvars
+from cansendmessage import CanSendMessage
 from groupid import GroupID
 from moduleid import ModuleID
 from msgid import MsgID
@@ -13,27 +13,38 @@ from msgs.integermsg import IntegerMsg
 from msgs.message import Message
 from sourcestatus import SourceStatus
 from uis.activatesourcefscontainer import ActivateSourceFSContainer
+from uis.analogsourceuipart import AnalogSourceUIPart
+from uis.filesourceuipart import FileSourceUIPart
+from uis.hassourceparts import HasSourceParts
 from uis.mainfscontainer import MainFSContainer
 from uis.timedclose import TimedClose
 from uis.volumefscontainer import VolumeFSContainer
 
 if TYPE_CHECKING:
-    from uis.webui import WebUI
+    from dispatcher import Dispatcher
     from uis.websourceuipart import WebSourceUIPart
 
 WIDTH = 480
 HEIGHT = 277
 
 
-class WebApp(App):
+class WebApp(App, CanSendMessage, HasSourceParts['WebSourceUIPart']):
     def __init__(self, *args):
-        super(WebApp, self).__init__(*args)
+        App.__init__(self, *args)
 
-    # noinspection PyAttributeOutsideInit
-    def main(self, webui: 'WebUI') -> gui.Widget:
+    def _initSourceParts(self) -> List['WebSourceUIPart']:
+        return [
+            AnalogSourceUIPart(),
+            FileSourceUIPart()
+        ]
+
+    # noinspection PyAttributeOutsideInit,PyShadowingBuiltins
+    def main(self, id: ModuleID, dispatcher: 'Dispatcher', queue: Queue) -> gui.Widget:
         # let know the app is running now
-        globals.webAppRunning = True
-        self._webui = webui
+        globalvars.webAppRunning = True
+        CanSendMessage.__init__(self, id=id, dispatcher=dispatcher)
+        HasSourceParts.__init__(self)
+        self._inputQueue = queue
 
         self._initSources()
         self._rootContainer = self._createRootContainer()
@@ -60,23 +71,16 @@ class WebApp(App):
         return self._rootContainer
 
     # noinspection PyAttributeOutsideInit
-    def _initSources(self):
-        for source in self._webui.sources:  # type: WebSourceUIPart
+    def _initSources(self) -> None:
+        for source in self.sourceParts:  # type: WebSourceUIPart
             source.appIsRunning(self)
 
-    # delayed initialization after app started
-    def getDispatcher(self) -> Dispatcher:
-        return self._webui.dispatcher
-
-    def getID(self) -> ModuleID:
-        return self._webui.id
-
     @staticmethod
-    def getWidth():
+    def getWidth() -> int:
         return WIDTH
 
     @staticmethod
-    def getHeight():
+    def getHeight() -> int:
         return HEIGHT
 
     def _setFSContainer(self, container: gui.Widget):
@@ -95,16 +99,15 @@ class WebApp(App):
         container.style['overflow'] = 'hidden'
         return container
 
-    def idle(self):
+    def idle(self) -> None:
         msg = self._readMsg()
         if msg is not None:
             logging.debug("Web App received " + msg.toString())
             self._handleMsg(msg)
 
-    @staticmethod
-    def _readMsg() -> Optional[Message]:
+    def _readMsg(self) -> Optional[Message]:
         try:
-            msg = globals.webQueue.get_nowait()
+            msg = self._inputQueue.get_nowait()
             return msg
         except Empty:
             return None
@@ -120,23 +123,23 @@ class WebApp(App):
     def _handleSetSourceStatusMsg(self, msg: IntegerMsg) -> None:
         self._setSourceStatus(msg.fromID, msg.value)
 
-    def setVolume(self, value: int):
+    def setVolume(self, value: int) -> None:
         self._volFSContainer.setVolume(value)
         self._mainFSContainer.setVolume(value)
 
-    def showVolFSContainer(self):
+    def showVolFSContainer(self) -> None:
         self._setFSContainer(self._volFSContainer)
 
-    def showActivateSourceFSContainer(self):
+    def showActivateSourceFSContainer(self) -> None:
         self._setFSContainer(self._activateSourceFSContainer)
 
-    def showPrevFSContainer(self):
+    def showPrevFSContainer(self) -> None:
         if isinstance(self._currentFSContainer, TimedClose):
             self._currentFSContainer.closeTimer()
         self._setFSContainer(self._prevFSContainer)
 
     def _setSourceStatus(self, sourceID: ModuleID, statusID: int):
-        source = self._getSource(sourceID)
+        source = self.getSourcePart(sourceID)
         status = SourceStatus(statusID)
         # update source
         source.setStatus(status)
@@ -148,27 +151,15 @@ class WebApp(App):
             # deactivated
             self._mainFSContainer.setNoTrackContainer()
 
-    def getSources(self) -> List['WebSourceUIPart']:
-        return self._webui.sources
-
-    def _getSource(self, sourceID: ModuleID) -> 'WebSourceUIPart':
-        return self._webui.sourcesByID[sourceID]
-
-    def getActiveSource(self) -> Optional['WebSourceUIPart']:
-        for source in self.getSources():
-            if source.status.isActive():
-                return source
-        return None
-
-    def switchSource(self, source: 'WebSourceUIPart', activate: bool) -> None:
+    def sendSwitchSourceReq(self, source: 'WebSourceUIPart', activate: bool) -> None:
         msg = self._createActivationMsg(source, activate)
-        self.getDispatcher().distribute(msg)
+        self.dispatcher.distribute(msg)
 
     def _createActivationMsg(self, source: 'WebSourceUIPart', activate: bool) -> IntegerMsg:
         if activate:
-            return IntegerMsg(value=source.id.value, fromID=self.getID(), typeID=MsgID.ACTIVATE_SOURCE,
+            return IntegerMsg(value=source.id.value, fromID=self.id, typeID=MsgID.ACTIVATE_SOURCE,
                               groupID=GroupID.SOURCE)
         else:
             # deactivate this specific source
-            return IntegerMsg(value=SourceStatus.NOT_ACTIVE.value, fromID=self.getID(), typeID=MsgID.SET_SOURCE_STATUS,
+            return IntegerMsg(value=SourceStatus.NOT_ACTIVE.value, fromID=self.id, typeID=MsgID.SET_SOURCE_STATUS,
                               forID=source.id)

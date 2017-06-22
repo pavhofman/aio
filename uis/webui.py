@@ -1,53 +1,47 @@
 import logging
-from typing import List
+from queue import Queue
+from typing import TYPE_CHECKING
 
 from remi import Server
 
-import globals
-from dispatcher import Dispatcher
+import globalvars
 from moduleid import ModuleID
+from msgconsumer import MsgConsumer
 from msgs.message import Message
-from uis.analogsourceuipart import AnalogSourceUIPart
-from uis.filesourceuipart import FileSourceUIPart
-from uis.ui import UI
 from uis.webapp import WebApp
-from uis.websourceuipart import WebSourceUIPart
+
+if TYPE_CHECKING:
+    from dispatcher import Dispatcher
 
 '''
 WEB UI 
 '''
 
 
-class WebUI(UI):
+class WebUI(MsgConsumer):
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, dispatcher: Dispatcher):
+    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher'):
         # call the thread class
         super().__init__(id=id, dispatcher=dispatcher)
         # to make it available to webapp
+        self._appQueue = Queue()
         self._server = self._startServer(WebApp, address='0.0.0.0', start_browser=True)
 
     def stop(self):
         super().stop()
         self._server.stop()
 
-    def _initSourceParts(self) -> List['WebSourceUIPart']:
-        return [
-            AnalogSourceUIPart(),
-            FileSourceUIPart()
-        ]
-
     def _consume(self, msg: 'Message'):
         """
         forward messages to the app only when running, otherwise drop them
         """
-        if globals.webAppRunning:
-            globals.webQueue.put(msg)
+        if globalvars.webAppRunning:
+            self._appQueue.put(msg)
 
-    # noinspection PyUnusedLocal
     def _startServer(self, mainGuiClass, **kwargs) -> 'Server':
         """This method starts the webserver with a specific App subclass."""
         logging.getLogger('remi').setLevel(level=logging.DEBUG)
-        return MyServer(mainGuiClass, start=True, userdata=(self,))
+        return MyServer(mainGuiClass, start=True, **kwargs, userdata=(self.id, self.dispatcher, self._appQueue))
 
 
 class MyServer(Server):

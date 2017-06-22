@@ -2,21 +2,26 @@ import abc
 import logging
 from queue import Queue
 from threading import Thread, Event
+from typing import TYPE_CHECKING
 
-import dispatcher
+from cansendmessage import CanSendMessage
 from moduleid import ModuleID
 from msgs.message import Message
+
+if TYPE_CHECKING:
+    from dispatcher import Dispatcher
 
 """
 Abstract message consumer 
 """
 
 
-class MsgConsumer(Thread, abc.ABC):
+class MsgConsumer(CanSendMessage, Thread, abc.ABC):
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, dispatcher: 'dispatcher.Dispatcher'):
+    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher'):
+        CanSendMessage.__init__(self, id, dispatcher)
         # call the thread class
-        super().__init__()
+        Thread.__init__(self)
         self.dispatcher = dispatcher
         self.__event = Event()
         # command queue - contains XXXCommands
@@ -47,7 +52,7 @@ class MsgConsumer(Thread, abc.ABC):
         except Exception as e:
             logging.error(e, exc_info=True)
 
-    def submit(self, msg: 'Message'):
+    def receive(self, msg: 'Message'):
         self.receiveQ.put(msg)
 
     # consuming the message

@@ -1,7 +1,7 @@
 import abc
 import logging
+from typing import TYPE_CHECKING
 
-from dispatcher import Dispatcher
 from groupid import GroupID
 from moduleid import ModuleID
 from msgconsumer import MsgConsumer
@@ -10,6 +10,9 @@ from msgs.integermsg import IntegerMsg
 from msgs.message import Message
 from sourcestatus import SourceStatus
 
+if TYPE_CHECKING:
+    from dispatcher import Dispatcher
+
 
 class Source(MsgConsumer, abc.ABC):
     """
@@ -17,7 +20,7 @@ class Source(MsgConsumer, abc.ABC):
     """
 
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, dispatcher: Dispatcher, initStatus=SourceStatus.UNAVAILABLE):
+    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher', initStatus=SourceStatus.UNAVAILABLE):
         # call the thread class
         super().__init__(id=id, dispatcher=dispatcher)
         self.status = initStatus

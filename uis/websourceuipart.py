@@ -1,4 +1,5 @@
 import abc
+from typing import TYPE_CHECKING
 
 from remi import gui
 
@@ -6,7 +7,9 @@ from moduleid import ModuleID
 from sourcestatus import SourceStatus
 from uis.sourceuipart import SourceUIPart
 from uis.statuswidgets import StatusButton, StatusLabel
-from uis.webapp import WebApp
+
+if TYPE_CHECKING:
+    from uis.webapp import WebApp
 
 
 class WebSourceUIPart(SourceUIPart, abc.ABC):
@@ -21,7 +24,7 @@ class WebSourceUIPart(SourceUIPart, abc.ABC):
         self._trackContainer = None
 
     # delayed initialization after app started
-    def appIsRunning(self, app: WebApp) -> None:
+    def appIsRunning(self, app: 'WebApp') -> None:
         self._app = app
         self._initGUIComponents()
 
@@ -70,7 +73,7 @@ class WebSourceUIPart(SourceUIPart, abc.ABC):
     def _onActivateButtonPressed(self, widget) -> None:
         if self.status.isAvailable():
             # changing
-            self._app.switchSource(source=self, activate=not self.status.isActive())
+            self._app.sendSwitchSourceReq(source=self, activate=not self.status.isActive())
         # closing
         self._app.showPrevFSContainer()
 

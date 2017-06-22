@@ -1,50 +1,35 @@
 import abc
 import logging
-from typing import DefaultDict, List
+from typing import TypeVar, TYPE_CHECKING
 
-from dispatcher import Dispatcher
 from moduleid import ModuleID
 from msgconsumer import MsgConsumer
 from msgid import MsgID
 from msgs.integermsg import IntegerMsg
 from msgs.message import Message
 from sourcestatus import SourceStatus
-from uis.sourceuipart import SourceUIPart
+from uis.hassourceparts import HasSourceParts
+
+if TYPE_CHECKING:
+    from dispatcher import Dispatcher
 
 '''
 UI 
 '''
+S = TypeVar('S')
 
 
-class UI(MsgConsumer, abc.ABC):
+# noinspection PyAbstractClass
+class UI(MsgConsumer, HasSourceParts[S], abc.ABC):
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, dispatcher: Dispatcher):
+    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher'):
         # call the thread class
         MsgConsumer.__init__(self, id=id, dispatcher=dispatcher)
+        HasSourceParts.__init__(self)
         self._volume = 0
-        self.sources = self._initSourceParts()
-        self.sourcesByID = self._convertToMap(self.sources)
-        self.activeSource = None
-
-    @staticmethod
-    def _convertToMap(sources: List['SourceUIPart']) -> DefaultDict[ModuleID, SourceUIPart]:
-        sourcesByID = {}
-        for source in sources:
-            sourcesByID[source.id] = source
-        return sourcesByID
-
-    def _getUISource(self, modID: ModuleID) -> 'SourceUIPart':
-        return self.sourcesByID.get(modID)
 
     def stop(self):
         super().stop()
-
-    def _getUISourceFor(self, msg) -> 'SourceUIPart':
-        sourceID = msg.fromID
-        # converting to enum object
-        modID = ModuleID(sourceID)
-        source = self._getUISource(modID)
-        return source
 
     # consuming the message
 
@@ -66,7 +51,7 @@ class UI(MsgConsumer, abc.ABC):
         super().close()
 
     def _handleSourceStatusMsg(self, msg: IntegerMsg):
-        source = self._getUISourceFor(msg)
+        source = self._getSourcePartFor(msg)
         if source is not None:
             newStatus = SourceStatus(msg.value)
             if newStatus != source.status:
@@ -74,7 +59,3 @@ class UI(MsgConsumer, abc.ABC):
                 if newStatus.isActive():
                     self.activeSource = source
                 logging.debug("Changed status of UI Source " + source.__class__.__name__ + " to " + str(source.status))
-
-    @abc.abstractmethod
-    def _initSourceParts(self) -> List['SourceUIPart']:
-        pass

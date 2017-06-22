@@ -1,10 +1,14 @@
-from dispatcher import Dispatcher
+from typing import TYPE_CHECKING
+
 from groupid import GroupID
 from moduleid import ModuleID
 from msgconsumer import MsgConsumer
 from msgid import MsgID
 from msgs.integermsg import IntegerMsg
 from msgs.message import Message
+
+if TYPE_CHECKING:
+    from dispatcher import Dispatcher
 
 INITIAL_VOLUME = 10
 
@@ -14,7 +18,7 @@ Volume operator
 
 
 class VolumeOperator(MsgConsumer):
-    def __init__(self, dispatcher: Dispatcher):
+    def __init__(self, dispatcher: 'Dispatcher'):
         # call the thread class
         super().__init__(id=ModuleID.VOLUME_OPERATOR, dispatcher=dispatcher)
         self.volume = self.__readCurrentVolume()

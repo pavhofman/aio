@@ -1,19 +1,21 @@
-from typing import List
+from typing import List, TYPE_CHECKING
 
-from dispatcher import Dispatcher
 from moduleid import ModuleID
 from msgs.message import Message
 from uis.sourceuipart import SourceUIPart
 from uis.ui import UI
+
+if TYPE_CHECKING:
+    from dispatcher import Dispatcher
 
 '''
 UI 
 '''
 
 
-class ConsoleUI(UI):
+class ConsoleUI(UI[SourceUIPart]):
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, dispatcher: Dispatcher):
+    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher'):
         # call the thread class
         super().__init__(id=id, dispatcher=dispatcher)
 

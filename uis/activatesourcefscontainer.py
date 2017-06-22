@@ -16,5 +16,5 @@ class ActivateSourceFSContainer(gui.HBox, TimedClose):
         self.style['display'] = 'red'
         self.style['overflow'] = 'hidden'
         self._app = app
-        for source in self._app.getSources():
+        for source in self._app.sourceParts:
             self.append(source.getActivationButton())

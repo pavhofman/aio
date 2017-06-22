@@ -27,7 +27,7 @@ class OverviewPanel(gui.Widget):
 
     def _getSourcesOverviewPanel(self) -> gui.Widget:
         panel = gui.Widget()
-        for source in self._app.getSources():
+        for source in self._app.sourceParts:
             panel.append(source.getOverviewLabel())
         panel.set_on_click_listener(self._onSourcesPanelClicked)
         return panel

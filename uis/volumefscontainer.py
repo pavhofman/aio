@@ -3,7 +3,7 @@ from typing import Optional, TYPE_CHECKING
 
 from remi import gui
 
-import globals
+import globalvars
 from moduleid import ModuleID
 from msgid import MsgID
 from msgs.integermsg import IntegerMsg
@@ -65,11 +65,11 @@ class VolumeFSContainer(gui.Widget, TimedClose):
     @staticmethod
     def _readMsg() -> Optional[Message]:
         try:
-            msg = globals.webQueue.get_nowait()
+            msg = globalvars.webQueue.get_nowait()
             return msg
         except Empty:
             return None
 
     def _sendVolume(self, value: int):
-        msg = IntegerMsg(value=value, fromID=self._app.getID(), typeID=MsgID.SET_VOL, forID=ModuleID.VOLUME_OPERATOR)
-        self._app.getDispatcher().distribute(msg)
+        msg = IntegerMsg(value=value, fromID=self._app.id, typeID=MsgID.SET_VOL, forID=ModuleID.VOLUME_OPERATOR)
+        self._app.dispatcher.distribute(msg)

@@ -1,7 +1,7 @@
 import logging
 import sys
 
-import globals
+import globalvars
 
 
 # noinspection PyUnusedLocal
@@ -11,7 +11,7 @@ def exitHandler(signum, frame):
 
 def exitCleanly(exitValue: int):
     logging.debug("Exiting...")
-    for consumer in globals.msgConsumers:
+    for consumer in globalvars.msgConsumers:
         consumer.close()
         if consumer.is_alive():
             consumer.join(0.1)

@@ -1,23 +1,17 @@
 import logging
+from typing import TYPE_CHECKING
 
-import globals
-import msgconsumer
+import globalvars
 from errors import ParameterError
 from groupid import GroupID
 from moduleid import ModuleID
 from msgs.message import Message
 
+if TYPE_CHECKING:
+    from msgconsumer import MsgConsumer
 """
 Message dispatcher
 """
-
-
-# noinspection PyShadowingBuiltins
-def getMsgConsumer(id: ModuleID) -> 'msgconsumer.MsgConsumer':
-    for consumer in globals.msgConsumers:
-        if consumer.id == id:
-            return consumer
-    raise ParameterError("Unknown module ID " + str(id))
 
 
 class Dispatcher:
@@ -30,7 +24,6 @@ class Dispatcher:
         self.msgCount = 0
 
     # distributing the message
-
     def distribute(self, msg: 'Message', excludeID=None):
         if msg.forID is not ModuleID.ANY:
             targetID = self.routeMap[msg.forID]
@@ -49,9 +42,17 @@ class Dispatcher:
 
         consumer = getMsgConsumer(targetID)
         if consumer is not None:
-            consumer.submit(msg)
+            consumer.receive(msg)
             # increment message counter
             self.msgCount += 1
 
     def printStats(self):
         print("Dispatcher " + self.name + ": " + str(self.msgCount))
+
+
+# noinspection PyShadowingBuiltins
+def getMsgConsumer(id: ModuleID) -> 'MsgConsumer':
+    for consumer in globalvars.msgConsumers:
+        if consumer.id == id:
+            return consumer
+    raise ParameterError("Unknown module ID " + str(id))

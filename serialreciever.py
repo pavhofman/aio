@@ -1,9 +1,11 @@
 import logging
+from typing import TYPE_CHECKING
 
-from dispatcher import Dispatcher
 from moduleid import ModuleID
 from msgconsumer import MsgConsumer
 
+if TYPE_CHECKING:
+    from dispatcher import Dispatcher
 """
 sender - relay of messages between serial ports  
 """
@@ -11,7 +13,7 @@ sender - relay of messages between serial ports
 
 class SerialReciever(MsgConsumer):
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, dispatcher: Dispatcher, mySideSenderID: ModuleID):
+    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher', mySideSenderID: ModuleID):
         super().__init__(id, dispatcher)
         self.senderID = mySideSenderID
 

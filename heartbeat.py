@@ -1,12 +1,14 @@
 import time
 from threading import Thread, Event
+from typing import TYPE_CHECKING
 
-import dispatcher
 from groupid import GroupID
 from moduleid import ModuleID
 from msgid import MsgID
 from msgs.requestmsg import RequestMsg
 
+if TYPE_CHECKING:
+    from dispatcher import Dispatcher
 """
 Heartbeat thread periodically requesting status updates 
 """
@@ -14,7 +16,7 @@ Heartbeat thread periodically requesting status updates
 
 class Heartbeat(Thread):
     # noinspection PyShadowingNames
-    def __init__(self, dispatcher: 'dispatcher.Dispatcher'):
+    def __init__(self, dispatcher: 'Dispatcher'):
         # call the thread class
         super().__init__()
         self.dispatcher = dispatcher

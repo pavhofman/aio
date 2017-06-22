@@ -6,7 +6,7 @@ import logging
 import signal
 import time
 
-import globals
+import globalvars
 from dispatcher import Dispatcher
 from exiting import exitHandler, exitCleanly
 from groupid import GroupID
@@ -91,7 +91,7 @@ if __name__ == "__main__":
         senderOnMCU = SerialSender(
             id=ModuleID.TO_PC_SENDER, dispatcher=dispatcherOnMCU, otherSideReceiver=receiverOnPC)
 
-        globals.msgConsumers = [
+        globalvars.msgConsumers = [
             VolumeOperator(dispatcherOnMCU),
             WebUI(id=ModuleID.WEBUI_PC, dispatcher=dispatcherOnPC),
             InputConsoleUI(id=ModuleID.UI_MAIN_DISPLAY, dispatcher=dispatcherOnMCU),
