@@ -2,12 +2,11 @@ import logging
 from queue import Queue
 from typing import TYPE_CHECKING
 
-from remi import Server
-
 import globalvars
 from moduleid import ModuleID
 from msgconsumer import MsgConsumer
 from msgs.message import Message
+from remi import Server
 from uis.webapp import WebApp
 
 if TYPE_CHECKING:
@@ -30,6 +29,7 @@ class WebUI(MsgConsumer):
     def stop(self):
         super().stop()
         self._server.stop()
+        globalvars.stopWebApp = True
 
     def _consume(self, msg: 'Message'):
         """

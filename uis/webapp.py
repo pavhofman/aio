@@ -2,8 +2,6 @@ import logging
 from queue import Empty, Queue
 from typing import Optional, TYPE_CHECKING, List
 
-from remi import App, gui
-
 import globalvars
 from cansendmessage import CanSendMessage
 from groupid import GroupID
@@ -11,6 +9,7 @@ from moduleid import ModuleID
 from msgid import MsgID
 from msgs.integermsg import IntegerMsg
 from msgs.message import Message
+from remi import App, gui
 from sourcestatus import SourceStatus
 from uis.activatesourcefscontainer import ActivateSourceFSContainer
 from uis.analogsourceuipart import AnalogSourceUIPart
@@ -95,11 +94,12 @@ class WebApp(App, CanSendMessage, HasSourceParts['WebSourceUIPart']):
     def _createRootContainer() -> gui.Widget:
         container = gui.Widget(width=WIDTH, height=HEIGHT, margin='0px auto',
                                layout_orientation=gui.Widget.LAYOUT_HORIZONTAL)
-        container.style['display'] = 'block'
-        container.style['overflow'] = 'hidden'
         return container
 
     def idle(self) -> None:
+        if globalvars.stopWebApp:
+            self.close()
+
         msg = self._readMsg()
         if msg is not None:
             logging.debug("Web App received " + msg.toString())
