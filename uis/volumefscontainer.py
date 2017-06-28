@@ -1,13 +1,9 @@
-from queue import Empty
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
-from remi import gui
-
-import globalvars
 from moduleid import ModuleID
 from msgid import MsgID
 from msgs.integermsg import IntegerMsg
-from msgs.message import Message
+from remi import gui
 from uis.timedclose import TimedClose
 from uis.volumeslider import VolumeSlider
 
@@ -20,12 +16,10 @@ TIMEOUT = 2
 
 class VolumeFSContainer(gui.Widget, TimedClose):
     def __init__(self, app: 'WebApp'):
-        TimedClose.__init__(self, app=app, timeout=1)
+        TimedClose.__init__(self, app=app, timeout=TIMEOUT)
         gui.Widget.__init__(self, width=app.getWidth(), height=app.getHeight(), margin='0px auto',
                             layout_orientation=gui.Widget.LAYOUT_HORIZONTAL)
         self._app = app
-        self.style['display'] = 'red'
-        self.style['overflow'] = 'hidden'
         self._volumeSlider = self._getVolumeSlider()
         self.append(self._volumeSlider)
         self._volumeContLabel = gui.Label('', width=20, height=30, margin='10px')
@@ -61,14 +55,6 @@ class VolumeFSContainer(gui.Widget, TimedClose):
     # noinspection PyUnusedLocal
     def _volSliderMouseUp(self, emitter, x, y):
         self._startTimer()
-
-    @staticmethod
-    def _readMsg() -> Optional[Message]:
-        try:
-            msg = globalvars.webQueue.get_nowait()
-            return msg
-        except Empty:
-            return None
 
     def _sendVolume(self, value: int):
         msg = IntegerMsg(value=value, fromID=self._app.id, typeID=MsgID.SET_VOL, forID=ModuleID.VOLUME_OPERATOR)

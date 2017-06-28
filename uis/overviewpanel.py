@@ -10,8 +10,6 @@ class OverviewPanel(gui.Widget):
     def __init__(self, app: 'WebApp'):
         super().__init__(width=70, layout_orientation=gui.Widget.LAYOUT_VERTICAL)
         self._app = app
-        self.style['display'] = 'block'
-        self.style['overflow'] = 'auto'
         self.style['text-align'] = 'center'
         self._sourcesPanel = self._getSourcesOverviewPanel()
         self.append(self._sourcesPanel)

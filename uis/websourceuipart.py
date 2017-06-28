@@ -1,9 +1,8 @@
 import abc
 from typing import TYPE_CHECKING
 
-from remi import gui
-
 from moduleid import ModuleID
+from remi import gui
 from sourcestatus import SourceStatus
 from uis.sourceuipart import SourceUIPart
 from uis.statuswidgets import StatusButton, StatusLabel
@@ -82,9 +81,6 @@ class WebSourceUIPart(SourceUIPart, abc.ABC):
 
     def _createTrackContainer(self) -> gui.Widget:
         container = gui.Widget(width=400)
-        container.style['display'] = 'block'
-        container.style['overflow'] = 'auto'
-        container.style['text-align'] = 'center'
         self._fillTrackContainer(container)
         return container
 
