@@ -1,7 +1,9 @@
 import abc
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from moduleid import ModuleID
+from msgid import MsgID
+from msgs.integermsg import IntegerMsg
 from remi import gui, Button
 from sourcestatus import SourceStatus
 from uis.sourceuipart import SourceUIPart
@@ -13,18 +15,10 @@ if TYPE_CHECKING:
 
 class WebSourceUIPart(SourceUIPart, abc.ABC):
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, name: str):
+    def __init__(self, id: ModuleID, name: str, app: 'WebApp'):
         SourceUIPart.__init__(self, id=id)
-        self._app = None  # type: Optional[WebApp]
+        self._app = app  # type: 'WebApp'
         self.name = name
-        self._overviewLabel = None  # type: StatusLabel
-        self._selectorContainer = None
-        self._activationButton = None  # type: StatusButton
-        self._trackContainer = None
-
-    # delayed initialization after app started
-    def appIsRunning(self, app: 'WebApp') -> None:
-        self._app = app
         self._initGUIComponents()
 
     def _initGUIComponents(self) -> None:
@@ -99,3 +93,23 @@ class WebSourceUIPart(SourceUIPart, abc.ABC):
     @abc.abstractmethod
     def _fillSelectorContainer(self, container: gui.Widget) -> None:
         pass
+
+    def handleMsgFromSource(self, msg) -> bool:
+        if msg.typeID == MsgID.SOURCE_STATUS_INFO:
+            msg = msg  # type: IntegerMsg
+            self._setSourceStatus(msg.fromID, msg.value)
+            return True
+        else:
+            return False
+
+    def _setSourceStatus(self, sourceID: ModuleID, statusID: int):
+        status = SourceStatus(statusID)
+        # update source
+        self.setStatus(status)
+        # update trackcontainer
+        if status.isActive():
+            self._app.mainFSContainer.setTrackContainer(self.getTrackContainer())
+
+        elif self._app.getActiveSource() is None:
+            # deactivated
+            self._app.mainFSContainer.setNoTrackContainer()

@@ -33,8 +33,8 @@ class WebApp(App, CanSendMessage, HasSourceParts['WebSourceUIPart']):
 
     def _initSourceParts(self) -> List['WebSourceUIPart']:
         return [
-            AnalogSourceUIPart(),
-            FileSourceUIPart()
+            AnalogSourceUIPart(self),
+            FileSourceUIPart(self)
         ]
 
     # noinspection PyAttributeOutsideInit,PyShadowingBuiltins
@@ -45,7 +45,6 @@ class WebApp(App, CanSendMessage, HasSourceParts['WebSourceUIPart']):
         HasSourceParts.__init__(self)
         self._inputQueue = queue
 
-        self._initSources()
         self._rootContainer = self._createRootContainer()
 
         """
@@ -59,20 +58,15 @@ class WebApp(App, CanSendMessage, HasSourceParts['WebSourceUIPart']):
         """
 
         # the margin 0px auto centers the main container
-        self._mainFSContainer = MainFSContainer(self)
+        self.mainFSContainer = MainFSContainer(self)
 
-        self._currentFSContainer = self._prevFSContainer = self._mainFSContainer
-        self.setFSContainer(self._mainFSContainer)
+        self._currentFSContainer = self._prevFSContainer = self.mainFSContainer
+        self.setFSContainer(self.mainFSContainer)
         self._volFSContainer = VolumeFSContainer(self)
         self._activateSourceFSContainer = ActivateSourceFSContainer(self)
 
         # returning the root widget
         return self._rootContainer
-
-    # noinspection PyAttributeOutsideInit
-    def _initSources(self) -> None:
-        for source in self.sourceParts:  # type: WebSourceUIPart
-            source.appIsRunning(self)
 
     @staticmethod
     def getWidth() -> int:
@@ -116,16 +110,13 @@ class WebApp(App, CanSendMessage, HasSourceParts['WebSourceUIPart']):
         if msg.typeID == MsgID.CURRENT_VOL_INFO:
             msg = msg  # type: IntegerMsg
             self.setVolume(msg.value)
-        if msg.typeID == MsgID.SOURCE_STATUS_INFO:
-            msg = msg  # type: IntegerMsg
-            self._handleSetSourceStatusMsg(msg)
-
-    def _handleSetSourceStatusMsg(self, msg: IntegerMsg) -> None:
-        self._setSourceStatus(msg.fromID, msg.value)
+        elif msg.fromID in globalvars.realSourceIDs:
+            source = self.getSourcePart(msg.fromID)
+            source.handleMsgFromSource(msg)
 
     def setVolume(self, value: int) -> None:
         self._volFSContainer.setVolume(value)
-        self._mainFSContainer.setVolume(value)
+        self.mainFSContainer.setVolume(value)
 
     def showVolFSContainer(self) -> None:
         self.setFSContainer(self._volFSContainer)
@@ -137,19 +128,6 @@ class WebApp(App, CanSendMessage, HasSourceParts['WebSourceUIPart']):
         if isinstance(self._currentFSContainer, TimedClose):
             self._currentFSContainer.closeTimer()
         self.setFSContainer(self._prevFSContainer)
-
-    def _setSourceStatus(self, sourceID: ModuleID, statusID: int):
-        source = self.getSourcePart(sourceID)
-        status = SourceStatus(statusID)
-        # update source
-        source.setStatus(status)
-        # update trackcontainer
-        if status.isActive():
-            self._mainFSContainer.setTrackContainer(source.getTrackContainer())
-
-        elif self.getActiveSource() is None:
-            # deactivated
-            self._mainFSContainer.setNoTrackContainer()
 
     def sendSwitchSourceReq(self, source: 'WebSourceUIPart', activate: bool) -> None:
         msg = self._createActivationMsg(source, activate)
