@@ -13,8 +13,8 @@ class Message():
         self.forID = forID
         self.groupID = groupID
 
-    def toString(self) -> str:
+    def __str__(self) -> str:
         return "typeID: " + str(self.typeID) \
                + "; fromID: " + str(self.fromID) \
                + "; forID: " + str(self.forID) \
-                + "; groupID: " + str(self.groupID)
+               + "; groupID: " + str(self.groupID)

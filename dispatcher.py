@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, DefaultDict, List
 
 import globalvars
 from errors import ParameterError
@@ -15,18 +15,18 @@ Message dispatcher
 
 
 class Dispatcher:
-    def __init__(self, name, routeMap: dict, groupMap: dict):
+    def __init__(self, name, routeMap: DefaultDict[ModuleID, ModuleID], groupMap: DefaultDict[GroupID, List[ModuleID]]):
         # call the thread class
         super().__init__()
         self.name = name
-        self.routeMap = routeMap
-        self.groupMap = groupMap
+        self.routeMap = routeMap  # type: DefaultDict[ModuleID, ModuleID]
+        self.groupMap = groupMap  # type: DefaultDict[GroupID, List[ModuleID]]
         self.msgCount = 0
 
     # distributing the message
     def distribute(self, msg: 'Message', excludeID=None):
         if msg.forID is not ModuleID.ANY:
-            targetID = self.routeMap[msg.forID]
+            targetID = self.routeMap[msg.forID]  # type: ModuleID
             # checking just in case
             if targetID is not None:
                 self._submitToTargetID(msg, targetID)
@@ -35,9 +35,9 @@ class Dispatcher:
                 if targetID != excludeID:
                     self._submitToTargetID(msg, targetID)
 
-    def _submitToTargetID(self, msg, targetID):
+    def _submitToTargetID(self, msg: 'Message', targetID):
         if msg.fromID == targetID:
-            logging.warning("Trying to send msg " + msg.toString() + " to originator, skipping")
+            logging.warning("Trying to send msg " + msg.__str__() + " to originator, skipping")
             return
 
         consumer = getMsgConsumer(targetID)

@@ -22,7 +22,7 @@ class ConsoleUI(UI[SourceUIPart]):
     # consuming the message
     def _consume(self, msg: 'Message'):
         super()._consume(msg)
-        print(self.__class__.__name__ + " received msg: " + msg.toString())
+        print(self.__class__.__name__ + " received msg: " + msg.__str__())
 
     def _initSourceParts(self) -> List['SourceUIPart']:
         return [
