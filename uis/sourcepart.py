@@ -2,7 +2,7 @@ from moduleid import ModuleID
 from sourcestatus import SourceStatus
 
 
-class SourceUIPart:
+class SourcePart:
     # noinspection PyShadowingBuiltins
     def __init__(self, id: ModuleID):
         self.id = id

@@ -6,17 +6,17 @@ from msgid import MsgID
 from msgs.integermsg import IntegerMsg
 from remi import gui, Button
 from sourcestatus import SourceStatus
-from uis.sourceuipart import SourceUIPart
+from uis.sourcepart import SourcePart
 from uis.statuswidgets import StatusButton, StatusLabel
 
 if TYPE_CHECKING:
     from uis.webapp import WebApp
 
 
-class WebSourceUIPart(SourceUIPart, abc.ABC):
+class WebSourcePart(SourcePart, abc.ABC):
     # noinspection PyShadowingBuiltins
     def __init__(self, id: ModuleID, name: str, app: 'WebApp'):
-        SourceUIPart.__init__(self, id=id)
+        SourcePart.__init__(self, id=id)
         self._app = app  # type: 'WebApp'
         self.name = name
         self._initGUIComponents()

@@ -2,7 +2,7 @@ from typing import List, TYPE_CHECKING
 
 from moduleid import ModuleID
 from msgs.message import Message
-from uis.sourceuipart import SourceUIPart
+from uis.sourcepart import SourcePart
 from uis.ui import UI
 
 if TYPE_CHECKING:
@@ -13,7 +13,7 @@ UI
 '''
 
 
-class ConsoleUI(UI[SourceUIPart]):
+class ConsoleUI(UI[SourcePart]):
     # noinspection PyShadowingBuiltins
     def __init__(self, id: ModuleID, dispatcher: 'Dispatcher'):
         # call the thread class
@@ -24,8 +24,8 @@ class ConsoleUI(UI[SourceUIPart]):
         super()._consume(msg)
         print(self.__class__.__name__ + " received msg: " + msg.__str__())
 
-    def _initSourceParts(self) -> List['SourceUIPart']:
+    def _initSourceParts(self) -> List['SourcePart']:
         return [
-            SourceUIPart(id=ModuleID.ANALOG_SOURCE),
-            SourceUIPart(id=ModuleID.FILE_SOURCE)
+            SourcePart(id=ModuleID.ANALOG_SOURCE),
+            SourcePart(id=ModuleID.FILE_SOURCE)
         ]

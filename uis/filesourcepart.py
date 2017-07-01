@@ -6,13 +6,13 @@ from msgs.integermsg import BiIntegerMsg
 from msgs.message import Message
 from msgs.nodemsg import MsgNodeItem, NON_EXISTING_NODE_ID, NodeMsg
 from remi import gui
-from uis.websourceuipart import WebSourceUIPart
+from uis.websourcepart import WebSourcePart
 
 if TYPE_CHECKING:
     from uis.webapp import WebApp
 
 
-class FileSourceUIPart(WebSourceUIPart):
+class FileSourcePart(WebSourcePart):
     def __init__(self, app: 'WebApp'):
         super().__init__(id=ModuleID.FILE_SOURCE, name="File", app=app)
         self._rootItem = None  # type: MsgNodeItem

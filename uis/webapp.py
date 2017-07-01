@@ -12,8 +12,8 @@ from msgs.message import Message
 from remi import App, gui
 from sourcestatus import SourceStatus
 from uis.activatesourcefscontainer import ActivateSourceFSContainer
-from uis.analogsourceuipart import AnalogSourceUIPart
-from uis.filesourceuipart import FileSourceUIPart
+from uis.analogsourcepart import AnalogSourcePart
+from uis.filesourcepart import FileSourcePart
 from uis.hassourceparts import HasSourceParts
 from uis.mainfscontainer import MainFSContainer
 from uis.timedclose import TimedClose
@@ -21,7 +21,7 @@ from uis.volumefscontainer import VolumeFSContainer
 
 if TYPE_CHECKING:
     from dispatcher import Dispatcher
-    from uis.websourceuipart import WebSourceUIPart
+    from uis.websourcepart import WebSourcePart
 
 WIDTH = 480
 HEIGHT = 277
@@ -31,10 +31,10 @@ class WebApp(App, CanSendMessage, HasSourceParts['WebSourceUIPart']):
     def __init__(self, *args):
         App.__init__(self, *args)
 
-    def _initSourceParts(self) -> List['WebSourceUIPart']:
+    def _initSourceParts(self) -> List['WebSourcePart']:
         return [
-            AnalogSourceUIPart(self),
-            FileSourceUIPart(self)
+            AnalogSourcePart(self),
+            FileSourcePart(self)
         ]
 
     # noinspection PyAttributeOutsideInit,PyShadowingBuiltins
@@ -129,11 +129,11 @@ class WebApp(App, CanSendMessage, HasSourceParts['WebSourceUIPart']):
             self._currentFSContainer.closeTimer()
         self.setFSContainer(self._prevFSContainer)
 
-    def sendSwitchSourceReq(self, source: 'WebSourceUIPart', activate: bool) -> None:
+    def sendSwitchSourceReq(self, source: 'WebSourcePart', activate: bool) -> None:
         msg = self._createActivationMsg(source, activate)
         self.dispatcher.distribute(msg)
 
-    def _createActivationMsg(self, source: 'WebSourceUIPart', activate: bool) -> IntegerMsg:
+    def _createActivationMsg(self, source: 'WebSourcePart', activate: bool) -> IntegerMsg:
         if activate:
             return IntegerMsg(value=source.id.value, fromID=self.id, typeID=MsgID.ACTIVATE_SOURCE,
                               groupID=GroupID.SOURCE)
