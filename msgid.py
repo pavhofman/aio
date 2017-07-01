@@ -28,3 +28,23 @@ class MsgID(Enum):
     # if source detect change of its status, it will send SOURCE_STATUS msg to all UIs.
     # IntegerMsg(value=sourceID, groupID=Sources)
     ACTIVATE_SOURCE = 7
+
+    # IntegerMsg sent to a particular source, value = requested nodeID
+    # IntegerMsg(value=NodeID, forID=source)
+    PLAY_NODE = 8
+
+    # RequestMsg(forID=source)
+    # pausing current playbacl
+    REQ_PAUSE = 9
+
+    # RequestMsg(forID=source)
+    # stopping current played node/track
+    REQ_STOP = 10
+
+    # BiIntegerMsg(value1 = nodeID, value2 = fromIndex, forID=source)
+    # request for node nodeID with 5 children, starting from fromIndex
+    # used for vertical as well as horizontal traversing the tree
+    REQ_NODE = 11
+
+    # NodeMsg(fromID: corresponding sourceID, groupID:UIs)
+    NODE_INFO = 12
