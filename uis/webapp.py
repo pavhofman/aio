@@ -62,7 +62,7 @@ class WebApp(App, CanSendMessage, HasSourceParts['WebSourceUIPart']):
         self._mainFSContainer = MainFSContainer(self)
 
         self._currentFSContainer = self._prevFSContainer = self._mainFSContainer
-        self._setFSContainer(self._mainFSContainer)
+        self.setFSContainer(self._mainFSContainer)
         self._volFSContainer = VolumeFSContainer(self)
         self._activateSourceFSContainer = ActivateSourceFSContainer(self)
 
@@ -82,7 +82,7 @@ class WebApp(App, CanSendMessage, HasSourceParts['WebSourceUIPart']):
     def getHeight() -> int:
         return HEIGHT
 
-    def _setFSContainer(self, container: gui.Widget):
+    def setFSContainer(self, container: gui.Widget):
         self._prevFSContainer = self._currentFSContainer
         self._currentFSContainer = container
         self._rootContainer.empty()
@@ -102,7 +102,7 @@ class WebApp(App, CanSendMessage, HasSourceParts['WebSourceUIPart']):
 
         msg = self._readMsg()
         if msg is not None:
-            logging.debug("Web App received " + msg.toString())
+            logging.debug("Web App received " + msg.__str__())
             self._handleMsg(msg)
 
     def _readMsg(self) -> Optional[Message]:
@@ -128,15 +128,15 @@ class WebApp(App, CanSendMessage, HasSourceParts['WebSourceUIPart']):
         self._mainFSContainer.setVolume(value)
 
     def showVolFSContainer(self) -> None:
-        self._setFSContainer(self._volFSContainer)
+        self.setFSContainer(self._volFSContainer)
 
     def showActivateSourceFSContainer(self) -> None:
-        self._setFSContainer(self._activateSourceFSContainer)
+        self.setFSContainer(self._activateSourceFSContainer)
 
     def showPrevFSContainer(self) -> None:
         if isinstance(self._currentFSContainer, TimedClose):
             self._currentFSContainer.closeTimer()
-        self._setFSContainer(self._prevFSContainer)
+        self.setFSContainer(self._prevFSContainer)
 
     def _setSourceStatus(self, sourceID: ModuleID, statusID: int):
         source = self.getSourcePart(sourceID)
