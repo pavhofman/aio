@@ -6,7 +6,7 @@ import msgconsumer
 from groupid import GroupID
 from moduleid import ModuleID
 from msgid import MsgID
-from msgs.integermsg import IntegerMsg
+from msgs.integermsg import IntegerMsg, BiIntegerMsg
 from msgs.message import Message
 from msgs.requestmsg import RequestMsg
 from uis.abstractreader import AbstractReader
@@ -52,6 +52,12 @@ class InputReader(AbstractReader):
         if msgID == MsgID.ACTIVATE_SOURCE.value:
             sourceID = int(parts[1])
             return IntegerMsg(value=sourceID, fromID=self.id, typeID=MsgID.ACTIVATE_SOURCE, groupID=GroupID.SOURCE)
+        if msgID == MsgID.REQ_NODE.value:
+            sourceID = int(parts[1])
+            nodeID = int(parts[2])
+            fromIndex = int(parts[3])
+            return BiIntegerMsg(value1=nodeID, value2=fromIndex, fromID=self.id, typeID=MsgID.REQ_NODE,
+                                forID=ModuleID(sourceID))
         else:
             return None
 
