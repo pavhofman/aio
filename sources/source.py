@@ -26,17 +26,22 @@ class Source(MsgConsumer, abc.ABC):
         self.status = initStatus
 
     # consuming the message
-    def _consume(self, msg: 'Message'):
-        logging.debug(str(self) + " received msg" + msg.toString())
+    def _consume(self, msg: 'Message') -> bool:
+        logging.debug(str(self) + " received msg" + msg.__str__())
         if msg.typeID == MsgID.REQ_SOURCE_STATUS:
             self.__sendSourceStatus()
+            return True
         elif msg.typeID == MsgID.SET_SOURCE_STATUS:
             msg = msg  # type: IntegerMsg
             newStatus = SourceStatus(msg.value)
             self._setSourceStatus(newStatus)
+            return True
         elif msg.typeID == MsgID.ACTIVATE_SOURCE:
             msg = msg  # type: IntegerMsg
             self._handleActivateMsg(msg)
+            return True
+        else:
+            return False
 
     def __sendSourceStatus(self):
         msg = IntegerMsg(value=self._getStatus().value, fromID=self.id, typeID=MsgID.SOURCE_STATUS_INFO,

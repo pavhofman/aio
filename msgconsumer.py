@@ -1,6 +1,6 @@
 import abc
 import logging
-from queue import Queue
+from queue import Queue, Empty
 from threading import Thread, Event
 from typing import TYPE_CHECKING
 
@@ -46,7 +46,7 @@ class MsgConsumer(CanSendMessage, Thread, abc.ABC):
                     msg = self.receiveQ.get(timeout=3)
                     if msg is not None:
                         self._consume(msg)
-                except Exception:
+                except Empty:
                     # dropping the msg or ignoring the Empty exception, continuing
                     pass
         except Exception as e:
@@ -57,7 +57,12 @@ class MsgConsumer(CanSendMessage, Thread, abc.ABC):
 
     # consuming the message
     @abc.abstractmethod
-    def _consume(self, msg):
+    def _consume(self, msg: 'Message') -> bool:
+        """
+        Consume the message
+        :param msg: Message to consume
+        :return: was consumed
+        """
         pass
 
     def close(self):
