@@ -5,6 +5,7 @@
 import logging
 import signal
 import time
+from typing import List
 
 import globalvars
 from dispatcher import Dispatcher
@@ -72,6 +73,9 @@ groupMapOnMCU = {
     GroupID.UI: [ModuleID.UI_MAIN_DISPLAY, ModuleID.TO_PC_SENDER],
     GroupID.SOURCE: [ModuleID.ANALOG_SOURCE, ModuleID.TO_PC_SENDER],
 }
+
+# list of all real sources modIDs
+globalvars.realSourceIDs = [ModuleID.ANALOG_SOURCE, ModuleID.FILE_SOURCE]  # type: List[ModuleID]
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s')
