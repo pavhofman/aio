@@ -8,7 +8,7 @@ from unidecode import unidecode
 from groupid import GroupID
 from moduleid import ModuleID
 from msgid import MsgID
-from msgs.nodemsg import NodeMsg, MsgNodeItem, NodeID, NON_EXISTING_NODE_ID
+from msgs.nodemsg import NodeMsg, NodeItem, NodeID, NON_EXISTING_NODE_ID, NodeStruct
 from sources.nodesource import NodeSource
 from sourcestatus import SourceStatus
 
@@ -47,19 +47,19 @@ class FileSource(NodeSource):
         parentID = self._getParentID(path)
 
         children, total = self._findChildren(path, fromIndex)
-        msg = NodeMsg(node=nodeItem,
-                      parentID=parentID,
-                      children=children,
-                      fromIndex=fromIndex,
-                      total=total,
-                      fromID=self.id, typeID=MsgID.NODE_INFO, groupID=GroupID.UI)
+        struct = NodeStruct(node=nodeItem,
+                            parentID=parentID,
+                            children=children,
+                            fromIndex=fromIndex,
+                            total=total)
+        msg = NodeMsg(nodeStruct=struct, fromID=self.id, typeID=MsgID.NODE_INFO, groupID=GroupID.UI)
         self.dispatcher.distribute(msg)
 
-    def _findChildren(self, path, fromIndex) -> Tuple[List[MsgNodeItem], int]:
+    def _findChildren(self, path: Path, fromIndex: int) -> Tuple[List[NodeItem], int]:
         index = 0
         total = 0
         childrenCount = 0
-        children = []  # type: List[MsgNodeItem]
+        children = []  # type: List[NodeItem]
         if path.is_dir():
             # sorted by case insensitive name
             for childPath in sorted(path.iterdir(), key=lambda k: str(k).lower()):
@@ -70,10 +70,10 @@ class FileSource(NodeSource):
                 total += 1
         return children, total
 
-    def _getNodeItem(self, nodeID, path):
+    def _getNodeItem(self, nodeID: NodeID, path: Path):
         isLeaf = path.is_file() or all(False for _ in path.iterdir())
-        return MsgNodeItem(nodeID=nodeID, label=self._getLabelFor(path), isPlayable=True,
-                           isLeaf=isLeaf)
+        return NodeItem(nodeID=nodeID, label=self._getLabelFor(path), isPlayable=True,
+                        isLeaf=isLeaf)
 
     def _getExistingNodeIDAndPath(self, nodeID: NodeID) -> Tuple[NodeID, Path]:
         if nodeID == 0:
