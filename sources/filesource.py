@@ -30,7 +30,7 @@ def locked(lock):
 
 class FileSource(NodeSource):
     def __init__(self, dispatcher: 'Dispatcher'):
-        super().__init__(id=ModuleID.FILE_SOURCE, dispatcher=dispatcher)
+        super().__init__(id=ModuleID.FILE_SOURCE, dispatcher=dispatcher, initStatus=SourceStatus.NOT_ACTIVE)
         self._myLock = Lock()
         self._pathsByID = {}  # type: Dict[NodeID, Path]
         self._idsByPathStr = {}  # type: Dict[str, NodeID]
