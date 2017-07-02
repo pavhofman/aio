@@ -15,17 +15,17 @@ if TYPE_CHECKING:
 
 class NodeSourcePart(WebSourcePart, abc.ABC):
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, name: str, app: 'WebApp'):
+    def __init__(self, sourceID: ModuleID, name: str, app: 'WebApp'):
         # these params are used in _fillSelectorContainer called from WebSourcePart
         # UGLY!!!
         self._nodeStruct = None  # type: NodeStruct
         self._requestRootButton = self._getRequestRootButton()
-        WebSourcePart.__init__(self, id=id, name=name, app=app)
+        WebSourcePart.__init__(self, sourceID=sourceID, name=name, app=app)
         self._requestRootItem()
 
     def _requestRootItem(self):
         msg = BiIntegerMsg(value1=NON_EXISTING_NODE_ID, value2=0, fromID=self._app.id, typeID=MsgID.REQ_NODE,
-                           forID=ModuleID(self.id))
+                           forID=ModuleID(self.sourceID))
         self._app.dispatcher.distribute(msg)
 
     def handleMsgFromSource(self, msg: Message) -> bool:

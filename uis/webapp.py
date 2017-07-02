@@ -27,7 +27,7 @@ WIDTH = 480
 HEIGHT = 277
 
 
-class WebApp(App, CanSendMessage, HasSourceParts['WebSourceUIPart']):
+class WebApp(App, CanSendMessage, HasSourceParts):
     def __init__(self, *args):
         App.__init__(self, *args)
 
@@ -111,8 +111,8 @@ class WebApp(App, CanSendMessage, HasSourceParts['WebSourceUIPart']):
             msg = msg  # type: IntegerMsg
             self.setVolume(msg.value)
         elif msg.fromID in globalvars.realSourceIDs:
-            source = self.getSourcePart(msg.fromID)
-            source.handleMsgFromSource(msg)
+            sourcePart = self.getSourcePart(msg.fromID)  # type: WebSourcePart
+            sourcePart.handleMsgFromSource(msg)
 
     def setVolume(self, value: int) -> None:
         self._volFSContainer.setVolume(value)
@@ -135,9 +135,9 @@ class WebApp(App, CanSendMessage, HasSourceParts['WebSourceUIPart']):
 
     def _createActivationMsg(self, source: 'WebSourcePart', activate: bool) -> IntegerMsg:
         if activate:
-            return IntegerMsg(value=source.id.value, fromID=self.id, typeID=MsgID.ACTIVATE_SOURCE,
+            return IntegerMsg(value=source.sourceID.value, fromID=self.id, typeID=MsgID.ACTIVATE_SOURCE,
                               groupID=GroupID.SOURCE)
         else:
             # deactivate this specific source
             return IntegerMsg(value=SourceStatus.NOT_ACTIVE.value, fromID=self.id, typeID=MsgID.SET_SOURCE_STATUS,
-                              forID=source.id)
+                              forID=source.sourceID)

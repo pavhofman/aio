@@ -3,9 +3,8 @@ from sourcestatus import SourceStatus
 
 
 class SourcePart:
-    # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID):
-        self.id = id
+    def __init__(self, sourceID: ModuleID):
+        self.sourceID = sourceID
         self.status = SourceStatus.UNAVAILABLE
 
     def isSelected(self):

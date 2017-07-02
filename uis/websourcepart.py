@@ -14,9 +14,8 @@ if TYPE_CHECKING:
 
 
 class WebSourcePart(SourcePart, abc.ABC):
-    # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, name: str, app: 'WebApp'):
-        SourcePart.__init__(self, id=id)
+    def __init__(self, sourceID: ModuleID, name: str, app: 'WebApp'):
+        SourcePart.__init__(self, sourceID=sourceID)
         self._app = app  # type: 'WebApp'
         self.name = name
         self._initGUIComponents()
@@ -97,12 +96,12 @@ class WebSourcePart(SourcePart, abc.ABC):
     def handleMsgFromSource(self, msg) -> bool:
         if msg.typeID == MsgID.SOURCE_STATUS_INFO:
             msg = msg  # type: IntegerMsg
-            self._setSourceStatus(msg.fromID, msg.value)
+            self._setSourceStatus(msg.value)
             return True
         else:
             return False
 
-    def _setSourceStatus(self, sourceID: ModuleID, statusID: int):
+    def _setSourceStatus(self, statusID: int):
         status = SourceStatus(statusID)
         # update source
         self.setStatus(status)

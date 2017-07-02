@@ -1,6 +1,6 @@
 import abc
 import logging
-from typing import TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from moduleid import ModuleID
 from msgconsumer import MsgConsumer
@@ -16,11 +16,10 @@ if TYPE_CHECKING:
 '''
 UI 
 '''
-S = TypeVar('S')
 
 
 # noinspection PyAbstractClass
-class UI(MsgConsumer, HasSourceParts[S], abc.ABC):
+class UI(MsgConsumer, HasSourceParts, abc.ABC):
     # noinspection PyShadowingBuiltins
     def __init__(self, id: ModuleID, dispatcher: 'Dispatcher'):
         # call the thread class

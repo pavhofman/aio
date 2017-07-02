@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class AnalogSourcePart(WebSourcePart):
     def __init__(self, app: 'WebApp'):
-        super().__init__(id=ModuleID.ANALOG_SOURCE, name="Analog", app=app)
+        super().__init__(sourceID=ModuleID.ANALOG_SOURCE, name="Analog", app=app)
 
     def _fillTrackContainer(self, container: gui.Widget) -> None:
         container.append(gui.Label(text=self.name))

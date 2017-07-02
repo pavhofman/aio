@@ -13,7 +13,7 @@ UI
 '''
 
 
-class ConsoleUI(UI[SourcePart]):
+class ConsoleUI(UI):
     # noinspection PyShadowingBuiltins
     def __init__(self, id: ModuleID, dispatcher: 'Dispatcher'):
         # call the thread class
@@ -26,6 +26,6 @@ class ConsoleUI(UI[SourcePart]):
 
     def _initSourceParts(self) -> List['SourcePart']:
         return [
-            SourcePart(id=ModuleID.ANALOG_SOURCE),
-            SourcePart(id=ModuleID.FILE_SOURCE)
+            SourcePart(sourceID=ModuleID.ANALOG_SOURCE),
+            SourcePart(sourceID=ModuleID.FILE_SOURCE)
         ]

@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class FileSourcePart(NodeSourcePart):
     def __init__(self, app: 'WebApp'):
-        super().__init__(id=ModuleID.FILE_SOURCE, name="File", app=app)
+        super().__init__(sourceID=ModuleID.FILE_SOURCE, name="File", app=app)
 
     def _fillTrackContainer(self, container: gui.Widget) -> None:
         container.append(gui.Label(text=self.name))
