@@ -9,7 +9,7 @@ from groupid import GroupID
 from moduleid import ModuleID
 from msgid import MsgID
 from msgs.nodemsg import NodeMsg, NodeItem, NodeID, NON_EXISTING_NODE_ID, NodeStruct
-from sources.nodesource import NodeSource
+from sources.treesource import TreeSource
 from sourcestatus import SourceStatus
 
 if TYPE_CHECKING:
@@ -28,7 +28,7 @@ def locked(lock):
         lock.release()
 
 
-class FileSource(NodeSource):
+class FileSource(TreeSource):
     def __init__(self, dispatcher: 'Dispatcher'):
         super().__init__(id=ModuleID.FILE_SOURCE, dispatcher=dispatcher, initStatus=SourceStatus.NOT_ACTIVE)
         self._myLock = Lock()

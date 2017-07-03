@@ -6,7 +6,7 @@ from msgs.nodemsg import NodeStruct, NodeItem, NON_EXISTING_NODE_ID
 from remi import gui
 
 if TYPE_CHECKING:
-    from uis.nodesourcepart import NodeSourcePart
+    from uis.treesourcepart import TreeSourcePart
     from uis.webapp import WebApp
 
 CONTROLS_WIDTH = 60
@@ -20,7 +20,7 @@ EMPTY_NODE_STRUCT = NodeStruct(node=NodeItem(nodeID=NON_EXISTING_NODE_ID, label=
 
 
 class NodeSelectFSContainer(gui.HBox):
-    def __init__(self, app: 'WebApp', sourcePart: 'NodeSourcePart'):
+    def __init__(self, app: 'WebApp', sourcePart: 'TreeSourcePart'):
         gui.HBox.__init__(self, width=app.getWidth(), height=app.getHeight(), margin='0px auto')
         self._sourcePart = sourcePart
         self._app = app

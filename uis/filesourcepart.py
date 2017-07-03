@@ -2,13 +2,13 @@ from typing import TYPE_CHECKING
 
 from moduleid import ModuleID
 from remi import gui
-from uis.nodesourcepart import NodeSourcePart
+from uis.treesourcepart import TreeSourcePart
 
 if TYPE_CHECKING:
     from uis.webapp import WebApp
 
 
-class FileSourcePart(NodeSourcePart):
+class FileSourcePart(TreeSourcePart):
     def __init__(self, app: 'WebApp'):
         super().__init__(sourceID=ModuleID.FILE_SOURCE, name="File", app=app)
 

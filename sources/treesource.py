@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from dispatcher import Dispatcher
 
 
-class NodeSource(Source, abc.ABC):
+class TreeSource(Source, abc.ABC):
     """
     Source representation. Only one instance for each source within the network
     """
