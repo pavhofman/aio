@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 
 
 class TreeSourcePart(WebSourcePart, abc.ABC):
-    # noinspection PyShadowingBuiltins
     def __init__(self, sourceID: ModuleID, name: str, app: 'WebApp'):
         WebSourcePart.__init__(self, sourceID=sourceID, name=name, app=app)
 
