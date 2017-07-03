@@ -22,10 +22,12 @@ class WebSourcePart(SourcePart, abc.ABC):
 
     def _initGUIComponents(self) -> None:
         self._overviewLabel = self._createOverviewLabel()
-        self._selectorContainer = gui.VBox(width=self._app.getWidth(), height=self._app.getHeight(), margin='0px auto')
-        self._fillSelectorContainer(self._selectorContainer)
+        self._selectorContainer = self._createSelectorContainer()
         self._activationButton = self._createActivationButton()
         self._trackContainer = self._createTrackContainer()
+
+    def _createSelectorContainer(self) -> gui.Widget:
+        return gui.VBox(width=self._app.getWidth(), height=self._app.getHeight(), margin='0px auto')
 
     def _createOverviewLabel(self) -> StatusLabel:
         label = StatusLabel(self._getLabelText())
@@ -87,10 +89,6 @@ class WebSourcePart(SourcePart, abc.ABC):
 
     @abc.abstractmethod
     def _fillTrackContainer(self, container: gui.Widget) -> None:
-        pass
-
-    @abc.abstractmethod
-    def _fillSelectorContainer(self, container: gui.Widget) -> None:
         pass
 
     def handleMsgFromSource(self, msg) -> bool:
