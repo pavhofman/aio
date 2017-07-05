@@ -15,8 +15,9 @@ CONTROLS_WIDTH = 60
 CUR_TRACK_HEIGHT = 50
 
 # initial empty NodeStruct
-EMPTY_NODE_STRUCT = NodeStruct(node=NodeItem(nodeID=NON_EXISTING_NODE_ID, label="", isPlayable=False, isLeaf=True),
-                               rootLabel="", totalParents=0, parentID=NON_EXISTING_NODE_ID,
+EMPTY_NODE_ITEM = NodeItem(nodeID=NON_EXISTING_NODE_ID, label="", isPlayable=False, isLeaf=True)
+EMPTY_NODE_STRUCT = NodeStruct(node=EMPTY_NODE_ITEM,
+                               rootNode=EMPTY_NODE_ITEM, totalParents=0, parentID=NON_EXISTING_NODE_ID,
                                children=[], fromChildIndex=0, totalChildren=0)
 
 
@@ -114,7 +115,8 @@ class NodeSelectFSContainer(gui.HBox):
                          forID=self._sourcePart.sourceID)
         self._app.dispatcher.distribute(msg)
 
-    def _createCurTrackContainer(self, width: int, height: int) -> gui.Widget:
+    @staticmethod
+    def _createCurTrackContainer(width: int, height: int) -> gui.Widget:
         return gui.HBox(width=width, height=height, margin='0px auto')
 
     def drawStruct(self, nodeStruct: NodeStruct) -> None:
@@ -144,8 +146,13 @@ class NodeSelectFSContainer(gui.HBox):
 
     def _fillStructContainer(self, container: gui.Widget) -> None:
         container.empty()
-        container.append(NodeBox(self._nodeStruct.node, self._nodeStruct.parentID,
-                                 self._leftWidth, 20, self))
+        # root box
+        container.append(RootBox(self._nodeStruct.rootNode, self._nodeStruct.totalParents, self._leftWidth, 20, self))
+        # node box only if not root
+        if self._nodeStruct.node.nodeID != self._nodeStruct.rootNode.nodeID:
+            container.append(NodeBox(self._nodeStruct.node, self._nodeStruct.parentID,
+                                     self._leftWidth, 20, self))
+        # list of child boxes
         if self._nodeStruct.fromChildIndex > 0:
             container.append(gui.Label("..."))
         order = 0
@@ -177,9 +184,30 @@ class ANodeBox(gui.HBox, abc.ABC):
         # TODO - send play message
         pass
 
+    # noinspection PyUnusedLocal
+    def _openNodeOnClick(self, widget):
+        self._myContainer.sendReqNodeMsg(self._node.nodeID, 0)
+
     @abc.abstractmethod
     def _getLabelBox(self, width, height) -> gui.Widget:
         pass
+
+
+class RootBox(ANodeBox):
+    def __init__(self, node: NodeItem, totalParents: int, width: int, height: int,
+                 myContainer: NodeSelectFSContainer):
+        self._totalParents = totalParents
+        super().__init__(node=node, width=width, height=height, myContainer=myContainer)
+
+    def _getLabelBox(self, width, height):
+        box = gui.HBox(width=width - 20, height=height, margin='0px auto')
+        # index
+        text = self._node.label
+        if self._totalParents > 1:
+            text += "-> (" + str(self._totalParents - 1) + ") ->"
+        box.append(gui.Label(text=text), '1')
+        box.set_on_click_listener(self._openNodeOnClick)
+        return box
 
 
 class NodeBox(ANodeBox):
@@ -189,12 +217,11 @@ class NodeBox(ANodeBox):
         super().__init__(node=node, width=width, height=height, myContainer=myContainer)
 
     def _getLabelBox(self, width, height):
-        labelBox = gui.HBox(width=width - 20, height=height, margin='0px auto')
+        box = gui.HBox(width=width - 20, height=height, margin='0px auto')
         # index
-        labelBox.append(gui.Label(text=self._node.label), '1')
-        if self._parentID != NON_EXISTING_NODE_ID:
-            labelBox.set_on_click_listener(self._openParentNodeOnClick)
-        return labelBox
+        box.append(gui.Label(text=self._node.label), '1')
+        box.set_on_click_listener(self._openParentNodeOnClick)
+        return box
 
     # noinspection PyUnusedLocal
     def _openParentNodeOnClick(self, widget):
@@ -207,22 +234,19 @@ class ChildBox(ANodeBox):
         super().__init__(node=node, width=width, height=height, myContainer=myContainer)
 
     def _getLabelBox(self, width, height):
-        labelBox = gui.HBox(width=width - 20, height=height, margin='0px auto')
+        box = gui.HBox(width=width - 20, height=height, margin='0px auto')
         # index
-        labelBox.append(gui.Label(text=str(self._index) + ':'), '1')
-        labelBox.append(self._getIcon(self._node), '2')
-        labelBox.append(gui.Label(text=self._node.label), '3')
+        box.append(gui.Label(text=str(self._index) + ':'), '1')
+        box.append(self._getIcon(self._node), '2')
+        box.append(gui.Label(text=self._node.label), '3')
         if self._node.isLeaf:
-            labelBox.set_on_click_listener(self._playNodeOnClick)
+            box.set_on_click_listener(self._playNodeOnClick)
         else:
-            labelBox.set_on_click_listener(self._openNodeOnClick)
-        return labelBox
+            box.set_on_click_listener(self._openNodeOnClick)
+        return box
 
-    def _getIcon(self, node: NodeItem) -> gui.Widget:
+    @staticmethod
+    def _getIcon(node: NodeItem) -> gui.Widget:
         # TODO - image
         text = "F" if node.isLeaf else "D"
         return gui.Label(text=text)
-
-    # noinspection PyUnusedLocal
-    def _openNodeOnClick(self, widget):
-        self._myContainer.sendReqNodeMsg(self._node.nodeID, 0)
