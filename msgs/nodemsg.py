@@ -50,25 +50,33 @@ class NodeStruct:
     def __init__(self,
                  # this node
                  node: 'NodeItem',
+                 # label of the top node to show in UI
+                 rootLabel: str,
+                 # index of node within its siblings
+                 totalParents: int,
                  # ID of parent item. NON_EXISTING_NODE_ID => root item
                  parentID: NodeID,
                  # list of children items
                  children: List['NodeItem'],
                  # the 'children' list starts at fromIndex of all children collection - 0-based
-                 fromIndex: int,
+                 fromChildIndex: int,
                  # total number of all children of the node
-                 total: int
+                 totalChildren: int
                  ):
         self.node = node
+        self.rootLabel = rootLabel
+        self.totalParents = totalParents
         self.parentID = parentID
         self.children = children
-        self.fromIndex = fromIndex
-        self.total = total
+        self.fromChildIndex = fromChildIndex
+        self.totalChildren = totalChildren
 
     def __str__(self) -> str:
         return super().__str__() \
                + "; node: " + str(self.node) \
+               + "; rootLabel: " + self.rootLabel \
+               + "; totalParents: " + str(self.totalParents) \
                + "; parentID: " + str(self.parentID) \
                + "; children: " + '\n'.join(str(p) for p in self.children) \
-               + "; fromIndex: " + str(self.fromIndex) \
-               + "; total: " + str(self.total)
+               + "; fromChildIndex: " + str(self.fromChildIndex) \
+               + "; totalChildren: " + str(self.totalChildren)

@@ -9,14 +9,13 @@ from groupid import GroupID
 from moduleid import ModuleID
 from msgid import MsgID
 from msgs.nodemsg import NodeMsg, NodeItem, NodeID, NON_EXISTING_NODE_ID, NodeStruct
-from sources.treesource import TreeSource
+from sources.treesource import TreeSource, MAX_CHILDREN
 from sourcestatus import SourceStatus
 
 if TYPE_CHECKING:
     from dispatcher import Dispatcher
 
 ROOT_PATH = Path("/home/pavel/Hudba")
-MAX_CHILDREN = 5
 
 
 @contextmanager
@@ -43,17 +42,41 @@ class FileSource(TreeSource):
 
     def _sendNodeInfo(self, nodeID: NodeID, fromIndex: int) -> None:
         nodeID, path = self._getExistingNodeIDAndPath(nodeID)
-        nodeItem = self._getNodeItem(nodeID, path)
-        parentID = self._getParentID(path)
+        self._sendNodeInfoForPath(path, nodeID, fromIndex)
 
-        children, total = self._findChildren(path, fromIndex)
+    def _sendNodeInfoForPath(self, path, nodeID, fromIndex):
+        nodeItem = self._getNodeItem(nodeID, path)
+        rootLabel, totalParents, parentID = self._getParentsData(path)
+        children, totalChildren = self._findChildren(path, fromIndex)
         struct = NodeStruct(node=nodeItem,
+                            rootLabel=rootLabel,
+                            totalParents=totalParents,
                             parentID=parentID,
                             children=children,
-                            fromIndex=fromIndex,
-                            total=total)
+                            fromChildIndex=fromIndex,
+                            totalChildren=totalChildren)
         msg = NodeMsg(nodeStruct=struct, fromID=self.id, typeID=MsgID.NODE_INFO, groupID=GroupID.UI)
         self.dispatcher.distribute(msg)
+
+    def _sendParentNodeInfo(self, nodeID: NodeID) -> None:
+        nodeID, path = self._getExistingNodeIDAndPath(nodeID)
+        if path.__eq__(ROOT_PATH):
+            self._sendNodeInfoForPath(path, nodeID, 0)
+        else:
+            parentPath = path.parent
+            index, total = self._findIndexOfPath(path, parentPath)
+            fromIndex = self._calculateFromIndex(index, total)
+            parentID = self._getID(parentPath)
+            self._sendNodeInfoForPath(parentPath, parentID, fromIndex)
+
+    def _findIndexOfPath(self, path: Path, parentPath: Path) -> (int, int):
+        index = 0
+        orderedPaths = self._getOrderedChildPaths(parentPath)
+        for childPath in orderedPaths:
+            if childPath.__eq__(path):
+                return index, len(orderedPaths)
+            index += 1
+        return 0, len(orderedPaths)
 
     def _findChildren(self, path: Path, fromIndex: int) -> Tuple[List[NodeItem], int]:
         index = 0
@@ -62,13 +85,16 @@ class FileSource(TreeSource):
         children = []  # type: List[NodeItem]
         if path.is_dir():
             # sorted by case insensitive name
-            for childPath in sorted(path.iterdir(), key=lambda k: str(k).lower()):
+            for childPath in self._getOrderedChildPaths(path):
                 if (index >= fromIndex) and (childrenCount < MAX_CHILDREN):
                     children.append(self._getNodeItem(self._getID(childPath), childPath))
                     childrenCount += 1
                 index += 1
                 total += 1
         return children, total
+
+    def _getOrderedChildPaths(self, path) -> List[Path]:
+        return sorted(path.iterdir(), key=lambda k: str(k).lower())
 
     def _getNodeItem(self, nodeID: NodeID, path: Path):
         isLeaf = path.is_file() or all(False for _ in path.iterdir())
@@ -104,14 +130,20 @@ class FileSource(TreeSource):
         else:
             return None
 
-    def _getParentID(self, path: Path) -> NodeID:
+    def _getParentsData(self, path: Path) -> (str, int, NodeID):
         if path.__eq__(ROOT_PATH):
-            return NON_EXISTING_NODE_ID
+            # directly root
+            return ROOT_PATH.name, 0, NON_EXISTING_NODE_ID
         else:
-            parent = path.parent  # type: Path
-            return self._getID(parent)
+            parentPath = path.parent  # type: Path
+            directParentID = self._getID(parentPath)
+            totalParents = 1  # type: int
+            while not parentPath.__eq__(ROOT_PATH):
+                parentPath = parentPath.parent
+                totalParents += 1
+            return ROOT_PATH.name, totalParents, directParentID
 
     @staticmethod
     def _getLabelFor(path: Path) -> str:
         # UNICODE -> ASCII
-        return unidecode(str(path))
+        return unidecode(path.name)
