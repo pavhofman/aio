@@ -43,8 +43,14 @@ class MsgID(Enum):
 
     # BiIntegerMsg(value1 = nodeID, value2 = fromIndex, forID=source)
     # request for node nodeID with 5 children, starting from fromIndex
-    # used for vertical as well as horizontal traversing the tree
+    # Used for vertical traversing the tree
     REQ_NODE = 11
 
+    # IntegerMsg(value = nodeID, forID=source)
+    # request for parent node info of nodeID with 5 children, starting from nodeID index - 1
+    # Used for horizontal traversing the tree
+    REQ_PARENT_NODE = 12
+
+
     # NodeMsg(fromID: corresponding sourceID, groupID:UIs)
-    NODE_INFO = 12
+    NODE_INFO = 13
