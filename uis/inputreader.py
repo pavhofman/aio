@@ -41,7 +41,7 @@ class InputReader(AbstractReader):
 
         elif msgID == MsgID.REQ_CURRENT_VOL_INFO.value:
             return RequestMsg(self.id, typeID=MsgID.REQ_CURRENT_VOL_INFO, forID=ModuleID.VOLUME_OPERATOR)
-        if msgID == MsgID.SET_SOURCE_STATUS.value:
+        elif msgID == MsgID.SET_SOURCE_STATUS.value:
             sourceID = int(parts[1])
             statusID = int(parts[2])
             return IntegerMsg(value=statusID, fromID=self.id, typeID=MsgID.SET_SOURCE_STATUS,
@@ -49,15 +49,21 @@ class InputReader(AbstractReader):
 
         elif msgID == MsgID.REQ_SOURCE_STATUS.value:
             return RequestMsg(self.id, typeID=MsgID.REQ_SOURCE_STATUS, groupID=GroupID.SOURCE)
-        if msgID == MsgID.ACTIVATE_SOURCE.value:
+        elif msgID == MsgID.ACTIVATE_SOURCE.value:
             sourceID = int(parts[1])
             return IntegerMsg(value=sourceID, fromID=self.id, typeID=MsgID.ACTIVATE_SOURCE, groupID=GroupID.SOURCE)
-        if msgID == MsgID.REQ_NODE.value:
+        elif msgID == MsgID.REQ_NODE.value:
             sourceID = int(parts[1])
             nodeID = int(parts[2])
             fromIndex = int(parts[3])
             return BiIntegerMsg(value1=nodeID, value2=fromIndex, fromID=self.id, typeID=MsgID.REQ_NODE,
                                 forID=ModuleID(sourceID))
+        elif msgID == MsgID.REQ_PAUSE.value:
+            sourceID = int(parts[1])
+            pause = int(parts[2])
+            return IntegerMsg(value=pause, fromID=self.id, typeID=MsgID.REQ_PAUSE,
+                              forID=ModuleID(sourceID))
+
         else:
             return None
 
