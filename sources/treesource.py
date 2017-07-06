@@ -39,6 +39,14 @@ class TreeSource(Source, abc.ABC):
                 msg = msg  # type: IntegerMsg
                 self._sendParentNodeInfo(msg.value)
                 return True
+            elif msg.typeID == MsgID.PLAY_NODE:
+                msg = msg  # type: IntegerMsg
+                self._playNode(msg.value)
+                return True
+            elif msg.typeID == MsgID.REQ_PAUSE:
+                msg = msg  # type: IntegerMsg
+                self._pause(msg.value > 0)
+                return True
 
         else:
             return False
@@ -64,4 +72,12 @@ class TreeSource(Source, abc.ABC):
 
     @abc.abstractmethod
     def _sendParentNodeInfo(self, nodeID: NodeID) -> None:
+        pass
+
+    @abc.abstractmethod
+    def _playNode(self, nodeID: NodeID) -> None:
+        pass
+
+    @abc.abstractmethod
+    def _pause(self, pause: bool) -> None:
         pass
