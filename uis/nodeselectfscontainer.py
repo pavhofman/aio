@@ -37,6 +37,8 @@ class NodeSelectFSContainer(gui.HBox):
         self.append(self._controlsContainer, '2')
         self._nodeStruct = None  # type: Optional[NodeStruct]
         self.drawStruct(EMPTY_NODE_STRUCT)
+        # request root node
+        self.sendReqNodeMsg(NON_EXISTING_NODE_ID, 0)
 
     def _createStructContainer(self, width: int, height: int) -> gui.Widget:
         container = gui.VBox(width=width, height=height, margin='0px auto')
