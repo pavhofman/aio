@@ -111,6 +111,12 @@ class NodeSelectFSContainer(gui.HBox):
                            forID=self._sourcePart.sourceID)
         self._app.dispatcher.distribute(msg)
 
+    def sendPlayNodeMsg(self, nodeID: NodeID) -> None:
+        msg = IntegerMsg(value=nodeID, fromID=self._app.id,
+                         typeID=MsgID.PLAY_NODE,
+                         forID=self._sourcePart.sourceID)
+        self._app.dispatcher.distribute(msg)
+
     def sendReqParentNodeMsg(self, nodeID: NodeID) -> None:
         msg = IntegerMsg(value=nodeID, fromID=self._app.id,
                          typeID=MsgID.REQ_PARENT_NODE,
@@ -183,8 +189,7 @@ class ANodeBox(gui.HBox, abc.ABC):
         return playButton
 
     def _playNodeOnClick(self, widget):
-        # TODO - send play message
-        pass
+        self._myContainer.sendPlayNodeMsg(self._node.nodeID)
 
     # noinspection PyUnusedLocal
     def _openNodeOnClick(self, widget):
