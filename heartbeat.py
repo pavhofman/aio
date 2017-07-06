@@ -33,11 +33,12 @@ class Heartbeat(Thread):
 
     def run(self):
         while not self.stopped():
-            time.sleep(5)
+            time.sleep(2)
             msg = RequestMsg(ModuleID.HEARTBEAT, typeID=MsgID.REQ_SOURCE_STATUS, groupID=GroupID.SOURCE)
             self.dispatcher.distribute(msg)
             msg = RequestMsg(ModuleID.HEARTBEAT, typeID=MsgID.REQ_CURRENT_VOL_INFO, forID=ModuleID.VOLUME_OPERATOR)
             self.dispatcher.distribute(msg)
+            # only one run during development
             self.stop()
 
     def close(self):
