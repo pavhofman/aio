@@ -1,2 +1,5 @@
 pip3 install unidecode
 
+
+MPV:1
+sudo apt update && sudo apt install mpv
