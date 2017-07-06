@@ -19,7 +19,7 @@ class MyMPV(MPV):
         # Pass a window id to embed mpv into that window. Change debug to True
         # to see the json communication.
         super().__init__(window_id=None, debug=False)
-        self.__source = source
+        self.source = source
 
     # -------------------------------------------------------------------------
     # Callbacks
@@ -29,16 +29,16 @@ class MyMPV(MPV):
     # "time-pos" -> on_property_time_pos().
 
     def on_property_chapter(self, chapter=None):
-        self.__source.chapterWasChanged(chapter)
+        self.source.chapterWasChanged(chapter)
 
     def on_property_metadata(self, metadata=None):
-        self.__source.metadataWasChanged(metadata)
+        self.source.metadataWasChanged(metadata)
 
     def on_property_pause(self, pause=None):
-        self.__source.pauseWasChanged(pause)
+        self.source.pauseWasChanged(pause)
 
     def on_property_path(self, filePath: str = None):
-        self.__source.pathWasChanged(filePath)
+        self.source.pathWasChanged(filePath)
 
     # -------------------------------------------------------------------------
     # Commands

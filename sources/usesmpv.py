@@ -27,11 +27,18 @@ class UsesMPV(abc.ABC):
         status = mpv.get_property("pause")
         return status
 
-    def _restartMPV(self):
+    def _acquireMPV(self):
         global mpv
+        # closing any mpv, even if it belongs to another source
         if mpv is not None:
             mpv.close()
+            # acquiring for myself
         mpv = MyMPV(self)
+
+    def _releaseMPV(self):
+        global mpv  # type: MyMPV
+        if mpv is not None and mpv.source == self:
+            mpv.close()
 
     def _getMPV(self) -> MyMPV:
         global mpv

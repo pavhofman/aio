@@ -42,8 +42,12 @@ class FileSource(TreeSource, UsesMPV):
     def _activate(self) -> bool:
         # no track selected, stopped
         self.status = SourceStatus.STOPPED
-        self._restartMPV()
+        self._acquireMPV()
         return True
+
+    def _deactive(self) -> bool:
+        self._releaseMPV()
+        return super()._deactive()
 
     def close(self):
         TreeSource.close(self)
