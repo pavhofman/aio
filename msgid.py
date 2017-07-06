@@ -33,8 +33,9 @@ class MsgID(Enum):
     # IntegerMsg(value=NodeID, forID=source)
     PLAY_NODE = 8
 
-    # RequestMsg(forID=source)
-    # pausing current playbacl
+    # IntegerMsg(value=pause, forID=source)
+    # pausing/unpausing current playback
+    # value=pause: True= pause, Falsee: unpause
     REQ_PAUSE = 9
 
     # RequestMsg(forID=source)
