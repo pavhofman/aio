@@ -50,6 +50,9 @@ class MyMPV(MPV):
     def pause(self):
         self.set_property("pause", True)
 
+    def stop(self):
+        self.command("stop")
+
     def setVolume(self, volume: int):
         try:
             self.set_property(VOLUME_PROPERTY, int(volume))
