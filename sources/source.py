@@ -8,6 +8,7 @@ from msgconsumer import MsgConsumer
 from msgid import MsgID
 from msgs.integermsg import IntegerMsg
 from msgs.message import Message
+from sources.playbackstatus import PlaybackStatus
 from sourcestatus import SourceStatus
 
 if TYPE_CHECKING:
@@ -20,10 +21,12 @@ class Source(MsgConsumer, abc.ABC):
     """
 
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher', initStatus=SourceStatus.UNAVAILABLE):
+    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher'):
         # call the thread class
         super().__init__(id=id, dispatcher=dispatcher)
-        self.status = initStatus
+        # status init value
+        self._status = SourceStatus.NOT_ACTIVE if self._isAvailable() \
+            else SourceStatus.UNAVAILABLE  # type: SourceStatus
 
     # consuming the message
     def _consume(self, msg: 'Message') -> bool:
@@ -31,10 +34,10 @@ class Source(MsgConsumer, abc.ABC):
         if msg.typeID == MsgID.REQ_SOURCE_STATUS:
             self.__sendSourceStatus()
             return True
-        elif msg.typeID == MsgID.SET_SOURCE_STATUS:
+        elif msg.typeID == MsgID.SET_SOURCE_PLAYBACK:
             msg = msg  # type: IntegerMsg
-            newStatus = SourceStatus(msg.value)
-            self._setSourceStatus(newStatus)
+            newPlayback = PlaybackStatus(msg.value)
+            self._setPlayback(newPlayback)
             return True
         elif msg.typeID == MsgID.ACTIVATE_SOURCE:
             msg = msg  # type: IntegerMsg
@@ -43,46 +46,72 @@ class Source(MsgConsumer, abc.ABC):
         else:
             return False
 
-    def __sendSourceStatus(self):
-        msg = IntegerMsg(value=self._getStatus().value, fromID=self.id, typeID=MsgID.SOURCE_STATUS_INFO,
-                         groupID=GroupID.UI)
-        self.dispatcher.distribute(msg)
-
-    def _getStatus(self) -> SourceStatus:
-        return self.status
-
-    def _setSourceStatus(self, newStatus: SourceStatus):
-        if self.status != newStatus:
+    def _setPlayback(self, newPlayback: PlaybackStatus):
+        currentPlayback = self._determinePlayback()
+        if currentPlayback != newPlayback:
             # changing
-            self.status = newStatus
-            # informing
-            self.__sendSourceStatus()
+            if self._changePlaybackTo(newPlayback):
+                # informing
+                self.__sendPlaybackInfo(newPlayback)
 
     def _handleActivateMsg(self, msg: IntegerMsg):
         if msg.value == self.id.value:
             # activate myself
-            if self.status.isAvailable():
+            if self._status.isAvailable():
                 if self._activate():
                     self.__sendSourceStatus()
         else:
             # activate some other source, i.e. deactivate myself if active
-            if self.status.isActive():
+            if self._status.isActive():
                 if self._deactive():
                     self.__sendSourceStatus()
 
+    def __sendSourceStatus(self):
+        statusValue = self._status.value  # type: int
+        msg = IntegerMsg(value=statusValue, fromID=self.id, typeID=MsgID.SOURCE_STATUS_INFO,
+                         groupID=GroupID.UI)
+        self.dispatcher.distribute(msg)
+
     @abc.abstractmethod
+    def _tryToActivate(self) -> bool:
+        pass
+
     def _activate(self) -> bool:
         """
         Activates the source.
         :return: if status changed
         """
-        pass
+        if self._tryToActivate():
+            self._status = SourceStatus.ACTIVATED
+            return True
+        else:
+            self._status = SourceStatus.NOT_ACTIVE
+            return False
 
     def _deactive(self) -> bool:
         """
         Deactivates the source.
+        To be extended in ancestors
         :return: if status changed
         """
-        # TODO - pretizit v potomcich
-        self.status = SourceStatus.NOT_ACTIVE
+        self._status = SourceStatus.NOT_ACTIVE
         return True
+
+    @abc.abstractmethod
+    def _isAvailable(self) -> bool:
+        pass
+
+    def __sendPlaybackInfo(self, newPlayback: PlaybackStatus) -> None:
+        msg = IntegerMsg(value=newPlayback.value, fromID=self.id, typeID=MsgID.SOURCE_PLAYBACK_INFO,
+                         groupID=GroupID.UI)
+        self.dispatcher.distribute(msg)
+
+        pass
+
+    @abc.abstractmethod
+    def _determinePlayback(self) -> PlaybackStatus:
+        pass
+
+    @abc.abstractmethod
+    def _changePlaybackTo(self, newPlayback: PlaybackStatus):
+        pass

@@ -7,7 +7,6 @@ from msgs.integermsg import BiIntegerMsg, IntegerMsg
 from msgs.message import Message
 from msgs.nodemsg import NodeID
 from sources.source import Source
-from sourcestatus import SourceStatus
 
 if TYPE_CHECKING:
     from dispatcher import Dispatcher
@@ -24,9 +23,9 @@ class TreeSource(Source, abc.ABC):
     """
 
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher', initStatus=SourceStatus.UNAVAILABLE):
+    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher'):
         # call the thread class
-        super().__init__(id=id, dispatcher=dispatcher, initStatus=initStatus)
+        super().__init__(id=id, dispatcher=dispatcher)
 
     # consuming the message
     def _consume(self, msg: 'Message') -> bool:
@@ -43,11 +42,6 @@ class TreeSource(Source, abc.ABC):
                 msg = msg  # type: IntegerMsg
                 self._playNode(msg.value)
                 return True
-            elif msg.typeID == MsgID.REQ_PAUSE:
-                msg = msg  # type: IntegerMsg
-                self._pause(msg.value > 0)
-                return True
-
         else:
             return False
 
@@ -76,8 +70,4 @@ class TreeSource(Source, abc.ABC):
 
     @abc.abstractmethod
     def _playNode(self, nodeID: NodeID) -> None:
-        pass
-
-    @abc.abstractmethod
-    def _pause(self, pause: bool) -> None:
         pass

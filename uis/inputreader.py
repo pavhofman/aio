@@ -9,6 +9,7 @@ from msgid import MsgID
 from msgs.integermsg import IntegerMsg, BiIntegerMsg
 from msgs.message import Message
 from msgs.requestmsg import RequestMsg
+from sources.playbackstatus import PlaybackStatus
 from uis.abstractreader import AbstractReader
 
 
@@ -41,12 +42,6 @@ class InputReader(AbstractReader):
 
         elif msgID == MsgID.REQ_CURRENT_VOL_INFO.value:
             return RequestMsg(self.id, typeID=MsgID.REQ_CURRENT_VOL_INFO, forID=ModuleID.VOLUME_OPERATOR)
-        elif msgID == MsgID.SET_SOURCE_STATUS.value:
-            sourceID = int(parts[1])
-            statusID = int(parts[2])
-            return IntegerMsg(value=statusID, fromID=self.id, typeID=MsgID.SET_SOURCE_STATUS,
-                              forID=ModuleID(sourceID))
-
         elif msgID == MsgID.REQ_SOURCE_STATUS.value:
             return RequestMsg(self.id, typeID=MsgID.REQ_SOURCE_STATUS, groupID=GroupID.SOURCE)
         elif msgID == MsgID.ACTIVATE_SOURCE.value:
@@ -58,10 +53,10 @@ class InputReader(AbstractReader):
             fromIndex = int(parts[3])
             return BiIntegerMsg(value1=nodeID, value2=fromIndex, fromID=self.id, typeID=MsgID.REQ_NODE,
                                 forID=ModuleID(sourceID))
-        elif msgID == MsgID.REQ_PAUSE.value:
+        elif msgID == MsgID.SET_SOURCE_PLAYBACK.value:
             sourceID = int(parts[1])
-            pause = int(parts[2])
-            return IntegerMsg(value=pause, fromID=self.id, typeID=MsgID.REQ_PAUSE,
+            playbackID = int(parts[2])
+            return IntegerMsg(value=PlaybackStatus(playbackID).value, fromID=self.id, typeID=MsgID.SET_SOURCE_PLAYBACK,
                               forID=ModuleID(sourceID))
 
         else:

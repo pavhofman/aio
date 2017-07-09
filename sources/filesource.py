@@ -9,9 +9,9 @@ from groupid import GroupID
 from moduleid import ModuleID
 from msgid import MsgID
 from msgs.nodemsg import NodeMsg, NodeItem, NodeID, NON_EXISTING_NODE_ID, NodeStruct
+from sources.playbackstatus import PlaybackStatus
 from sources.treesource import TreeSource, MAX_CHILDREN
 from sources.usesmpv import UsesMPV
-from sourcestatus import SourceStatus
 
 if TYPE_CHECKING:
     from dispatcher import Dispatcher
@@ -35,13 +35,23 @@ class FileSource(TreeSource, UsesMPV):
         self._idsByPathStr = {}  # type: Dict[str, NodeID]
         self._lastNodeID = 0
         self._rootNode = None
-        TreeSource.__init__(self, id=ModuleID.FILE_SOURCE, dispatcher=dispatcher, initStatus=SourceStatus.NOT_ACTIVE)
+        TreeSource.__init__(self, id=ModuleID.FILE_SOURCE, dispatcher=dispatcher)
         UsesMPV.__init__(self)
         self._rootNode = self._getNodeItemForPath(ROOT_PATH)
 
-    def _activate(self) -> bool:
+    def _changePlaybackTo(self, playback: PlaybackStatus):
+        UsesMPV._changePlaybackTo(self, playback)
+        pass
+
+    def _determinePlayback(self) -> PlaybackStatus:
+        return UsesMPV._determinePlayback(self)
+
+    def _isAvailable(self) -> bool:
+        # TODO
+        return True
+
+    def _tryToActivate(self) -> bool:
         # no track selected, stopped
-        self.status = SourceStatus.STOPPED
         self._acquireMPV()
         return True
 
@@ -174,15 +184,10 @@ class FileSource(TreeSource, UsesMPV):
             self._getMPV().command("loadfile", str(path), "replace")
             self._startPlayback()
 
-    def _pause(self, pause: bool) -> None:
-        UsesMPV._pause(self, pause)
-
     def chapterWasChanged(self, chapter: int):
         pass
 
     def pathWasChanged(self, filePath: str):
-        global lastTimePos
-        lastTimePos = 0
         pass
 
     def metadataWasChanged(self, metadata: dict):

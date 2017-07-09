@@ -10,7 +10,6 @@ from msgid import MsgID
 from msgs.integermsg import IntegerMsg
 from msgs.message import Message
 from remi import App, gui
-from sourcestatus import SourceStatus
 from uis.activatesourcefscontainer import ActivateSourceFSContainer
 from uis.analogsourcepart import AnalogSourcePart
 from uis.filesourcepart import FileSourcePart
@@ -135,9 +134,9 @@ class WebApp(App, CanSendMessage, HasSourceParts):
 
     def _createActivationMsg(self, source: 'WebSourcePart', activate: bool) -> IntegerMsg:
         if activate:
-            return IntegerMsg(value=source.sourceID.value, fromID=self.id, typeID=MsgID.ACTIVATE_SOURCE,
-                              groupID=GroupID.SOURCE)
+            activationSourceID = source.sourceID.value
         else:
-            # deactivate this specific source
-            return IntegerMsg(value=SourceStatus.NOT_ACTIVE.value, fromID=self.id, typeID=MsgID.SET_SOURCE_STATUS,
-                              forID=source.sourceID)
+            # deactivate this source = deactivate all sources (only one can be activated at any moment)
+            activationSourceID = 0
+        return IntegerMsg(value=activationSourceID, fromID=self.id, typeID=MsgID.ACTIVATE_SOURCE,
+                          groupID=GroupID.SOURCE)

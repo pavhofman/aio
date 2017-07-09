@@ -4,8 +4,9 @@ from typing import Optional
 
 from sources.mpv import MPVCommandError
 from sources.mympv import MyMPV
-
 # global MPV for all sources
+from sources.playbackstatus import PlaybackStatus
+
 TIME_INTERVAL = 1
 mpv = None  # type: Optional[MyMPV]
 
@@ -17,15 +18,30 @@ class UsesMPV(abc.ABC):
         self._timerEnableFlag = Event()
         self._timePosTimer = RepeatingTimer(self._timerEnableFlag, self._timerFinishFlag, self.sendTimePos)
 
-    def _pause(self, pause: bool) -> None:
-        if pause:
-            mpv.pause()
-        else:
-            mpv.play()
-
     def _isPaused(self) -> bool:
-        status = mpv.get_property("pause")
+        status = self._getMPV().get_property("pause")
         return status
+
+    def _isIdle(self) -> bool:
+        status = self._getMPV().get_property("idle")
+        return status
+
+    def _determinePlayback(self) -> PlaybackStatus:
+        if self._isIdle():
+            return PlaybackStatus.STOPPED
+        else:
+            if self._isPaused():
+                return PlaybackStatus.PAUSED
+            else:
+                return PlaybackStatus.PLAYING
+
+    def _changePlaybackTo(self, playback: PlaybackStatus):
+        if playback == PlaybackStatus.STOPPED:
+            self._getMPV().stop()
+        elif playback == PlaybackStatus.PLAYING:
+            self._getMPV().play()
+        elif playback == PlaybackStatus.PAUSED:
+            self._getMPV().pause()
 
     def _acquireMPV(self):
         global mpv

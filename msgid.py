@@ -19,39 +19,32 @@ class MsgID(Enum):
     # IntegerMsg(value=SourceStatus, fromID=source, groupID=UIs)
     SOURCE_STATUS_INFO = 5
 
-    # not used yet. IntegerMsg sent to a particular source, value = requested statusID
-    # can be used for deactivating source too, but more reliable method is ACTIVATE_SOURCE
-    # IntegerMsg(value=SourceStatus, forID=Source)
-    SET_SOURCE_STATUS = 6
-
     # IntegerMsg for all sources, value = ModID of activated source or 0 for deactivating all sources
     # if source detect change of its status, it will send SOURCE_STATUS msg to all UIs.
     # IntegerMsg(value=sourceID, groupID=Sources)
-    ACTIVATE_SOURCE = 7
+    ACTIVATE_SOURCE = 6
 
     # IntegerMsg sent to a particular source, value = requested nodeID
     # IntegerMsg(value=NodeID, forID=source)
-    PLAY_NODE = 8
+    PLAY_NODE = 7
 
-    # IntegerMsg(value=pause, forID=source)
-    # pausing/unpausing current playback
-    # value=pause: True= pause, Falsee: unpause
-    REQ_PAUSE = 9
+    # IntegerMsg sent to a particular source, value = requested Playback
+    # IntegerMsg(value=Playback, forID=Source)
+    SET_SOURCE_PLAYBACK = 8
 
-    # RequestMsg(forID=source)
-    # stopping current played node/track
-    REQ_STOP = 10
+    # Sent to all UIs by a source upon detection of playback change
+    # IntegerMsg(value=playbackID, fromID=source, groupID=UIs)
+    SOURCE_PLAYBACK_INFO = 9
 
     # BiIntegerMsg(value1 = nodeID, value2 = fromIndex, forID=source)
     # request for node nodeID with 5 children, starting from fromIndex
     # Used for vertical traversing the tree
-    REQ_NODE = 11
+    REQ_NODE = 10
 
     # IntegerMsg(value = nodeID, forID=source)
     # request for parent node info of nodeID with 5 children, starting from nodeID index - 1
     # Used for horizontal traversing the tree
-    REQ_PARENT_NODE = 12
-
+    REQ_PARENT_NODE = 11
 
     # NodeMsg(fromID: corresponding sourceID, groupID:UIs)
-    NODE_INFO = 13
+    NODE_INFO = 12
