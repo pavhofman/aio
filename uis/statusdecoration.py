@@ -14,7 +14,7 @@ class StatusDecoration:
     def _setStyle(self: gui.Widget, status: SourceStatus) -> None:
         if not status.isAvailable():
             self.style['background'] = 'gray'
-        elif status.isActive():
+        elif status.isActivated():
             self.style['background'] = 'yellow'
         else:
             self.style['background'] = 'white'

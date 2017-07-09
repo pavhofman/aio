@@ -25,7 +25,7 @@ class Source(MsgConsumer, abc.ABC):
         # call the thread class
         super().__init__(id=id, dispatcher=dispatcher)
         # status init value
-        self._status = SourceStatus.NOT_ACTIVE if self._isAvailable() \
+        self._status = SourceStatus.NOT_ACTIVATED if self._isAvailable() \
             else SourceStatus.UNAVAILABLE  # type: SourceStatus
 
     # consuming the message
@@ -62,7 +62,7 @@ class Source(MsgConsumer, abc.ABC):
                     self.__sendSourceStatus()
         else:
             # activate some other source, i.e. deactivate myself if active
-            if self._status.isActive():
+            if self._status.isActivated():
                 if self._deactive():
                     self.__sendSourceStatus()
 
@@ -85,7 +85,7 @@ class Source(MsgConsumer, abc.ABC):
             self._status = SourceStatus.ACTIVATED
             return True
         else:
-            self._status = SourceStatus.NOT_ACTIVE
+            self._status = SourceStatus.NOT_ACTIVATED
             return False
 
     def _deactive(self) -> bool:
@@ -94,7 +94,7 @@ class Source(MsgConsumer, abc.ABC):
         To be extended in ancestors
         :return: if status changed
         """
-        self._status = SourceStatus.NOT_ACTIVE
+        self._status = SourceStatus.NOT_ACTIVATED
         return True
 
     @abc.abstractmethod

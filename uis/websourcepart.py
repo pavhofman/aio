@@ -65,7 +65,7 @@ class WebSourcePart(SourcePart, abc.ABC):
     def _onActivateButtonPressed(self, widget) -> None:
         if self.status.isAvailable():
             # changing
-            self._app.sendSwitchSourceReq(source=self, activate=not self.status.isActive())
+            self._app.sendSwitchSourceReq(source=self, activate=not self.status.isActivated())
         # closing
         self._app.showPrevFSContainer()
 
@@ -104,7 +104,7 @@ class WebSourcePart(SourcePart, abc.ABC):
         # update source
         self.setStatus(status)
         # update trackcontainer
-        if status.isActive():
+        if status.isActivated():
             self._app.mainFSContainer.setTrackContainer(self.getTrackContainer())
 
         elif self._app.getActiveSource() is None:

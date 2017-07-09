@@ -8,7 +8,7 @@ class SourcePart:
         self.status = SourceStatus.UNAVAILABLE
 
     def isSelected(self):
-        return self.status.isActive()
+        return self.status.isActivated()
 
     def setStatus(self, newStatus: SourceStatus):
         self.status = newStatus

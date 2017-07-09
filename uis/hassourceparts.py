@@ -36,7 +36,7 @@ class HasSourceParts(abc.ABC):
 
     def getActiveSource(self) -> Optional[SourcePart]:
         for source in self.sourceParts:
-            if source.status.isActive():
+            if source.status.isActivated():
                 return source
         return None
 

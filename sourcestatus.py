@@ -3,10 +3,10 @@ from enum import Enum
 
 class SourceStatus(Enum):
     UNAVAILABLE = 0
-    NOT_ACTIVE = 1
+    NOT_ACTIVATED = 1
     ACTIVATED = 2
 
-    def isActive(self) -> bool:
+    def isActivated(self) -> bool:
         return self == SourceStatus.ACTIVATED
 
     def isAvailable(self) -> bool:
