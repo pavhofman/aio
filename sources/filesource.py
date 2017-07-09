@@ -188,7 +188,8 @@ class FileSource(TreeSource, UsesMPV):
         pass
 
     def pathWasChanged(self, filePath: str):
-        pass
+        UsesMPV.pathWasChanged(self, filePath)
+        print("Played path: " + filePath)
 
     def metadataWasChanged(self, metadata: dict):
         pass
@@ -197,6 +198,6 @@ class FileSource(TreeSource, UsesMPV):
         UsesMPV.pauseWasChanged(self, pause)
         pass
 
-    def timePosWasChanged(self, timePos: float):
+    def timePosWasChanged(self, timePos: int):
         if timePos is not None:
             print("Time Pos: " + str(timePos))

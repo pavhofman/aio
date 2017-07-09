@@ -40,6 +40,10 @@ class MyMPV(MPV):
     def on_property_path(self, filePath: str = None):
         self.source.pathWasChanged(filePath)
 
+    def on_property_idle(self, idle: bool = None):
+        self.source.idleWasChanged(idle)
+
+
     # -------------------------------------------------------------------------
     # Commands
     # -------------------------------------------------------------------------
