@@ -57,7 +57,7 @@ class FileSource(TreeSource, UsesMPV):
 
     def _deactive(self) -> bool:
         self._releaseMPV()
-        return super()._deactive()
+        return TreeSource._deactive(self)
 
     def close(self):
         TreeSource.close(self)
@@ -194,7 +194,7 @@ class FileSource(TreeSource, UsesMPV):
         pass
 
     def pauseWasChanged(self, pause: bool):
-        super().pauseWasChanged(pause)
+        UsesMPV.pauseWasChanged(self, pause)
         pass
 
     def timePosWasChanged(self, timePos: float):
