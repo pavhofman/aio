@@ -10,6 +10,7 @@ from moduleid import ModuleID
 from msgid import MsgID
 from msgs.integermsg import BiIntegerMsg
 from msgs.nodemsg import NodeMsg, NodeItem, NodeID, NON_EXISTING_NODE_ID, NodeStruct
+from msgs.trackmsg import TrackMsg
 from sources.playbackstatus import PlaybackStatus
 from sources.treesource import TreeSource, MAX_CHILDREN
 from sources.usesmpv import UsesMPV
@@ -195,6 +196,9 @@ class FileSource(TreeSource, UsesMPV):
             UsesMPV.pathWasChanged(self, filePath)
             self._playedNodeID = self._getID(path)
             # send msg
+            msg = TrackMsg(nodeID=self._playedNodeID, label=self._getLabelFor(path), descr="", fromID=self.id,
+                           groupID=GroupID.UI)
+            self.dispatcher.distribute(msg)
 
     def metadataWasChanged(self, metadata: dict):
         pass
