@@ -37,7 +37,7 @@ class MsgID(Enum):
     SOURCE_PLAYBACK_INFO = 9
 
     # BiIntegerMsg(value1 = nodeID, value2 = fromIndex, forID=source)
-    # request for node nodeID with 5 children, starting from fromIndex
+    # request for node structure of nodeID with 5 children, starting from fromIndex
     # Used for vertical traversing the tree
     REQ_NODE = 10
 

@@ -78,7 +78,7 @@ class FileSource(TreeSource, UsesMPV):
                             children=children,
                             fromChildIndex=fromIndex,
                             totalChildren=totalChildren)
-        msg = NodeMsg(nodeStruct=struct, fromID=self.id, typeID=MsgID.NODE_INFO, groupID=GroupID.UI)
+        msg = NodeMsg(nodeStruct=struct, fromID=self.id, groupID=GroupID.UI)
         self.dispatcher.distribute(msg)
 
     def _sendParentNodeInfo(self, nodeID: NodeID) -> None:

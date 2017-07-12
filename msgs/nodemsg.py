@@ -14,9 +14,8 @@ class NodeMsg(Message):
     Msg with node information
     """
 
-    def __init__(self, nodeStruct: 'NodeStruct',
-                 fromID: ModuleID, typeID: MsgID, forID=ModuleID.ANY, groupID=GroupID.ANY):
-        super().__init__(fromID=fromID, typeID=typeID, forID=forID, groupID=groupID)
+    def __init__(self, nodeStruct: 'NodeStruct', fromID: ModuleID, forID=ModuleID.ANY, groupID=GroupID.ANY):
+        super().__init__(fromID=fromID, typeID=MsgID.NODE_STRUCT_INFO, forID=forID, groupID=groupID)
         self.nodeStruct = nodeStruct
 
     def __str__(self) -> str:
