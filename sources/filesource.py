@@ -8,6 +8,7 @@ from unidecode import unidecode
 from groupid import GroupID
 from moduleid import ModuleID
 from msgid import MsgID
+from msgs.integermsg import BiIntegerMsg
 from msgs.nodemsg import NodeMsg, NodeItem, NodeID, NON_EXISTING_NODE_ID, NodeStruct
 from sources.playbackstatus import PlaybackStatus
 from sources.treesource import TreeSource, MAX_CHILDREN
@@ -35,6 +36,7 @@ class FileSource(TreeSource, UsesMPV):
         self._idsByPathStr = {}  # type: Dict[str, NodeID]
         self._lastNodeID = 0
         self._rootNode = None
+        self._playedNodeID = NON_EXISTING_NODE_ID  # type: NodeID
         TreeSource.__init__(self, id=ModuleID.FILE_SOURCE, dispatcher=dispatcher)
         UsesMPV.__init__(self)
         self._rootNode = self._getNodeItemForPath(ROOT_PATH)
@@ -188,8 +190,11 @@ class FileSource(TreeSource, UsesMPV):
         pass
 
     def pathWasChanged(self, filePath: str):
-        UsesMPV.pathWasChanged(self, filePath)
-        print("Played path: " + filePath)
+        path = Path(filePath)
+        if path.is_file():
+            UsesMPV.pathWasChanged(self, filePath)
+            self._playedNodeID = self._getID(path)
+            # send msg
 
     def metadataWasChanged(self, metadata: dict):
         pass
@@ -199,5 +204,7 @@ class FileSource(TreeSource, UsesMPV):
         pass
 
     def timePosWasChanged(self, timePos: int):
-        if timePos is not None:
-            print("Time Pos: " + str(timePos))
+        if timePos is not None and self._playedNodeID != NON_EXISTING_NODE_ID:
+            msg = BiIntegerMsg(value1=self._playedNodeID, value2=timePos, fromID=self.id, typeID=MsgID.TIME_POS_INFO,
+                               groupID=GroupID.UI)
+            self.dispatcher.distribute(msg)
