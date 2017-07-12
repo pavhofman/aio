@@ -48,3 +48,6 @@ class MsgID(Enum):
 
     # NodeMsg(fromID: corresponding sourceID, groupID:UIs)
     NODE_INFO = 12
+
+    # BiIntegerMsg(value1 = nodeID, value2 = timepos in seconds, fromID=source, forID=UI)
+    TIME_POS_INFO = 13
