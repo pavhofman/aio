@@ -15,7 +15,7 @@ class NodeMsg(Message):
     """
 
     def __init__(self, nodeStruct: 'NodeStruct', fromID: ModuleID, forID=ModuleID.ANY, groupID=GroupID.ANY):
-        super().__init__(fromID=fromID, typeID=MsgID.NODE_STRUCT_INFO, forID=forID, groupID=groupID)
+        super().__init__(fromID=fromID, typeID=MsgID.NODE_INFO, forID=forID, groupID=groupID)
         self.nodeStruct = nodeStruct
 
     def __str__(self) -> str:
