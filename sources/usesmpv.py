@@ -4,6 +4,7 @@ from queue import Queue
 from threading import Thread, Event
 from typing import Optional
 
+from sources.mpv import MPVCommandError
 from sources.mympv import MyMPV
 # global MPV for all sources
 from sources.playbackstatus import PlaybackStatus
@@ -13,6 +14,11 @@ TIME_POS_PROPERTY = "playback-time"
 
 TIME_POS_READ_INTERVAL = 1
 mpv = None  # type: Optional[MyMPV]
+
+
+def round(timePos):
+    return int(decimal.Decimal(timePos).quantize(decimal.Decimal(1),
+                                                 rounding=decimal.ROUND_HALF_UP))
 
 
 class UsesMPV(abc.ABC):
@@ -91,6 +97,13 @@ class UsesMPV(abc.ABC):
     def pathWasChanged(self, filePath: str):
         self._timePosTimer.trigger()
 
+    def _getDuration(self) -> Optional[int]:
+        try:
+            duration = self._getMPV().get_property("duration")
+            return round(duration)
+        except MPVCommandError:
+            return None
+
     @abc.abstractmethod
     def timePosWasChanged(self, timePos: int):
         pass
@@ -116,8 +129,7 @@ class TimePosTimer(Thread):
                 self._getMPV().register_property_callback(TIME_POS_PROPERTY, self.timePosCallback)
                 timePos = self._queue.get()
                 self._getMPV().unregister_property_callback(TIME_POS_PROPERTY, self.timePosCallback)
-                posInt = int(decimal.Decimal(timePos).quantize(decimal.Decimal(1),
-                                                               rounding=decimal.ROUND_HALF_UP))
+                posInt = round(timePos)
                 timeAdj = posInt - timePos
                 self._function(posInt)
             # reset the trigger event to wait the TIME_POS_READ_INTERVAL in next cycle

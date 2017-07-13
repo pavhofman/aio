@@ -14,15 +14,17 @@ class TrackMsg(Message):
     Msg with details of currently played track
     """
 
-    def __init__(self, nodeID: NodeID, label: str, descr: str, fromID: ModuleID, forID=ModuleID.ANY,
+    def __init__(self, nodeID: NodeID, label: str, descr: str, duration: int, fromID: ModuleID, forID=ModuleID.ANY,
                  groupID=GroupID.ANY):
         super().__init__(fromID=fromID, typeID=MsgID.TRACK_INFO, forID=forID, groupID=groupID)
         self.nodeID = nodeID
         self.label = label
         self.descr = descr
+        self.duration = duration
 
     def __str__(self) -> str:
         return super().__str__() \
                + "; nodeID: " + str(self.nodeID) \
                + "; label: " + self.label \
-               + "; descr: " + str(self.descr)
+               + "; descr: " + str(self.descr) \
+               + "; duration: " + str(self.duration)

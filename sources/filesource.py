@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from pathlib import Path
 from threading import Lock
+from time import sleep
 from typing import TYPE_CHECKING, Optional, Dict, Tuple, List
 
 from unidecode import unidecode
@@ -195,8 +196,13 @@ class FileSource(TreeSource, UsesMPV):
         if path.is_file():
             UsesMPV.pathWasChanged(self, filePath)
             self._playedNodeID = self._getID(path)
+            # waiting for duration being available by mpv
+            # ugly hack
+            sleep(0.05)
+            duration = self._getDuration()
             # send msg
-            msg = TrackMsg(nodeID=self._playedNodeID, label=self._getLabelFor(path), descr="", fromID=self.id,
+            msg = TrackMsg(nodeID=self._playedNodeID, label=self._getLabelFor(path), descr="",
+                           duration=duration, fromID=self.id,
                            groupID=GroupID.UI)
             self.dispatcher.distribute(msg)
 
