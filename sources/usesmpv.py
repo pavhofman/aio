@@ -16,7 +16,7 @@ TIME_POS_READ_INTERVAL = 1
 mpv = None  # type: Optional[MyMPV]
 
 
-def round(timePos):
+def roundToInt(timePos: float) -> int:
     return int(decimal.Decimal(timePos).quantize(decimal.Decimal(1),
                                                  rounding=decimal.ROUND_HALF_UP))
 
@@ -67,7 +67,8 @@ class UsesMPV(abc.ABC):
         if mpv is not None and mpv.source == self:
             mpv.close()
 
-    def _getMPV(self) -> MyMPV:
+    @staticmethod
+    def _getMPV() -> MyMPV:
         global mpv
         return mpv
 
@@ -111,7 +112,7 @@ class UsesMPV(abc.ABC):
     def _readDuration(self):
         try:
             duration = self._getMPV().get_property("duration")
-            return round(duration)
+            return roundToInt(duration)
         except MPVCommandError:
             return None
 
@@ -121,9 +122,9 @@ class UsesMPV(abc.ABC):
 
 
 class TimePosTimer(Thread):
-    def __init__(self, function):
+    def __init__(self, callbackFn):
         Thread.__init__(self)
-        self._function = function
+        self._callbackFn = callbackFn
         self._finishEvent = Event()
         self._triggerEvent = Event()
         self._enabled = False
@@ -140,9 +141,9 @@ class TimePosTimer(Thread):
                 self._getMPV().register_property_callback(TIME_POS_PROPERTY, self.timePosCallback)
                 timePos = self._queue.get()
                 self._getMPV().unregister_property_callback(TIME_POS_PROPERTY, self.timePosCallback)
-                posInt = round(timePos)
+                posInt = roundToInt(timePos)
                 timeAdj = posInt - timePos
-                self._function(posInt)
+                self._callbackFn(posInt)
             # reset the trigger event to wait the TIME_POS_READ_INTERVAL in next cycle
             self._triggerEvent.clear()
 
@@ -156,7 +157,8 @@ class TimePosTimer(Thread):
         self._enabled = True
         self._triggerEvent.set()
 
-    def _getMPV(self) -> MyMPV:
+    @staticmethod
+    def _getMPV() -> MyMPV:
         global mpv
         return mpv
 
