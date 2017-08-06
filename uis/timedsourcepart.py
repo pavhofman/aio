@@ -22,14 +22,14 @@ class TimedSourcePart(WebSourcePart, abc.ABC):
             return True
         elif msg.typeID == MsgID.TIME_POS_INFO:
             msg = msg  # type: BiIntegerMsg
-            self._drawTimePos(timePos=msg.value2)
+            self._drawTimePos(timePos=msg.value1, duration=msg.value2)
             return True
         else:
             return False
 
-    def _drawTimePos(self, timePos: int) -> None:
-        self._trackContainer.drawTimePos(timePos)
-        self._selectorContainer.drawTimePos(timePos)
+    def _drawTimePos(self, timePos: int, duration: int) -> None:
+        self._trackContainer.drawTimePos(timePos=timePos, duration=duration)
+        self._selectorContainer.drawTimePos(timePos=timePos, duration=duration)
 
     def _createSelectorContainer(self) -> TimedNodeSelectFSContainer:
         return TimedNodeSelectFSContainer(self._app, self)

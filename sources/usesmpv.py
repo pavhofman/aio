@@ -25,6 +25,8 @@ class UsesMPV(abc.ABC):
     def __init__(self) -> None:
         super().__init__()
         self._timePosTimer = TimePosTimer(self.timePosWasChanged)
+        # cached value
+        self.__duration = None
 
     def _isPaused(self) -> bool:
         status = self._getMPV().get_property("pause")
@@ -99,8 +101,14 @@ class UsesMPV(abc.ABC):
 
     def pathWasChanged(self, filePath: str):
         self._timePosTimer.trigger()
+        self.__duration = None
 
     def _getDuration(self) -> Optional[int]:
+        if self.__duration is None:
+            self.__duration = self._readDuration()
+        return self.__duration
+
+    def _readDuration(self):
         try:
             duration = self._getMPV().get_property("duration")
             return round(duration)

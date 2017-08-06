@@ -11,5 +11,5 @@ class TimedTrackContainer(TrackContainer):
     def __init__(self, app: 'WebApp', sourcePart: 'WebSourcePart'):
         TrackContainer.__init__(self, app, sourcePart)
 
-    def drawTimePos(self, timePos: int) -> None:
+    def drawTimePos(self, timePos: int, duration: int) -> None:
         pass

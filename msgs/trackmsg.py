@@ -25,15 +25,13 @@ class TrackMsg(Message):
 
 
 class TrackItem:
-    def __init__(self, nodeID: NodeID, label: str, descr: str, duration: int):
+    def __init__(self, nodeID: NodeID, label: str, descr: str):
         self.nodeID = nodeID
         self.label = label
         self.descr = descr
-        self.duration = duration
 
     def __str__(self) -> str:
         return super().__str__() \
                + "; nodeID: " + str(self.nodeID) \
                + "; label: " + self.label \
-               + "; descr: " + str(self.descr) \
-               + "; duration: " + str(self.duration)
+               + "; descr: " + str(self.descr)

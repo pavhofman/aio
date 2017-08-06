@@ -214,10 +214,8 @@ class FileSource(TreeSource, UsesMPV):
         # waiting for duration being available by mpv
         # ugly hack
         sleep(0.05)
-        duration = self._getDuration()
         # send msg
-        trackItem = TrackItem(nodeID=self._playedNodeID, label=self._getTrackLabelFor(path), descr="",
-                              duration=duration)
+        trackItem = TrackItem(nodeID=self._playedNodeID, label=self._getTrackLabelFor(path), descr="")
         msg = TrackMsg(trackItem=trackItem, fromID=self.id, groupID=GroupID.UI)
         self.dispatcher.distribute(msg)
 
@@ -230,7 +228,9 @@ class FileSource(TreeSource, UsesMPV):
 
     def timePosWasChanged(self, timePos: int):
         if timePos is not None and self._playedNodeID != NON_EXISTING_NODE_ID:
-            msg = BiIntegerMsg(value1=self._playedNodeID, value2=timePos, fromID=self.id, typeID=MsgID.TIME_POS_INFO,
+            duration = self._getDuration()
+            duration = duration if duration is not None else 0
+            msg = BiIntegerMsg(value1=timePos, value2=duration, fromID=self.id, typeID=MsgID.TIME_POS_INFO,
                                groupID=GroupID.UI)
             self.dispatcher.distribute(msg)
 

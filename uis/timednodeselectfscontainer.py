@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-from msgs.trackmsg import TrackItem
 from remi import gui
 from uis.nodeselectfscontainer import NodeSelectFSContainer
 
@@ -21,11 +20,6 @@ class TimedNodeSelectFSContainer(NodeSelectFSContainer):
         box.append(self._trackDuration, "3")
         return box
 
-    def drawTrack(self, trackItem: TrackItem) -> None:
-        # TODO - check for nodeID?
-        super().drawTrack(trackItem)
-        duration = str(trackItem.duration) if trackItem.duration is not None else ""
-        self._trackDuration.set_text(duration)
-
-    def drawTimePos(self, timePos: int) -> None:
+    def drawTimePos(self, timePos: int, duration: int) -> None:
         self._timePosLabel.set_text(str(timePos))
+        self._trackDuration.set_text(str(duration))
