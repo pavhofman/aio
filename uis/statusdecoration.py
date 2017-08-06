@@ -1,6 +1,6 @@
 from remi import gui
 
-from sourcestatus import SourceStatus
+from sources.sourcestatus import SourceStatus
 
 
 class StatusDecoration:

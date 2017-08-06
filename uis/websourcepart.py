@@ -8,7 +8,7 @@ from msgs.nodemsg import NodeMsg
 from msgs.trackmsg import TrackItem, TrackMsg
 from remi import gui
 from sources.playbackstatus import PlaybackStatus
-from sourcestatus import SourceStatus
+from sources.sourcestatus import SourceStatus
 from uis.nodeselectfscontainer import NodeSelectFSContainer
 from uis.sourcepart import SourcePart
 from uis.statuswidgets import StatusButton, StatusLabel

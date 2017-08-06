@@ -1,5 +1,5 @@
 from moduleid import ModuleID
-from sourcestatus import SourceStatus
+from sources.sourcestatus import SourceStatus
 
 
 class SourcePart:

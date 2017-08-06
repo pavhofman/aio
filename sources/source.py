@@ -9,7 +9,7 @@ from msgid import MsgID
 from msgs.integermsg import IntegerMsg
 from msgs.message import Message
 from sources.playbackstatus import PlaybackStatus
-from sourcestatus import SourceStatus
+from sources.sourcestatus import SourceStatus
 
 if TYPE_CHECKING:
     from dispatcher import Dispatcher

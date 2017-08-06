@@ -7,7 +7,7 @@ from msgconsumer import MsgConsumer
 from msgid import MsgID
 from msgs.integermsg import IntegerMsg
 from msgs.message import Message
-from sourcestatus import SourceStatus
+from sources.sourcestatus import SourceStatus
 from uis.hassourceparts import HasSourceParts
 
 if TYPE_CHECKING:
