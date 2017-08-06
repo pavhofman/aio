@@ -52,5 +52,5 @@ class MsgID(Enum):
     # BiIntegerMsg(value1 = nodeID, value2 = timepos in seconds, fromID=source, forID=UI)
     TIME_POS_INFO = 13
 
-    # BiIntegerMsg(value1 = nodeID, value2 = timepos in seconds, fromID=source, forID=UI)
-    TRACK_INFO = 13
+    # TrackMsg(fromID=source, forID=UI)
+    TRACK_INFO = 14
