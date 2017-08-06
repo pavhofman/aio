@@ -72,8 +72,12 @@ class UsesMPV(abc.ABC):
     def close(self):
         self._timePosTimer.finish()
 
-    def _startPlayback(self):
+    def _startPlayback(self, filePath: str):
+        self._getMPV().command("loadfile", filePath, "replace")
         self._timePosTimer.trigger()
+
+    def _appendToPlayback(self, filePath: str):
+        self._getMPV().command("loadfile", filePath, "append")
 
     @abc.abstractmethod
     def chapterWasChanged(self, chapter: int):
