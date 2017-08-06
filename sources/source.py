@@ -52,7 +52,7 @@ class Source(MsgConsumer, abc.ABC):
             # changing
             if self._changePlaybackTo(newPlayback):
                 # informing
-                self.__sendPlaybackInfo(newPlayback)
+                self._sendPlaybackInfo(newPlayback)
 
     def _handleActivateMsg(self, msg: IntegerMsg):
         if msg.value == self.id.value:
@@ -101,7 +101,7 @@ class Source(MsgConsumer, abc.ABC):
     def _isAvailable(self) -> bool:
         pass
 
-    def __sendPlaybackInfo(self, newPlayback: PlaybackStatus) -> None:
+    def _sendPlaybackInfo(self, newPlayback: PlaybackStatus) -> None:
         msg = IntegerMsg(value=newPlayback.value, fromID=self.id, typeID=MsgID.SOURCE_PLAYBACK_INFO,
                          groupID=GroupID.UI)
         self.dispatcher.distribute(msg)
