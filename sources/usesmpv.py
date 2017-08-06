@@ -73,7 +73,6 @@ class UsesMPV(abc.ABC):
         self._timePosTimer.finish()
 
     def _startPlayback(self):
-        self._getMPV().play()
         self._timePosTimer.trigger()
 
     @abc.abstractmethod
