@@ -14,7 +14,7 @@ class TrackContainer(gui.VBox):
         gui.VBox.__init__(self, width=400, height=app.getHeight(), margin='0px auto')
         self._sourcePart = sourcePart
         self._app = app
-        button = Button(text="Výběr tracku")
+        button = Button(text="Select track")
         button.set_on_click_listener(self._onOpenSelectorButtonPressed)
         self.append(button)
 
