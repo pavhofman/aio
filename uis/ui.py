@@ -53,8 +53,9 @@ class UI(MsgConsumer, HasSourceParts, abc.ABC):
         source = self._getSourcePartFor(msg)
         if source is not None:
             newStatus = SourceStatus(msg.value)
-            if newStatus != source.status:
-                source.status = newStatus
+            if newStatus != source.sourceStatus:
+                source.sourceStatus = newStatus
                 if newStatus.isActivated():
                     self.activeSource = source
-                logging.debug("Changed status of UI Source " + source.__class__.__name__ + " to " + str(source.status))
+                logging.debug(
+                    "Changed status of UI Source " + source.__class__.__name__ + " to " + str(source.sourceStatus))

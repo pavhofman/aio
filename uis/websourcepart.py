@@ -3,12 +3,16 @@ from typing import TYPE_CHECKING
 
 from moduleid import ModuleID
 from msgid import MsgID
-from msgs.integermsg import IntegerMsg, BiIntegerMsg
+from msgs.integermsg import IntegerMsg
+from msgs.nodemsg import NodeMsg
 from msgs.trackmsg import TrackItem, TrackMsg
-from remi import gui, Button
+from remi import gui
+from sources.playbackstatus import PlaybackStatus
 from sourcestatus import SourceStatus
+from uis.nodeselectfscontainer import NodeSelectFSContainer
 from uis.sourcepart import SourcePart
 from uis.statuswidgets import StatusButton, StatusLabel
+from uis.trackcontainer import TrackContainer
 
 if TYPE_CHECKING:
     from uis.webapp import WebApp
@@ -27,22 +31,22 @@ class WebSourcePart(SourcePart, abc.ABC):
         self._activationButton = self._createActivationButton()
         self._trackContainer = self._createTrackContainer()
 
-    def _createSelectorContainer(self) -> gui.Widget:
-        return gui.VBox(width=self._app.getWidth(), height=self._app.getHeight(), margin='0px auto')
+    def _createSelectorContainer(self) -> NodeSelectFSContainer:
+        return NodeSelectFSContainer(self._app, self)
 
     def _createOverviewLabel(self) -> StatusLabel:
         label = StatusLabel(self._getLabelText())
-        label.decorateForStatus(self.status)
+        label.decorateForStatus(self.sourceStatus)
         return label
 
     def _createActivationButton(self) -> StatusButton:
         button = StatusButton(text=self._getLabelText())
         button.set_on_click_listener(self._onActivateButtonPressed)
-        button.decorateForStatus(self.status)
+        button.decorateForStatus(self.sourceStatus)
         return button
 
     def setStatus(self, newStatus: SourceStatus) -> None:
-        if newStatus != self.status:
+        if newStatus != self.sourceStatus:
             super().setStatus(newStatus)
             self._updateComponentsForNewStatus()
 
@@ -52,55 +56,49 @@ class WebSourcePart(SourcePart, abc.ABC):
     # noinspection PyUnusedLocal
     def _updateComponentsForNewStatus(self) -> None:
         self._overviewLabel.set_text(self._getLabelText())
-        self._overviewLabel.decorateForStatus(self.status)
+        self._overviewLabel.decorateForStatus(self.sourceStatus)
         self._activationButton.set_text(self._getLabelText())
-        self._activationButton.decorateForStatus(self.status)
+        self._activationButton.decorateForStatus(self.sourceStatus)
 
     def _getLabelText(self) -> str:
-        return self.name + str(self.status.value)
+        return self.name + str(self.sourceStatus.value)
 
     def getSelectorFSContainer(self) -> gui.Widget:
         return self._selectorContainer
 
     # noinspection PyUnusedLocal
     def _onActivateButtonPressed(self, widget) -> None:
-        if self.status.isAvailable():
+        if self.sourceStatus.isAvailable():
             # changing
-            self._app.sendSwitchSourceReq(source=self, activate=not self.status.isActivated())
+            self._app.sendSwitchSourceReq(source=self, activate=not self.sourceStatus.isActivated())
         # closing
         self._app.showPrevFSContainer()
 
     def getActivationButton(self) -> StatusButton:
         return self._activationButton
 
-    def _createTrackContainer(self) -> gui.Widget:
-        container = gui.Widget(width=400)
-        self._fillTrackContainer(container)
-        button = Button(text="Výběr tracku")
-        button.set_on_click_listener(self._onOpenSelectorButtonPressed)
-        container.append(button)
-        return container
+    def _createTrackContainer(self) -> 'TrackContainer':
+        return TrackContainer(self._app, self)
 
-    # noinspection PyUnusedLocal
-    def _onOpenSelectorButtonPressed(self, widget):
+    def showSelectorContainer(self):
         self._app.setFSContainer(self._selectorContainer)
-
-    @abc.abstractmethod
-    def _fillTrackContainer(self, container: gui.Widget) -> None:
-        pass
 
     def handleMsgFromSource(self, msg) -> bool:
         if msg.typeID == MsgID.SOURCE_STATUS_INFO:
             msg = msg  # type: IntegerMsg
-            self._setSourceStatus(msg.value)
+            self._setSourceStatus(statusID=msg.value)
             return True
         elif msg.typeID == MsgID.TRACK_INFO:
             msg = msg  # type: TrackMsg
             self._drawTrack(trackItem=msg.trackItem)
             return True
-        elif msg.typeID == MsgID.TIME_POS_INFO:
-            msg = msg  # type: BiIntegerMsg
-            self._drawTimePos(timePos=msg.value2)
+        elif msg.typeID == MsgID.NODE_INFO:
+            msg = msg  # type: NodeMsg
+            self._selectorContainer.drawStruct(msg.nodeStruct)
+            return True
+        elif msg.typeID == MsgID.SOURCE_PLAYBACK_INFO:
+            msg = msg  # type: IntegerMsg
+            self._showPlaybackStatus(statusID=msg.value)
             return True
         else:
             return False
@@ -118,25 +116,10 @@ class WebSourcePart(SourcePart, abc.ABC):
             self._app.mainFSContainer.setNoTrackContainer()
 
     def _drawTrack(self, trackItem: TrackItem) -> None:
-        self._showTrackInTrackContainer(trackItem)
-        self._showTrackInSelectorContainer(trackItem)
+        self._trackContainer.drawTrack(trackItem)
+        self._selectorContainer.drawTrack(trackItem)
 
-    def _drawTimePos(self, timePos: int) -> None:
-        self._showTimeInTrackContainer(timePos)
-        self._showTimeInSelectorContainer(timePos)
-
-    @abc.abstractmethod
-    def _showTrackInTrackContainer(self, trackItem: TrackItem) -> None:
-        pass
-
-    @abc.abstractmethod
-    def _showTimeInTrackContainer(self, timePos: int) -> None:
-        pass
-
-    @abc.abstractmethod
-    def _showTrackInSelectorContainer(self, trackItem: TrackItem) -> None:
-        pass
-
-    @abc.abstractmethod
-    def _showTimeInSelectorContainer(self, timePos: int) -> None:
-        pass
+    def _showPlaybackStatus(self, statusID: int):
+        status = PlaybackStatus(statusID)
+        self._trackContainer.drawPlayback(status)
+        self._selectorContainer.drawPlayback(status)

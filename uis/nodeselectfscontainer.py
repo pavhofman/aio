@@ -6,10 +6,11 @@ from msgs.integermsg import BiIntegerMsg, IntegerMsg
 from msgs.nodemsg import NodeStruct, NodeItem, NON_EXISTING_NODE_ID, NodeID
 from msgs.trackmsg import TrackItem
 from remi import gui
+from sources.playbackstatus import PlaybackStatus
 from sources.treesource import MAX_CHILDREN
 
 if TYPE_CHECKING:
-    from uis.treesourcepart import TreeSourcePart
+    from uis.websourcepart import WebSourcePart
     from uis.webapp import WebApp
 
 CONTROLS_WIDTH = 60
@@ -23,7 +24,7 @@ EMPTY_NODE_STRUCT = NodeStruct(node=EMPTY_NODE_ITEM,
 
 
 class NodeSelectFSContainer(gui.HBox):
-    def __init__(self, app: 'WebApp', sourcePart: 'TreeSourcePart'):
+    def __init__(self, app: 'WebApp', sourcePart: 'WebSourcePart'):
         gui.HBox.__init__(self, width=app.getWidth(), height=app.getHeight(), margin='0px auto')
         self._sourcePart = sourcePart
         self._app = app
@@ -133,11 +134,6 @@ class NodeSelectFSContainer(gui.HBox):
         box = gui.HBox(width=width, height=height, margin='0px auto')
         self._trackLabel = gui.Label(text="")
         box.append(self._trackLabel, "1")
-        self._timePosLabel = gui.Label(text="")
-        box.append(self._timePosLabel, "2")
-        self._trackDuration = gui.Label(text="")
-        box.append(self._trackDuration, "3")
-
         return box
 
     def drawStruct(self, nodeStruct: NodeStruct) -> None:
@@ -188,12 +184,9 @@ class NodeSelectFSContainer(gui.HBox):
     def drawTrack(self, trackItem: TrackItem) -> None:
         # TODO - check for nodeID?
         self._trackLabel.set_text(trackItem.label)
-        duration = str(trackItem.duration) if trackItem.duration is not None else ""
-        self._trackDuration.set_text(trackItem.duration)
 
-    def drawTimePos(self, timePos: int) -> None:
-        self._timePosLabel.set_text(str(timePos))
-
+    def drawPlayback(self, status: PlaybackStatus) -> None:
+        pass
 
 
 class ANodeBox(gui.HBox, abc.ABC):
