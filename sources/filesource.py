@@ -138,7 +138,7 @@ class FileSource(TreeSource, UsesMPV):
             return self._rootNode
         else:
             isLeaf = path.is_file() or all(False for _ in path.iterdir())
-            return NodeItem(nodeID=nodeID, label=self._getLabelFor(path), isPlayable=True,
+            return NodeItem(nodeID=nodeID, label=self._getNodeLabelFor(path), isPlayable=True,
                             isLeaf=isLeaf)
 
     def _getExistingNodeID(self, nodeID: NodeID) -> NodeID:
@@ -180,9 +180,17 @@ class FileSource(TreeSource, UsesMPV):
             return totalParents, directParentID
 
     @staticmethod
-    def _getLabelFor(path: Path) -> str:
+    def _getNodeLabelFor(path: Path) -> str:
         # UNICODE -> ASCII
+        # only basename
         return unidecode(path.name)
+
+    @staticmethod
+    def _getTrackLabelFor(path: Path) -> str:
+        # fullname incl path from ROOT excl
+        fullname = str(path)[len(str(ROOT_PATH)):].lstrip('/')
+        # UNICODE -> ASCII
+        return unidecode(fullname)
 
     def _playNode(self, nodeID: NodeID) -> None:
         path = self._getPath(nodeID)
@@ -208,7 +216,8 @@ class FileSource(TreeSource, UsesMPV):
         sleep(0.05)
         duration = self._getDuration()
         # send msg
-        trackItem = TrackItem(nodeID=self._playedNodeID, label=self._getLabelFor(path), descr="", duration=duration)
+        trackItem = TrackItem(nodeID=self._playedNodeID, label=self._getTrackLabelFor(path), descr="",
+                              duration=duration)
         msg = TrackMsg(trackItem=trackItem, fromID=self.id, groupID=GroupID.UI)
         self.dispatcher.distribute(msg)
 
