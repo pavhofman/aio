@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional
 from msgid import MsgID
 from msgs.integermsg import BiIntegerMsg, IntegerMsg
 from msgs.nodemsg import NodeStruct, NodeItem, NON_EXISTING_NODE_ID, NodeID
+from msgs.trackmsg import TrackItem
 from remi import gui
 from sources.treesource import MAX_CHILDREN
 
@@ -29,10 +30,10 @@ class NodeSelectFSContainer(gui.HBox):
         self._leftWidth = app.getWidth() - CONTROLS_WIDTH - 10
         self._structContainer = self._createStructContainer(self._leftWidth, app.getHeight() - CUR_TRACK_HEIGHT)
         self._controlsContainer = self._createControlsContainer(CONTROLS_WIDTH, app.getHeight() - 10)
-        self._curTrackContainer = self._createCurTrackContainer(self._leftWidth, CUR_TRACK_HEIGHT)
+        self._trackContainer = self._createTrackContainer(self._leftWidth, CUR_TRACK_HEIGHT)
         leftCont = gui.VBox(width=self._leftWidth, height=app.getHeight(), margin='0px auto')
         leftCont.append(self._structContainer, '1')
-        leftCont.append(self._curTrackContainer, '2')
+        leftCont.append(self._trackContainer, '2')
         self.append(leftCont, '1')
         self.append(self._controlsContainer, '2')
         self._nodeStruct = None  # type: Optional[NodeStruct]
@@ -66,6 +67,7 @@ class NodeSelectFSContainer(gui.HBox):
         container.append(self._prevButton)
         self._closeButton = gui.Button("CLOSE")
         container.append(self._closeButton)
+        self._closeButton.set_on_click_listener(self._closeButtonOnClick)
         self._nextButton = gui.Button("NEXT")
         self._nextButton.set_on_click_listener(self._nextButtonOnClick)
         container.append(self._nextButton)
@@ -105,6 +107,10 @@ class NodeSelectFSContainer(gui.HBox):
             fromIndex = 0
         self.sendReqNodeMsg(self._nodeStruct.node.nodeID, fromIndex)
 
+    # noinspection PyUnusedLocal
+    def _closeButtonOnClick(self, widget):
+        self._app.setFSContainer(self._app.mainFSContainer)
+
     def sendReqNodeMsg(self, nodeID: NodeID, fromIndex: int) -> None:
         msg = BiIntegerMsg(value1=nodeID, value2=fromIndex, fromID=self._app.id,
                            typeID=MsgID.REQ_NODE,
@@ -123,9 +129,16 @@ class NodeSelectFSContainer(gui.HBox):
                          forID=self._sourcePart.sourceID)
         self._app.dispatcher.distribute(msg)
 
-    @staticmethod
-    def _createCurTrackContainer(width: int, height: int) -> gui.Widget:
-        return gui.HBox(width=width, height=height, margin='0px auto')
+    def _createTrackContainer(self, width: int, height: int) -> gui.Widget:
+        box = gui.HBox(width=width, height=height, margin='0px auto')
+        self._trackLabel = gui.Label(text="")
+        box.append(self._trackLabel, "1")
+        self._timePosLabel = gui.Label(text="")
+        box.append(self._timePosLabel, "2")
+        self._trackDuration = gui.Label(text="")
+        box.append(self._trackDuration, "3")
+
+        return box
 
     def drawStruct(self, nodeStruct: NodeStruct) -> None:
         self._updateRequestRootButton(nodeStruct)
@@ -171,6 +184,16 @@ class NodeSelectFSContainer(gui.HBox):
         if self._nodeStruct.fromChildIndex + order < self._nodeStruct.totalChildren:
             container.append(gui.Label("..."))
         pass
+
+    def drawTrack(self, trackItem: TrackItem) -> None:
+        # TODO - check for nodeID?
+        self._trackLabel.set_text(trackItem.label)
+        duration = str(trackItem.duration) if trackItem.duration is not None else ""
+        self._trackDuration.set_text(trackItem.duration)
+
+    def drawTimePos(self, timePos: int) -> None:
+        self._timePosLabel.set_text(str(timePos))
+
 
 
 class ANodeBox(gui.HBox, abc.ABC):

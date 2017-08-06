@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING
 
 from moduleid import ModuleID
 from msgid import MsgID
-from msgs.integermsg import IntegerMsg
+from msgs.integermsg import IntegerMsg, BiIntegerMsg
+from msgs.trackmsg import TrackItem, TrackMsg
 from remi import gui, Button
 from sourcestatus import SourceStatus
 from uis.sourcepart import SourcePart
@@ -84,9 +85,6 @@ class WebSourcePart(SourcePart, abc.ABC):
     def _onOpenSelectorButtonPressed(self, widget):
         self._app.setFSContainer(self._selectorContainer)
 
-    def getTrackContainer(self) -> gui.Widget:
-        return self._trackContainer
-
     @abc.abstractmethod
     def _fillTrackContainer(self, container: gui.Widget) -> None:
         pass
@@ -95,6 +93,14 @@ class WebSourcePart(SourcePart, abc.ABC):
         if msg.typeID == MsgID.SOURCE_STATUS_INFO:
             msg = msg  # type: IntegerMsg
             self._setSourceStatus(msg.value)
+            return True
+        elif msg.typeID == MsgID.TRACK_INFO:
+            msg = msg  # type: TrackMsg
+            self._drawTrack(trackItem=msg.trackItem)
+            return True
+        elif msg.typeID == MsgID.TIME_POS_INFO:
+            msg = msg  # type: BiIntegerMsg
+            self._drawTimePos(timePos=msg.value2)
             return True
         else:
             return False
@@ -105,8 +111,32 @@ class WebSourcePart(SourcePart, abc.ABC):
         self.setStatus(status)
         # update trackcontainer
         if status.isActivated():
-            self._app.mainFSContainer.setTrackContainer(self.getTrackContainer())
+            self._app.mainFSContainer.setTrackContainer(self._trackContainer)
 
         elif self._app.getActiveSource() is None:
             # deactivated
             self._app.mainFSContainer.setNoTrackContainer()
+
+    def _drawTrack(self, trackItem: TrackItem) -> None:
+        self._showTrackInTrackContainer(trackItem)
+        self._showTrackInSelectorContainer(trackItem)
+
+    def _drawTimePos(self, timePos: int) -> None:
+        self._showTimeInTrackContainer(timePos)
+        self._showTimeInSelectorContainer(timePos)
+
+    @abc.abstractmethod
+    def _showTrackInTrackContainer(self, trackItem: TrackItem) -> None:
+        pass
+
+    @abc.abstractmethod
+    def _showTimeInTrackContainer(self, timePos: int) -> None:
+        pass
+
+    @abc.abstractmethod
+    def _showTrackInSelectorContainer(self, trackItem: TrackItem) -> None:
+        pass
+
+    @abc.abstractmethod
+    def _showTimeInSelectorContainer(self, timePos: int) -> None:
+        pass

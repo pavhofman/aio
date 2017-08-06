@@ -5,6 +5,7 @@ from moduleid import ModuleID
 from msgid import MsgID
 from msgs.message import Message
 from msgs.nodemsg import NodeMsg
+from msgs.trackmsg import TrackItem
 from uis.nodeselectfscontainer import NodeSelectFSContainer
 from uis.websourcepart import WebSourcePart
 
@@ -28,3 +29,9 @@ class TreeSourcePart(WebSourcePart, abc.ABC):
 
     def _createSelectorContainer(self) -> NodeSelectFSContainer:
         return NodeSelectFSContainer(self._app, self)
+
+    def _showTrackInSelectorContainer(self, trackItem: TrackItem) -> None:
+        self._selectorContainer.drawTrack(trackItem)
+
+    def _showTimeInSelectorContainer(self, timePos: int) -> None:
+        self._selectorContainer.drawTimePos(timePos)

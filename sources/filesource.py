@@ -11,7 +11,7 @@ from moduleid import ModuleID
 from msgid import MsgID
 from msgs.integermsg import BiIntegerMsg
 from msgs.nodemsg import NodeMsg, NodeItem, NodeID, NON_EXISTING_NODE_ID, NodeStruct
-from msgs.trackmsg import TrackMsg
+from msgs.trackmsg import TrackMsg, TrackItem
 from sources.playbackstatus import PlaybackStatus
 from sources.treesource import TreeSource, MAX_CHILDREN
 from sources.usesmpv import UsesMPV
@@ -185,26 +185,32 @@ class FileSource(TreeSource, UsesMPV):
     def _playNode(self, nodeID: NodeID) -> None:
         path = self._getPath(nodeID)
         if path is not None:
+            # loadfile command starts playback immediately
             self._getMPV().command("loadfile", str(path), "replace")
             self._startPlayback()
 
     def chapterWasChanged(self, chapter: int):
         pass
 
-    def pathWasChanged(self, filePath: str):
-        path = Path(filePath)
-        if path.is_file():
-            UsesMPV.pathWasChanged(self, filePath)
-            self._playedNodeID = self._getID(path)
-            # waiting for duration being available by mpv
-            # ugly hack
-            sleep(0.05)
-            duration = self._getDuration()
-            # send msg
-            msg = TrackMsg(nodeID=self._playedNodeID, label=self._getLabelFor(path), descr="",
-                           duration=duration, fromID=self.id,
-                           groupID=GroupID.UI)
-            self.dispatcher.distribute(msg)
+    def pathWasChanged(self, filePath: Optional[str]):
+        if filePath is None:
+            self._sendPlaybackInfo(PlaybackStatus.STOPPED)
+        else:
+            path = Path(filePath)
+            if path.is_file():
+                self._switchedToNewFilePath(filePath, path)
+
+    def _switchedToNewFilePath(self, filePath: str, path: Path):
+        UsesMPV.pathWasChanged(self, filePath)
+        self._playedNodeID = self._getID(path)
+        # waiting for duration being available by mpv
+        # ugly hack
+        sleep(0.05)
+        duration = self._getDuration()
+        # send msg
+        trackItem = TrackItem(nodeID=self._playedNodeID, label=self._getLabelFor(path), descr="", duration=duration)
+        msg = TrackMsg(trackItem=trackItem, fromID=self.id, groupID=GroupID.UI)
+        self.dispatcher.distribute(msg)
 
     def metadataWasChanged(self, metadata: dict):
         pass
