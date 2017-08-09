@@ -14,6 +14,9 @@ if TYPE_CHECKING:
 
 
 class TimeSourcePart(WebSourcePart, abc.ABC):
+    """
+    Source part supporting TIM_POS_INFO messages, i.e. displaying sources with time position.
+    """
     def __init__(self, sourceID: ModuleID, name: str, app: 'WebApp'):
         WebSourcePart.__init__(self, sourceID=sourceID, name=name, app=app)
 

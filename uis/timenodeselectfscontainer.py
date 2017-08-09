@@ -23,3 +23,8 @@ class TimeNodeSelectFSContainer(NodeSelectFSContainer):
     def drawTimePos(self, timePos: int, duration: int) -> None:
         self._timePosLabel.set_text(str(timePos))
         self._trackDuration.set_text(str(duration))
+
+    def drawPlaybackStopped(self):
+        super().drawPlaybackStopped()
+        self._timePosLabel.set_text("")
+        self._trackDuration.set_text("")

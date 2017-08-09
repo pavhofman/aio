@@ -121,5 +121,12 @@ class WebSourcePart(SourcePart, abc.ABC):
 
     def _showPlaybackStatus(self, statusID: int):
         status = PlaybackStatus(statusID)
-        self._trackContainer.drawPlayback(status)
-        self._selectorContainer.drawPlayback(status)
+        if PlaybackStatus.STOPPED == status:
+            self._trackContainer.drawPlaybackStopped()
+            self._selectorContainer.drawPlaybackStopped()
+        elif PlaybackStatus.PAUSED == status:
+            self._trackContainer.drawPlaybackPaused()
+            self._selectorContainer.drawPlaybackPaused()
+        elif PlaybackStatus.PLAYING == status:
+            self._trackContainer.drawPlaybackPlaying()
+            self._selectorContainer.drawPlaybackPlaying()

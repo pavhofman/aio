@@ -1,5 +1,5 @@
 import abc
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Callable
 
 from msgid import MsgID
 from msgs.integermsg import BiIntegerMsg, IntegerMsg
@@ -134,7 +134,37 @@ class NodeSelectFSContainer(gui.HBox):
         box = gui.HBox(width=width, height=height, margin='0px auto')
         self._trackLabel = gui.Label(text="")
         box.append(self._trackLabel, "1")
+        self._playBtn = self._createBtn(">", False, self._onPlayBtnClicked)
+        box.append(self._playBtn, "10")
+        self._pauseBtn = self._createBtn("II", False, self._onPauseBtnClicked)
+        box.append(self._pauseBtn, "11")
+        self._stopBtn = self._createBtn("O", False, self._onStopBtnClicked)
+        box.append(self._stopBtn, "12")
         return box
+
+    def _createBtn(self, label: str, enabled: bool, listenerFn: Callable) -> gui.Button:
+        btn = gui.Button(label)
+        btn.set_enabled(enabled)
+        btn.set_on_click_listener(listenerFn)
+        return btn
+
+    # noinspection PyUnusedLocal
+    def _onPlayBtnClicked(self, widget):
+        self._sendPlaybackStatusMsg(PlaybackStatus.PLAYING)
+
+    # noinspection PyUnusedLocal
+    def _onPauseBtnClicked(self, widget):
+        self._sendPlaybackStatusMsg(PlaybackStatus.PAUSED)
+
+    # noinspection PyUnusedLocal
+    def _onStopBtnClicked(self, widget):
+        self._sendPlaybackStatusMsg(PlaybackStatus.STOPPED)
+
+    def _sendPlaybackStatusMsg(self, status: PlaybackStatus) -> None:
+        msg = IntegerMsg(value=status.value, fromID=self._app.id,
+                         typeID=MsgID.SET_SOURCE_PLAYBACK,
+                         forID=self._sourcePart.sourceID)
+        self._app.dispatcher.distribute(msg)
 
     def drawStruct(self, nodeStruct: NodeStruct) -> None:
         self._updateRequestRootButton(nodeStruct)
@@ -182,11 +212,24 @@ class NodeSelectFSContainer(gui.HBox):
         pass
 
     def drawTrack(self, trackItem: TrackItem) -> None:
-        # TODO - check for nodeID?
         self._trackLabel.set_text(trackItem.label)
+        self.drawPlaybackPlaying()
 
-    def drawPlayback(self, status: PlaybackStatus) -> None:
-        pass
+    def drawPlaybackStopped(self) -> None:
+        self._trackLabel.set_text("")
+        self._playBtn.set_enabled(False)
+        self._pauseBtn.set_enabled(False)
+        self._stopBtn.set_enabled(False)
+
+    def drawPlaybackPaused(self) -> None:
+        self._playBtn.set_enabled(True)
+        self._pauseBtn.set_enabled(False)
+        self._stopBtn.set_enabled(True)
+
+    def drawPlaybackPlaying(self) -> None:
+        self._playBtn.set_enabled(False)
+        self._pauseBtn.set_enabled(True)
+        self._stopBtn.set_enabled(True)
 
 
 class ANodeBox(gui.HBox, abc.ABC):

@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 
 from msgs.trackmsg import TrackItem
 from remi import gui, Button
-from sources.playbackstatus import PlaybackStatus
 
 if TYPE_CHECKING:
     from uis.websourcepart import WebSourcePart
@@ -23,7 +22,14 @@ class TrackContainer(gui.VBox):
         self._sourcePart.showSelectorContainer()
 
     def drawTrack(self, trackItem: TrackItem) -> None:
+        self.drawPlaybackPlaying()
         pass
 
-    def drawPlayback(self, status: PlaybackStatus) -> None:
+    def drawPlaybackStopped(self) -> None:
+        pass
+
+    def drawPlaybackPaused(self) -> None:
+        pass
+
+    def drawPlaybackPlaying(self) -> None:
         pass
