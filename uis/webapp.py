@@ -76,6 +76,9 @@ class WebApp(App, CanSendMessage, HasSourceParts):
         return HEIGHT
 
     def setFSContainer(self, container: gui.Widget):
+        if self._currentFSContainer is not None \
+                and isinstance(self._currentFSContainer, TimedClose):
+            self._currentFSContainer.closeTimer()
         self._prevFSContainer = self._currentFSContainer
         self._currentFSContainer = container
         self._rootContainer.empty()
@@ -124,8 +127,6 @@ class WebApp(App, CanSendMessage, HasSourceParts):
         self.setFSContainer(self._activateSourceFSContainer)
 
     def showPrevFSContainer(self) -> None:
-        if isinstance(self._currentFSContainer, TimedClose):
-            self._currentFSContainer.closeTimer()
         self.setFSContainer(self._prevFSContainer)
 
     def sendSwitchSourceReq(self, source: 'WebSourcePart', activate: bool) -> None:
