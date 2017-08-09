@@ -79,7 +79,7 @@ class WebApp(App, CanSendMessage, HasSourceParts):
         if self._currentFSContainer is not None \
                 and isinstance(self._currentFSContainer, TimedClose):
             self._currentFSContainer.closeTimer()
-        self._prevFSContainer = self._currentFSContainer
+        self._prevFSContainer = self._currentFSContainer  # type: gui.Widget
         self._currentFSContainer = container
         self._rootContainer.empty()
         self._rootContainer.append(container)
