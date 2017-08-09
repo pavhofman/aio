@@ -50,9 +50,7 @@ class Source(MsgConsumer, abc.ABC):
         currentPlayback = self._determinePlayback()
         if currentPlayback != newPlayback:
             # changing
-            if self._changePlaybackTo(newPlayback):
-                # informing
-                self._sendPlaybackInfo(newPlayback)
+            self._changePlaybackTo(newPlayback)
 
     def _handleActivateMsg(self, msg: IntegerMsg):
         if msg.value == self.id.value:
