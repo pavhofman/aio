@@ -224,6 +224,7 @@ class FileSource(TreeSource, UsesMPV):
 
     def pauseWasChanged(self, pause: bool):
         UsesMPV.pauseWasChanged(self, pause)
+        self._sendPlaybackInfo(PlaybackStatus.PAUSED if pause else PlaybackStatus.PLAYING)
         pass
 
     def timePosWasChanged(self, timePos: int):
