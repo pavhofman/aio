@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from uis.webapp import WebApp
 
 
-class TimedTrackContainer(TrackContainer):
+class TimeTrackContainer(TrackContainer):
     def __init__(self, app: 'WebApp', sourcePart: 'WebSourcePart'):
         TrackContainer.__init__(self, app, sourcePart)
 

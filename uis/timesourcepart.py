@@ -5,15 +5,15 @@ from moduleid import ModuleID
 from msgid import MsgID
 from msgs.integermsg import BiIntegerMsg
 from msgs.message import Message
-from uis.timednodeselectfscontainer import TimedNodeSelectFSContainer
-from uis.timedtrackcontainer import TimedTrackContainer
+from uis.timenodeselectfscontainer import TimeNodeSelectFSContainer
+from uis.timetrackcontainer import TimeTrackContainer
 from uis.websourcepart import WebSourcePart
 
 if TYPE_CHECKING:
     from uis.webapp import WebApp
 
 
-class TimedSourcePart(WebSourcePart, abc.ABC):
+class TimeSourcePart(WebSourcePart, abc.ABC):
     def __init__(self, sourceID: ModuleID, name: str, app: 'WebApp'):
         WebSourcePart.__init__(self, sourceID=sourceID, name=name, app=app)
 
@@ -31,8 +31,8 @@ class TimedSourcePart(WebSourcePart, abc.ABC):
         self._trackContainer.drawTimePos(timePos=timePos, duration=duration)
         self._selectorContainer.drawTimePos(timePos=timePos, duration=duration)
 
-    def _createSelectorContainer(self) -> TimedNodeSelectFSContainer:
-        return TimedNodeSelectFSContainer(self._app, self)
+    def _createSelectorContainer(self) -> TimeNodeSelectFSContainer:
+        return TimeNodeSelectFSContainer(self._app, self)
 
-    def _createTrackContainer(self) -> 'TimedTrackContainer':
-        return TimedTrackContainer(self._app, self)
+    def _createTrackContainer(self) -> 'TimeTrackContainer':
+        return TimeTrackContainer(self._app, self)

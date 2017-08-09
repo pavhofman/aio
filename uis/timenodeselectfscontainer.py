@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from uis.webapp import WebApp
 
 
-class TimedNodeSelectFSContainer(NodeSelectFSContainer):
+class TimeNodeSelectFSContainer(NodeSelectFSContainer):
     def __init__(self, app: 'WebApp', sourcePart: 'WebSourcePart'):
         NodeSelectFSContainer.__init__(self, app, sourcePart)
 
