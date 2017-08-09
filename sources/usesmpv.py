@@ -77,6 +77,8 @@ class UsesMPV(abc.ABC):
 
     def _startPlayback(self, filePath: str):
         self._getMPV().command("loadfile", filePath, "replace")
+        # mpv can be paused, unpause
+        self._getMPV().play()
         self._timePosTimer.trigger()
 
     def _appendToPlayback(self, filePath: str):
@@ -143,6 +145,7 @@ class TimePosTimer(Thread):
                 self._getMPV().unregister_property_callback(TIME_POS_PROPERTY, self.timePosCallback)
                 posInt = roundToInt(timePos)
                 timeAdj = posInt - timePos
+                # print("TimePos: " + str(timePos) + "; posInt: " + str(posInt) + "; timeAdj: " + str(timeAdj))
                 self._callbackFn(posInt)
             # reset the trigger event to wait the TIME_POS_READ_INTERVAL in next cycle
             self._triggerEvent.clear()
