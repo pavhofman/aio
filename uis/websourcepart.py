@@ -72,7 +72,7 @@ class WebSourcePart(SourcePart, abc.ABC):
             # changing
             self._app.sendSwitchSourceReq(source=self, activate=not self.sourceStatus.isActivated())
         # closing
-        self._app.showPrevFSContainer()
+        self.showSelectorContainer()
 
     def getActivationButton(self) -> StatusButton:
         return self._activationButton
