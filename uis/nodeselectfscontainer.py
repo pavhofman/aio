@@ -1,13 +1,12 @@
 import abc
-from typing import TYPE_CHECKING, Optional, Callable
+from typing import TYPE_CHECKING, Optional
 
 from msgid import MsgID
 from msgs.integermsg import BiIntegerMsg, IntegerMsg
 from msgs.nodemsg import NodeStruct, NodeItem, NON_EXISTING_NODE_ID, NodeID
-from msgs.trackmsg import TrackItem
 from remi import gui
-from sources.playbackstatus import PlaybackStatus
 from sources.treesource import MAX_CHILDREN
+from uis.simpletrackcontainer import SimpleTrackContainer
 
 if TYPE_CHECKING:
     from uis.websourcepart import WebSourcePart
@@ -31,10 +30,10 @@ class NodeSelectFSContainer(gui.HBox):
         self._leftWidth = app.getWidth() - CONTROLS_WIDTH - 10
         self._structContainer = self._createStructContainer(self._leftWidth, app.getHeight() - CUR_TRACK_HEIGHT)
         self._controlsContainer = self._createControlsContainer(CONTROLS_WIDTH, app.getHeight() - 10)
-        self._trackContainer = self._createTrackContainer(self._leftWidth, CUR_TRACK_HEIGHT)
+        self.trackBox = self._createTrackContainer(self._leftWidth, CUR_TRACK_HEIGHT)
         leftCont = gui.VBox(width=self._leftWidth, height=app.getHeight(), margin='0px auto')
         leftCont.append(self._structContainer, '1')
-        leftCont.append(self._trackContainer, '2')
+        leftCont.append(self.trackBox, '2')
         self.append(leftCont, '1')
         self.append(self._controlsContainer, '2')
         self._nodeStruct = None  # type: Optional[NodeStruct]
@@ -131,40 +130,7 @@ class NodeSelectFSContainer(gui.HBox):
         self._app.dispatcher.distribute(msg)
 
     def _createTrackContainer(self, width: int, height: int) -> gui.Widget:
-        box = gui.HBox(width=width, height=height, margin='0px auto')
-        self._trackLabel = gui.Label(text="")
-        box.append(self._trackLabel, "1")
-        self._playBtn = self._createBtn(">", False, self._onPlayBtnClicked)
-        box.append(self._playBtn, "10")
-        self._pauseBtn = self._createBtn("II", False, self._onPauseBtnClicked)
-        box.append(self._pauseBtn, "11")
-        self._stopBtn = self._createBtn("O", False, self._onStopBtnClicked)
-        box.append(self._stopBtn, "12")
-        return box
-
-    def _createBtn(self, label: str, enabled: bool, listenerFn: Callable) -> gui.Button:
-        btn = gui.Button(label)
-        btn.set_enabled(enabled)
-        btn.set_on_click_listener(listenerFn)
-        return btn
-
-    # noinspection PyUnusedLocal
-    def _onPlayBtnClicked(self, widget):
-        self._sendPlaybackStatusMsg(PlaybackStatus.PLAYING)
-
-    # noinspection PyUnusedLocal
-    def _onPauseBtnClicked(self, widget):
-        self._sendPlaybackStatusMsg(PlaybackStatus.PAUSED)
-
-    # noinspection PyUnusedLocal
-    def _onStopBtnClicked(self, widget):
-        self._sendPlaybackStatusMsg(PlaybackStatus.STOPPED)
-
-    def _sendPlaybackStatusMsg(self, status: PlaybackStatus) -> None:
-        msg = IntegerMsg(value=status.value, fromID=self._app.id,
-                         typeID=MsgID.SET_SOURCE_PLAYBACK,
-                         forID=self._sourcePart.sourceID)
-        self._app.dispatcher.distribute(msg)
+        return SimpleTrackContainer(width=width, height=height, app=self._app, sourcePart=self._sourcePart)
 
     def drawStruct(self, nodeStruct: NodeStruct) -> None:
         self._updateRequestRootButton(nodeStruct)
@@ -211,26 +177,6 @@ class NodeSelectFSContainer(gui.HBox):
             container.append(gui.Label("..."))
         pass
 
-    def drawTrack(self, trackItem: TrackItem) -> None:
-        self._trackLabel.set_text(trackItem.label)
-        self.drawPlaybackPlaying()
-
-    def drawPlaybackStopped(self) -> None:
-        self._trackLabel.set_text("")
-        self._playBtn.set_enabled(False)
-        self._pauseBtn.set_enabled(False)
-        self._stopBtn.set_enabled(False)
-
-    def drawPlaybackPaused(self) -> None:
-        self._playBtn.set_enabled(True)
-        self._pauseBtn.set_enabled(False)
-        self._stopBtn.set_enabled(True)
-
-    def drawPlaybackPlaying(self) -> None:
-        self._playBtn.set_enabled(False)
-        self._pauseBtn.set_enabled(True)
-        self._stopBtn.set_enabled(True)
-
 
 class ANodeBox(gui.HBox, abc.ABC):
     def __init__(self, node: NodeItem, width: int, height: int, myContainer: NodeSelectFSContainer):
@@ -247,6 +193,7 @@ class ANodeBox(gui.HBox, abc.ABC):
         playButton.set_on_click_listener(self._playNodeOnClick)
         return playButton
 
+    # noinspection PyUnusedLocal
     def _playNodeOnClick(self, widget):
         self._myContainer.sendPlayNodeMsg(self._node.nodeID)
 

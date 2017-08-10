@@ -12,7 +12,7 @@ from sources.sourcestatus import SourceStatus
 from uis.nodeselectfscontainer import NodeSelectFSContainer
 from uis.sourcepart import SourcePart
 from uis.statuswidgets import StatusButton, StatusLabel
-from uis.trackcontainer import TrackContainer
+from uis.trackdetailscontainer import TrackDetailsContainer
 
 if TYPE_CHECKING:
     from uis.webapp import WebApp
@@ -77,8 +77,8 @@ class WebSourcePart(SourcePart, abc.ABC):
     def getActivationButton(self) -> StatusButton:
         return self._activationButton
 
-    def _createTrackContainer(self) -> 'TrackContainer':
-        return TrackContainer(self._app, self)
+    def _createTrackContainer(self) -> 'TrackDetailsContainer':
+        return TrackDetailsContainer(self._app, self)
 
     def showSelectorContainer(self):
         self._app.setFSContainer(self._selectorContainer)
@@ -117,16 +117,16 @@ class WebSourcePart(SourcePart, abc.ABC):
 
     def _drawTrack(self, trackItem: TrackItem) -> None:
         self._trackContainer.drawTrack(trackItem)
-        self._selectorContainer.drawTrack(trackItem)
+        self._selectorContainer.trackBox.drawTrack(trackItem)
 
     def _showPlaybackStatus(self, statusID: int):
         status = PlaybackStatus(statusID)
         if PlaybackStatus.STOPPED == status:
             self._trackContainer.drawPlaybackStopped()
-            self._selectorContainer.drawPlaybackStopped()
+            self._selectorContainer.trackBox.drawPlaybackStopped()
         elif PlaybackStatus.PAUSED == status:
             self._trackContainer.drawPlaybackPaused()
-            self._selectorContainer.drawPlaybackPaused()
+            self._selectorContainer.trackBox.drawPlaybackPaused()
         elif PlaybackStatus.PLAYING == status:
             self._trackContainer.drawPlaybackPlaying()
-            self._selectorContainer.drawPlaybackPlaying()
+            self._selectorContainer.trackBox.drawPlaybackPlaying()
