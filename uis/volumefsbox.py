@@ -10,11 +10,11 @@ from uis.volumeslider import VolumeSlider
 if TYPE_CHECKING:
     from uis.webapp import WebApp
 
-# the container gets closed after TIMEOUT of no activity
+# the box gets closed after TIMEOUT of no activity
 TIMEOUT = 2
 
 
-class VolumeFSContainer(gui.Widget, TimedClose):
+class VolumeFSBox(gui.Widget, TimedClose):
     def __init__(self, app: 'WebApp'):
         TimedClose.__init__(self, app=app, timeout=TIMEOUT)
         gui.Widget.__init__(self, width=app.getWidth(), height=app.getHeight(), margin='0px auto',

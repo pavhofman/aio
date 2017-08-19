@@ -5,8 +5,8 @@ from moduleid import ModuleID
 from msgid import MsgID
 from msgs.integermsg import BiIntegerMsg
 from msgs.message import Message
-from uis.timenodeselectfscontainer import TimeNodeSelectFSContainer
-from uis.timetrackdetailscontainer import TimeTrackDetailsContainer
+from uis.timenodeselectfsbox import TimeNodeSelectFSBox
+from uis.timetrackdetailsbox import TimeTrackDetailsBox
 from uis.websourcepart import WebSourcePart
 
 if TYPE_CHECKING:
@@ -32,11 +32,11 @@ class TimeSourcePart(WebSourcePart, abc.ABC):
             return False
 
     def _drawTimePos(self, timePos: int, duration: int) -> None:
-        self._trackContainer.drawTimePos(timePos=timePos, duration=duration)
-        self._selectorContainer.trackBox.drawTimePos(timePos=timePos, duration=duration)
+        self._trackBox.drawTimePos(timePos=timePos, duration=duration)
+        self._selectorBox.trackBox.drawTimePos(timePos=timePos, duration=duration)
 
-    def _createSelectorContainer(self) -> TimeNodeSelectFSContainer:
-        return TimeNodeSelectFSContainer(self._app, self)
+    def _createSelectorBox(self) -> TimeNodeSelectFSBox:
+        return TimeNodeSelectFSBox(self._app, self)
 
-    def _createTrackContainer(self) -> 'TimeTrackDetailsContainer':
-        return TimeTrackDetailsContainer(self._app, self)
+    def _createTrackBox(self) -> 'TimeTrackDetailsBox':
+        return TimeTrackDetailsBox(self._app, self)

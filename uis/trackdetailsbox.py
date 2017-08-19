@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from uis.webapp import WebApp
 
 
-class TrackDetailsContainer(gui.VBox, AddsPlaybackButtons):
+class TrackDetailsBox(gui.VBox, AddsPlaybackButtons):
     def __init__(self, app: 'WebApp', sourcePart: 'WebSourcePart'):
         gui.VBox.__init__(self, width=400, height=app.getHeight(), margin='0px auto')
         AddsPlaybackButtons.__init__(self, app=app, sourcePart=sourcePart)
@@ -24,7 +24,7 @@ class TrackDetailsContainer(gui.VBox, AddsPlaybackButtons):
         self.append(createBtn("Select track", True, self._onOpenSelectorButtonPressed), "20")
 
     def _onOpenSelectorButtonPressed(self, widget):
-        self._sourcePart.showSelectorContainer()
+        self._sourcePart.showSelectorBox()
 
     # noinspection PyUnusedLocal
     def drawTrack(self, trackItem: TrackItem) -> None:

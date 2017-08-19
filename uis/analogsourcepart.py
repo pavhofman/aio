@@ -12,5 +12,5 @@ class AnalogSourcePart(WebSourcePart):
     def __init__(self, app: 'WebApp'):
         super().__init__(sourceID=ModuleID.ANALOG_SOURCE, name="Analog", app=app)
 
-    def _fillSelectorContainer(self, container: gui.Widget) -> None:
+    def _fillSelectorBox(self, box: gui.Widget) -> None:
         pass

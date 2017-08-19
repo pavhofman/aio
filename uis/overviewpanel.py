@@ -32,11 +32,11 @@ class OverviewPanel(gui.Widget):
 
     # noinspection PyUnusedLocal
     def _onSourcesPanelClicked(self, widget):
-        self._app.showActivateSourceFSContainer()
+        self._app.showActivateSourceFSBox()
 
     def _onSettingsButtonPressed(self, widget):
         pass
 
     # noinspection PyUnusedLocal
     def _onVolButtonPressed(self, widget):
-        self._app.showVolFSContainer()
+        self._app.showVolFSBox()

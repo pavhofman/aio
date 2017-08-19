@@ -9,10 +9,10 @@ from msgs.trackmsg import TrackItem, TrackMsg
 from remi import gui
 from sources.playbackstatus import PlaybackStatus
 from sources.sourcestatus import SourceStatus
-from uis.nodeselectfscontainer import NodeSelectFSContainer
+from uis.nodeselectfsbox import NodeSelectFSBox
 from uis.sourcepart import SourcePart
 from uis.statuswidgets import StatusButton, StatusLabel
-from uis.trackdetailscontainer import TrackDetailsContainer
+from uis.trackdetailsbox import TrackDetailsBox
 
 if TYPE_CHECKING:
     from uis.webapp import WebApp
@@ -27,12 +27,12 @@ class WebSourcePart(SourcePart, abc.ABC):
 
     def _initGUIComponents(self) -> None:
         self._overviewLabel = self._createOverviewLabel()
-        self._selectorContainer = self._createSelectorContainer()
+        self._selectorBox = self._createSelectorBox()
         self._activationButton = self._createActivationButton()
-        self._trackContainer = self._createTrackContainer()
+        self._trackBox = self._createTrackBox()
 
-    def _createSelectorContainer(self) -> NodeSelectFSContainer:
-        return NodeSelectFSContainer(self._app, self)
+    def _createSelectorBox(self) -> NodeSelectFSBox:
+        return NodeSelectFSBox(self._app, self)
 
     def _createOverviewLabel(self) -> StatusLabel:
         label = StatusLabel(self._getLabelText())
@@ -63,8 +63,8 @@ class WebSourcePart(SourcePart, abc.ABC):
     def _getLabelText(self) -> str:
         return self.name + str(self.sourceStatus.value)
 
-    def getSelectorFSContainer(self) -> gui.Widget:
-        return self._selectorContainer
+    def getSelectorFSBox(self) -> gui.Widget:
+        return self._selectorBox
 
     # noinspection PyUnusedLocal
     def _onActivateButtonPressed(self, widget) -> None:
@@ -72,16 +72,16 @@ class WebSourcePart(SourcePart, abc.ABC):
             # changing
             self._app.sendSwitchSourceReq(source=self, activate=not self.sourceStatus.isActivated())
         # closing
-        self.showSelectorContainer()
+        self.showSelectorBox()
 
     def getActivationButton(self) -> StatusButton:
         return self._activationButton
 
-    def _createTrackContainer(self) -> 'TrackDetailsContainer':
-        return TrackDetailsContainer(self._app, self)
+    def _createTrackBox(self) -> 'TrackDetailsBox':
+        return TrackDetailsBox(self._app, self)
 
-    def showSelectorContainer(self):
-        self._app.setFSContainer(self._selectorContainer)
+    def showSelectorBox(self):
+        self._app.setFSBox(self._selectorBox)
 
     def handleMsgFromSource(self, msg) -> bool:
         if msg.typeID == MsgID.SOURCE_STATUS_INFO:
@@ -94,7 +94,7 @@ class WebSourcePart(SourcePart, abc.ABC):
             return True
         elif msg.typeID == MsgID.NODE_INFO:
             msg = msg  # type: NodeMsg
-            self._selectorContainer.drawStruct(msg.nodeStruct)
+            self._selectorBox.drawStruct(msg.nodeStruct)
             return True
         elif msg.typeID == MsgID.SOURCE_PLAYBACK_INFO:
             msg = msg  # type: IntegerMsg
@@ -107,26 +107,26 @@ class WebSourcePart(SourcePart, abc.ABC):
         status = SourceStatus(statusID)
         # update source
         self.setStatus(status)
-        # update trackcontainer
+        # update trackbox
         if status.isActivated():
-            self._app.mainFSContainer.setTrackContainer(self._trackContainer)
+            self._app.mainFSBox.setTrackBox(self._trackBox)
 
         elif self._app.getActiveSource() is None:
             # deactivated
-            self._app.mainFSContainer.setNoTrackContainer()
+            self._app.mainFSBox.setNoTrackBox()
 
     def _drawTrack(self, trackItem: TrackItem) -> None:
-        self._trackContainer.drawTrack(trackItem)
-        self._selectorContainer.trackBox.drawTrack(trackItem)
+        self._trackBox.drawTrack(trackItem)
+        self._selectorBox.trackBox.drawTrack(trackItem)
 
     def _showPlaybackStatus(self, statusID: int):
         status = PlaybackStatus(statusID)
         if PlaybackStatus.STOPPED == status:
-            self._trackContainer.drawPlaybackStopped()
-            self._selectorContainer.trackBox.drawPlaybackStopped()
+            self._trackBox.drawPlaybackStopped()
+            self._selectorBox.trackBox.drawPlaybackStopped()
         elif PlaybackStatus.PAUSED == status:
-            self._trackContainer.drawPlaybackPaused()
-            self._selectorContainer.trackBox.drawPlaybackPaused()
+            self._trackBox.drawPlaybackPaused()
+            self._selectorBox.trackBox.drawPlaybackPaused()
         elif PlaybackStatus.PLAYING == status:
-            self._trackContainer.drawPlaybackPlaying()
-            self._selectorContainer.trackBox.drawPlaybackPlaying()
+            self._trackBox.drawPlaybackPlaying()
+            self._selectorBox.trackBox.drawPlaybackPlaying()

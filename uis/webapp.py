@@ -10,13 +10,13 @@ from msgid import MsgID
 from msgs.integermsg import IntegerMsg
 from msgs.message import Message
 from remi import App, gui
-from uis.activatesourcefscontainer import ActivateSourceFSContainer
+from uis.activatesourcefsbox import ActivateSourceFSBox
 from uis.analogsourcepart import AnalogSourcePart
 from uis.filesourcepart import FileSourcePart
 from uis.hassourceparts import HasSourceParts
-from uis.mainfscontainer import MainFSContainer
+from uis.mainfsbox import MainFSBox
 from uis.timedclose import TimedClose
-from uis.volumefscontainer import VolumeFSContainer
+from uis.volumefsbox import VolumeFSBox
 
 if TYPE_CHECKING:
     from dispatcher import Dispatcher
@@ -44,28 +44,28 @@ class WebApp(App, CanSendMessage, HasSourceParts):
         HasSourceParts.__init__(self)
         self._inputQueue = queue
 
-        self._rootContainer = self._createRootContainer()
+        self._rootBox = self._createRootBox()
 
         """
-        rootContainer holds the following fullscreen containers
-        * volumeFSContainer - volume setting - returns the the previous container after 1 second of inactivity
-        * mainFSContainer - default, split view
-            * left current playback container 
-            * right overviewContainer
-        * sourceSelFSContainer - icons of sources, opens upon clicking on sourcesContainer in overviewContainer
-        * sourceBrowserFSContainer - for each source 
+        rootBox holds the following fullscreen boxes
+        * volumeFSBox - volume setting - returns the the previous box after 1 second of inactivity
+        * mainFSBox - default, split view
+            * left current playback box 
+            * right overviewBox
+        * sourceSelFSBox - icons of sources, opens upon clicking on sourcesBox in overviewBox
+        * sourceBrowserFSBox - for each source 
         """
 
-        # the margin 0px auto centers the main container
-        self.mainFSContainer = MainFSContainer(self)
+        # the margin 0px auto centers the main box
+        self.mainFSBox = MainFSBox(self)
 
-        self._currentFSContainer = self._prevFSContainer = self.mainFSContainer
-        self.setFSContainer(self.mainFSContainer)
-        self._volFSContainer = VolumeFSContainer(self)
-        self._activateSourceFSContainer = ActivateSourceFSContainer(self)
+        self._currentFSBox = self._prevFSBox = self.mainFSBox
+        self.setFSBox(self.mainFSBox)
+        self._volFSBox = VolumeFSBox(self)
+        self._activateSourceFSBox = ActivateSourceFSBox(self)
 
         # returning the root widget
-        return self._rootContainer
+        return self._rootBox
 
     @staticmethod
     def getWidth() -> int:
@@ -75,22 +75,22 @@ class WebApp(App, CanSendMessage, HasSourceParts):
     def getHeight() -> int:
         return HEIGHT
 
-    def setFSContainer(self, container: gui.Widget):
-        if self._currentFSContainer is not None \
-                and isinstance(self._currentFSContainer, TimedClose):
-            self._currentFSContainer.closeTimer()
-        self._prevFSContainer = self._currentFSContainer  # type: gui.Widget
-        self._currentFSContainer = container
-        self._rootContainer.empty()
-        self._rootContainer.append(container)
-        if isinstance(container, TimedClose):
-            container.activateTimer()
+    def setFSBox(self, box: gui.Widget):
+        if self._currentFSBox is not None \
+                and isinstance(self._currentFSBox, TimedClose):
+            self._currentFSBox.closeTimer()
+        self._prevFSBox = self._currentFSBox  # type: gui.Widget
+        self._currentFSBox = box
+        self._rootBox.empty()
+        self._rootBox.append(box)
+        if isinstance(box, TimedClose):
+            box.activateTimer()
 
     @staticmethod
-    def _createRootContainer() -> gui.Widget:
-        container = gui.Widget(width=WIDTH, height=HEIGHT, margin='0px auto',
+    def _createRootBox() -> gui.Widget:
+        box = gui.Widget(width=WIDTH, height=HEIGHT, margin='0px auto',
                                layout_orientation=gui.Widget.LAYOUT_HORIZONTAL)
-        return container
+        return box
 
     def idle(self) -> None:
         if globalvars.stopWebApp:
@@ -117,17 +117,17 @@ class WebApp(App, CanSendMessage, HasSourceParts):
             sourcePart.handleMsgFromSource(msg)
 
     def setVolume(self, value: int) -> None:
-        self._volFSContainer.setVolume(value)
-        self.mainFSContainer.setVolume(value)
+        self._volFSBox.setVolume(value)
+        self.mainFSBox.setVolume(value)
 
-    def showVolFSContainer(self) -> None:
-        self.setFSContainer(self._volFSContainer)
+    def showVolFSBox(self) -> None:
+        self.setFSBox(self._volFSBox)
 
-    def showActivateSourceFSContainer(self) -> None:
-        self.setFSContainer(self._activateSourceFSContainer)
+    def showActivateSourceFSBox(self) -> None:
+        self.setFSBox(self._activateSourceFSBox)
 
-    def showPrevFSContainer(self) -> None:
-        self.setFSContainer(self._prevFSContainer)
+    def showPrevFSBox(self) -> None:
+        self.setFSBox(self._prevFSBox)
 
     def sendSwitchSourceReq(self, source: 'WebSourcePart', activate: bool) -> None:
         msg = self._createActivationMsg(source, activate)

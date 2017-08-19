@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from uis.webapp import WebApp
 
-# the container gets closed after TIMEOUT of no activity
+# the box gets closed after TIMEOUT of no activity
 TIMEOUT = 2
 
 
@@ -39,4 +39,4 @@ class TimedClose:
     def _timerFinished(self):
         # just showing the main screen
         self._timer = None
-        self._app.showPrevFSContainer()
+        self._app.showPrevFSBox()

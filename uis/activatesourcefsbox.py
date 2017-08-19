@@ -1,14 +1,13 @@
 from typing import TYPE_CHECKING
 
 from remi import gui
-
 from uis.timedclose import TimedClose
 
 if TYPE_CHECKING:
     from uis.webapp import WebApp
 
 
-class ActivateSourceFSContainer(gui.HBox, TimedClose):
+class ActivateSourceFSBox(gui.HBox, TimedClose):
     def __init__(self, app: 'WebApp'):
         TimedClose.__init__(self, app=app, timeout=2)
         gui.HBox.__init__(self, width=app.getWidth(), height=app.getHeight(), margin='0px auto',

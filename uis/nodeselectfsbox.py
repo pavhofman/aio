@@ -6,7 +6,7 @@ from msgs.integermsg import BiIntegerMsg, IntegerMsg
 from msgs.nodemsg import NodeStruct, NodeItem, NON_EXISTING_NODE_ID, NodeID
 from remi import gui
 from sources.treesource import MAX_CHILDREN
-from uis.simpletrackcontainer import SimpleTrackContainer
+from uis.simpletrackbox import SimpleTrackBox
 
 if TYPE_CHECKING:
     from uis.websourcepart import WebSourcePart
@@ -22,29 +22,29 @@ EMPTY_NODE_STRUCT = NodeStruct(node=EMPTY_NODE_ITEM,
                                children=[], fromChildIndex=0, totalChildren=0)
 
 
-class NodeSelectFSContainer(gui.HBox):
+class NodeSelectFSBox(gui.HBox):
     def __init__(self, app: 'WebApp', sourcePart: 'WebSourcePart'):
         gui.HBox.__init__(self, width=app.getWidth(), height=app.getHeight(), margin='0px auto')
         self._sourcePart = sourcePart
         self._app = app
         self._leftWidth = app.getWidth() - CONTROLS_WIDTH - 10
-        self._structContainer = self._createStructContainer(self._leftWidth, app.getHeight() - CUR_TRACK_HEIGHT)
-        self._controlsContainer = self._createControlsContainer(CONTROLS_WIDTH, app.getHeight() - 10)
-        self.trackBox = self._createTrackContainer(self._leftWidth, CUR_TRACK_HEIGHT)
-        leftCont = gui.VBox(width=self._leftWidth, height=app.getHeight(), margin='0px auto')
-        leftCont.append(self._structContainer, '1')
-        leftCont.append(self.trackBox, '2')
-        self.append(leftCont, '1')
-        self.append(self._controlsContainer, '2')
+        self._structBox = self._createStructBox(self._leftWidth, app.getHeight() - CUR_TRACK_HEIGHT)
+        self._controlsBox = self._createControlsBox(CONTROLS_WIDTH, app.getHeight() - 10)
+        self.trackBox = self._createTrackBox(self._leftWidth, CUR_TRACK_HEIGHT)
+        leftBox = gui.VBox(width=self._leftWidth, height=app.getHeight(), margin='0px auto')
+        leftBox.append(self._structBox, '1')
+        leftBox.append(self.trackBox, '2')
+        self.append(leftBox, '1')
+        self.append(self._controlsBox, '2')
         self._nodeStruct = None  # type: Optional[NodeStruct]
         self.drawStruct(EMPTY_NODE_STRUCT)
         # request root node
         self.sendReqNodeMsg(NON_EXISTING_NODE_ID, 0)
 
-    def _createStructContainer(self, width: int, height: int) -> gui.Widget:
-        container = gui.VBox(width=width, height=height, margin='0px auto')
+    def _createStructBox(self, width: int, height: int) -> gui.Widget:
+        box = gui.VBox(width=width, height=height, margin='0px auto')
         self._requestRootButton = self._getRequestRootButton()
-        return container
+        return box
 
     def _getRequestRootButton(self) -> gui.Button:
         button = gui.Button(text="Request root item")
@@ -57,25 +57,25 @@ class NodeSelectFSContainer(gui.HBox):
 
     # noinspection PyUnusedLocal
 
-    def _createControlsContainer(self, width: int, height: int) -> gui.Widget:
-        container = gui.VBox(width=width, height=height, margin='0px auto')
+    def _createControlsBox(self, width: int, height: int) -> gui.Widget:
+        box = gui.VBox(width=width, height=height, margin='0px auto')
         self._homeButton = gui.Button("HOME")
         self._homeButton.set_on_click_listener(self._homeButtonOnClick)
-        container.append(self._homeButton)
+        box.append(self._homeButton)
         self._prevButton = gui.Button("PREV")
         self._prevButton.set_on_click_listener(self._prevButtonOnClick)
-        container.append(self._prevButton)
+        box.append(self._prevButton)
         self._closeButton = gui.Button("CLOSE")
-        container.append(self._closeButton)
+        box.append(self._closeButton)
         self._closeButton.set_on_click_listener(self._closeButtonOnClick)
         self._nextButton = gui.Button("NEXT")
         self._nextButton.set_on_click_listener(self._nextButtonOnClick)
-        container.append(self._nextButton)
+        box.append(self._nextButton)
         self._endButton = gui.Button("END")
         self._endButton.set_on_click_listener(self._endButtonOnClick)
 
-        container.append(self._endButton)
-        return container
+        box.append(self._endButton)
+        return box
 
     # noinspection PyUnusedLocal
     def _homeButtonOnClick(self, widget):
@@ -109,7 +109,7 @@ class NodeSelectFSContainer(gui.HBox):
 
     # noinspection PyUnusedLocal
     def _closeButtonOnClick(self, widget):
-        self._app.setFSContainer(self._app.mainFSContainer)
+        self._app.setFSBox(self._app.mainFSBox)
 
     def sendReqNodeMsg(self, nodeID: NodeID, fromIndex: int) -> None:
         msg = BiIntegerMsg(value1=nodeID, value2=fromIndex, fromID=self._app.id,
@@ -129,22 +129,22 @@ class NodeSelectFSContainer(gui.HBox):
                          forID=self._sourcePart.sourceID)
         self._app.dispatcher.distribute(msg)
 
-    def _createTrackContainer(self, width: int, height: int) -> gui.Widget:
-        return SimpleTrackContainer(width=width, height=height, app=self._app, sourcePart=self._sourcePart)
+    def _createTrackBox(self, width: int, height: int) -> gui.Widget:
+        return SimpleTrackBox(width=width, height=height, app=self._app, sourcePart=self._sourcePart)
 
     def drawStruct(self, nodeStruct: NodeStruct) -> None:
         self._updateRequestRootButton(nodeStruct)
         self._nodeStruct = nodeStruct  # type: NodeStruct
         self._updateControls()
         if self._nodeStruct != EMPTY_NODE_STRUCT:
-            self._fillStructContainer(self._structContainer)
+            self._fillStructBox(self._structBox)
 
     def _updateRequestRootButton(self, nodeStruct: NodeStruct) -> None:
         if nodeStruct == EMPTY_NODE_STRUCT:
             # some info has arrived, no need to show the request button
-            self._structContainer.append(self._requestRootButton)
+            self._structBox.append(self._requestRootButton)
         else:
-            self._structContainer.remove_child(self._requestRootButton)
+            self._structBox.remove_child(self._requestRootButton)
 
     def _updateControls(self) -> None:
         notAtBegin = self._nodeStruct.fromChildIndex > 0
@@ -157,32 +157,32 @@ class NodeSelectFSContainer(gui.HBox):
         if self._nodeStruct.totalChildren > 0:
             self._endButton.set_text("END " + str(self._nodeStruct.totalChildren))
 
-    def _fillStructContainer(self, container: gui.Widget) -> None:
-        container.empty()
+    def _fillStructBox(self, box: gui.Widget) -> None:
+        box.empty()
         # root box
-        container.append(RootBox(self._nodeStruct.rootNode, self._nodeStruct.totalParents, self._leftWidth, 20, self))
+        box.append(RootBox(self._nodeStruct.rootNode, self._nodeStruct.totalParents, self._leftWidth, 20, self))
         # node box only if not root
         if self._nodeStruct.node.nodeID != self._nodeStruct.rootNode.nodeID:
-            container.append(NodeBox(self._nodeStruct.node, self._nodeStruct.parentID,
-                                     self._leftWidth, 20, self))
+            box.append(NodeBox(self._nodeStruct.node, self._nodeStruct.parentID,
+                               self._leftWidth, 20, self))
         # list of child boxes
         if self._nodeStruct.fromChildIndex > 0:
-            container.append(gui.Label("..."))
+            box.append(gui.Label("..."))
         order = 0
         for child in self._nodeStruct.children:
             order += 1
-            container.append(ChildBox(child, self._nodeStruct.fromChildIndex + order,
-                                      self._leftWidth, 20, self))
+            box.append(ChildBox(child, self._nodeStruct.fromChildIndex + order,
+                                self._leftWidth, 20, self))
         if self._nodeStruct.fromChildIndex + order < self._nodeStruct.totalChildren:
-            container.append(gui.Label("..."))
+            box.append(gui.Label("..."))
         pass
 
 
 class ANodeBox(gui.HBox, abc.ABC):
-    def __init__(self, node: NodeItem, width: int, height: int, myContainer: NodeSelectFSContainer):
+    def __init__(self, node: NodeItem, width: int, height: int, myBox: NodeSelectFSBox):
         gui.HBox.__init__(self, width=width, height=height, margin='0px auto')
         self._node = node
-        self._myContainer = myContainer
+        self._myBox = myBox
         self.append(self._getLabelBox(width, height), '1')
         if self._node.isPlayable:
             # TODO - image
@@ -195,11 +195,11 @@ class ANodeBox(gui.HBox, abc.ABC):
 
     # noinspection PyUnusedLocal
     def _playNodeOnClick(self, widget):
-        self._myContainer.sendPlayNodeMsg(self._node.nodeID)
+        self._myBox.sendPlayNodeMsg(self._node.nodeID)
 
     # noinspection PyUnusedLocal
     def _openNodeOnClick(self, widget):
-        self._myContainer.sendReqNodeMsg(self._node.nodeID, 0)
+        self._myBox.sendReqNodeMsg(self._node.nodeID, 0)
 
     @abc.abstractmethod
     def _getLabelBox(self, width, height) -> gui.Widget:
@@ -208,9 +208,9 @@ class ANodeBox(gui.HBox, abc.ABC):
 
 class RootBox(ANodeBox):
     def __init__(self, node: NodeItem, totalParents: int, width: int, height: int,
-                 myContainer: NodeSelectFSContainer):
+                 myBox: NodeSelectFSBox):
         self._totalParents = totalParents
-        super().__init__(node=node, width=width, height=height, myContainer=myContainer)
+        super().__init__(node=node, width=width, height=height, myBox=myBox)
 
     def _getLabelBox(self, width, height):
         box = gui.HBox(width=width - 20, height=height, margin='0px auto')
@@ -225,9 +225,9 @@ class RootBox(ANodeBox):
 
 class NodeBox(ANodeBox):
     def __init__(self, node: NodeItem, parentID: NodeID, width: int, height: int,
-                 myContainer: NodeSelectFSContainer):
+                 myBox: NodeSelectFSBox):
         self._parentID = parentID
-        super().__init__(node=node, width=width, height=height, myContainer=myContainer)
+        super().__init__(node=node, width=width, height=height, myBox=myBox)
 
     def _getLabelBox(self, width, height):
         box = gui.HBox(width=width - 20, height=height, margin='0px auto')
@@ -238,13 +238,13 @@ class NodeBox(ANodeBox):
 
     # noinspection PyUnusedLocal
     def _openParentNodeOnClick(self, widget):
-        self._myContainer.sendReqParentNodeMsg(self._node.nodeID)
+        self._myBox.sendReqParentNodeMsg(self._node.nodeID)
 
 
 class ChildBox(ANodeBox):
-    def __init__(self, node: NodeItem, index: int, width: int, height: int, myContainer: NodeSelectFSContainer):
+    def __init__(self, node: NodeItem, index: int, width: int, height: int, myBox: NodeSelectFSBox):
         self._index = index
-        super().__init__(node=node, width=width, height=height, myContainer=myContainer)
+        super().__init__(node=node, width=width, height=height, myBox=myBox)
 
     def _getLabelBox(self, width, height):
         box = gui.HBox(width=width - 20, height=height, margin='0px auto')
