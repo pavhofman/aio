@@ -45,10 +45,19 @@ class WebSourcePart(SourcePart, abc.ABC):
         button.decorateForStatus(self.sourceStatus)
         return button
 
-    def setStatus(self, newStatus: SourceStatus) -> None:
-        if newStatus != self.sourceStatus:
-            super().setStatus(newStatus)
+    def setStatus(self, newStatus: SourceStatus) -> bool:
+        if super().setStatus(newStatus):
             self._updateComponentsForNewStatus()
+            # update trackbox
+            if self.sourceStatus.isActivated():
+                self._app.mainFSBox.setTrackBox(self._trackBox)
+
+            elif self._app.getActiveSource() is None:
+                # deactivated
+                self._app.mainFSBox.setNoTrackBox()
+            return True
+        else:
+            return False
 
     def getOverviewLabel(self) -> StatusLabel:
         return self._overviewLabel
@@ -86,7 +95,8 @@ class WebSourcePart(SourcePart, abc.ABC):
     def handleMsgFromSource(self, msg) -> bool:
         if msg.typeID == MsgID.SOURCE_STATUS_INFO:
             msg = msg  # type: IntegerMsg
-            self._setSourceStatus(statusID=msg.value)
+            status = SourceStatus(msg.value)
+            self.setStatus(status)
             return True
         elif msg.typeID == MsgID.TRACK_INFO:
             msg = msg  # type: TrackMsg
@@ -102,18 +112,6 @@ class WebSourcePart(SourcePart, abc.ABC):
             return True
         else:
             return False
-
-    def _setSourceStatus(self, statusID: int):
-        status = SourceStatus(statusID)
-        # update source
-        self.setStatus(status)
-        # update trackbox
-        if status.isActivated():
-            self._app.mainFSBox.setTrackBox(self._trackBox)
-
-        elif self._app.getActiveSource() is None:
-            # deactivated
-            self._app.mainFSBox.setNoTrackBox()
 
     def _drawTrack(self, trackItem: TrackItem) -> None:
         self._trackBox.drawTrack(trackItem)

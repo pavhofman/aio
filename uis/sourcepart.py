@@ -1,3 +1,5 @@
+import logging
+
 from moduleid import ModuleID
 from sources.sourcestatus import SourceStatus
 
@@ -7,8 +9,14 @@ class SourcePart:
         self.sourceID = sourceID
         self.sourceStatus = SourceStatus.UNAVAILABLE
 
-    def setStatus(self, newStatus: SourceStatus):
-        self.sourceStatus = newStatus
+    def setStatus(self, newStatus: SourceStatus) -> bool:
+        if newStatus != self.sourceStatus:
+            oldStatus = self.sourceStatus
+            self.sourceStatus = newStatus
+            logging.debug(str(self) + ": changed status from " + str(oldStatus))
+            return True
+        else:
+            return False
 
     def __str__(self) -> str:
         return super().__str__() \

@@ -45,12 +45,7 @@ class ConsoleUI(MsgConsumer, HasSourceParts):
         source = self._getSourcePartFor(msg)
         if source is not None:
             newStatus = SourceStatus(msg.value)
-            if newStatus != source.sourceStatus:
-                source.sourceStatus = newStatus
-                if newStatus.isActivated():
-                    self.activeSource = source
-                logging.debug(
-                    "Changed status of UI Source " + str(source) + " to " + str(source.sourceStatus))
+            source.setStatus(newStatus)
 
     def _initSourceParts(self) -> List['SourcePart']:
         return [
