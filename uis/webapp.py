@@ -38,8 +38,6 @@ class WebApp(App, CanSendMessage, HasSourceParts):
 
     # noinspection PyAttributeOutsideInit,PyShadowingBuiltins
     def main(self, id: ModuleID, dispatcher: 'Dispatcher', queue: Queue) -> gui.Widget:
-        # let know the app is running now
-        globalvars.webAppRunning = True
         CanSendMessage.__init__(self, id=id, dispatcher=dispatcher)
         HasSourceParts.__init__(self)
         self._inputQueue = queue
@@ -63,6 +61,9 @@ class WebApp(App, CanSendMessage, HasSourceParts):
         self.setFSBox(self.mainFSBox)
         self._volFSBox = VolumeFSBox(self)
         self._activateSourceFSBox = ActivateSourceFSBox(self)
+
+        # let know the app is running now
+        globalvars.webAppRunning = True
 
         # returning the root widget
         return self._rootBox
@@ -89,7 +90,7 @@ class WebApp(App, CanSendMessage, HasSourceParts):
     @staticmethod
     def _createRootBox() -> gui.Widget:
         box = gui.Widget(width=WIDTH, height=HEIGHT, margin='0px auto',
-                               layout_orientation=gui.Widget.LAYOUT_HORIZONTAL)
+                         layout_orientation=gui.Widget.LAYOUT_HORIZONTAL)
         return box
 
     def idle(self) -> None:
