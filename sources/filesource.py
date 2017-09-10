@@ -6,7 +6,8 @@ from unidecode import unidecode
 
 from moduleid import ModuleID
 from msgs.nodemsg import NodeID, NodeItem
-from sources.mpvtreesource import MPVTreeSource, locked
+from sources.mpvtreesource import MPVTreeSource
+from sources.mympv import locked
 from sources.nodeidprovider import NodeIDProvider
 
 if TYPE_CHECKING:

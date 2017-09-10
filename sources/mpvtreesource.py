@@ -1,5 +1,4 @@
 import abc
-from contextlib import contextmanager
 from time import sleep
 from typing import TYPE_CHECKING, Optional, Tuple, List, TypeVar, Generic
 
@@ -15,16 +14,6 @@ from sources.usesmpv import UsesMPV
 
 if TYPE_CHECKING:
     from dispatcher import Dispatcher
-
-
-@contextmanager
-def locked(lock):
-    lock.acquire()
-    try:
-        yield
-    finally:
-        lock.release()
-
 
 PATH = TypeVar('PATH')
 
@@ -46,11 +35,11 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
 
     def _tryToActivate(self) -> bool:
         # no track selected, stopped
-        self._acquireMPV()
+        UsesMPV.reInit(self)
         return True
 
     def _deactive(self) -> bool:
-        self._releaseMPV()
+        UsesMPV.close(self)
         return TreeSource._deactive(self)
 
     def close(self):
