@@ -43,6 +43,7 @@ class Dispatcher:
         consumer = getMsgConsumer(targetID)
         if consumer is not None:
             consumer.receive(msg)
+            logging.debug(self.name + ": submitted message " + str(msg) + " to " + str(consumer))
             # increment message counter
             self.msgCount += 1
 
