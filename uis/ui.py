@@ -58,4 +58,4 @@ class UI(MsgConsumer, HasSourceParts, abc.ABC):
                 if newStatus.isActivated():
                     self.activeSource = source
                 logging.debug(
-                    "Changed status of UI Source " + source.__class__.__name__ + " to " + str(source.sourceStatus))
+                    "Changed status of UI Source " + str(source) + " to " + str(source.sourceStatus))

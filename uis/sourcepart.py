@@ -9,3 +9,8 @@ class SourcePart:
 
     def setStatus(self, newStatus: SourceStatus):
         self.sourceStatus = newStatus
+
+    def __str__(self) -> str:
+        return super().__str__() \
+               + "; sourceID: " + str(self.sourceID) \
+               + "; sourceStatus: " + str(self.sourceStatus)
