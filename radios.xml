@@ -1,0 +1,24 @@
+<bookmarks>
+    <group name="Jazz">
+        <bookmark name="CINEMIX" url="http://listenwmp.cinemix.fr"/>
+        <bookmark name="DEDFCON" url="http://ice1.somafm.com/defcon-128-mp3"/>
+        <bookmark name="Folk Forward" url="http://ice1.somafm.com/folkfwd-128-mp3"/>
+        <bookmark name="Suburbs of Goa" url="http://ice1.somafm.com/suburbsofgoa-128-mp3"/>
+        <bookmark name="Thistle Radio" url="http://ice1.somafm.com/thistle-128-mp3"/>
+    </group>
+    <group name="Latin">
+        <bookmark name="CINEMIX" url="http://listenwmp.cinemix.fr"/>
+        <bookmark name="DEDFCON" url="http://ice1.somafm.com/defcon-128-mp3"/>
+        <bookmark name="Folk Forward" url="http://ice1.somafm.com/folkfwd-128-mp3"/>
+    </group>
+    <group name="Classic Rock">
+        <bookmark name="DEDFCON" url="http://ice1.somafm.com/defcon-128-mp3"/>
+        <bookmark name="Folk Forward" url="http://ice1.somafm.com/folkfwd-128-mp3"/>
+        <bookmark name="Suburbs of Goa" url="http://ice1.somafm.com/suburbsofgoa-128-mp3"/>
+    </group>
+    <group name="Classical">
+        <bookmark name="Folk Forward" url="http://ice1.somafm.com/folkfwd-128-mp3"/>
+        <bookmark name="Suburbs of Goa" url="http://ice1.somafm.com/suburbsofgoa-128-mp3"/>
+        <bookmark name="Thistle Radio" url="http://ice1.somafm.com/thistle-128-mp3"/>
+    </group>
+</bookmarks>

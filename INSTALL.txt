@@ -1,5 +1,7 @@
-pip3 install unidecode
+sudo pip3 install unidecode
 
+http://treelib.readthedocs.io/en/latest/index.html :
+sudo easy_install -U treelib
 
 MPV:1
 sudo apt update && sudo apt install mpv

@@ -15,6 +15,7 @@ from uis.analogsourcepart import AnalogSourcePart
 from uis.filesourcepart import FileSourcePart
 from uis.hassourceparts import HasSourceParts
 from uis.mainfsbox import MainFSBox
+from uis.radiosourcepart import RadioSourcePart
 from uis.timedclose import TimedClose
 from uis.volumefsbox import VolumeFSBox
 
@@ -33,7 +34,8 @@ class WebApp(App, CanSendMessage, HasSourceParts):
     def _initSourceParts(self) -> List['WebSourcePart']:
         return [
             AnalogSourcePart(self),
-            FileSourcePart(self)
+            FileSourcePart(self),
+            RadioSourcePart(self)
         ]
 
     # noinspection PyAttributeOutsideInit,PyShadowingBuiltins
