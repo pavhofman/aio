@@ -22,9 +22,11 @@ def roundToInt(timePos: float) -> int:
 
 
 class UsesMPV(abc.ABC):
-    def __init__(self) -> None:
+    def __init__(self, monitorTime: bool) -> None:
         super().__init__()
-        self._timePosTimer = TimePosTimer(self.timePosWasChanged)
+        self._monitorTime = monitorTime
+        if self._monitorTime:
+            self._timePosTimer = TimePosTimer(self.timePosWasChanged, owner=self)
         # cached value
         self.__duration = None
 
@@ -48,7 +50,8 @@ class UsesMPV(abc.ABC):
     def _changePlaybackTo(self, playback: PlaybackStatus):
         if playback == PlaybackStatus.STOPPED:
             self._getMPV().stop()
-            self._timePosTimer.disable()
+            if self._monitorTime:
+                self._timePosTimer.disable()
         elif playback == PlaybackStatus.PLAYING:
             self._getMPV().play()
         elif playback == PlaybackStatus.PAUSED:
@@ -56,16 +59,19 @@ class UsesMPV(abc.ABC):
 
     def _acquireMPV(self):
         global mpv
-        # closing any mpv, even if it belongs to another source
+        # closing any mpv, if it belongs to another source
         if mpv is not None:
             mpv.close()
+            mpv = None
             # acquiring for myself
         mpv = MyMPV(self)
 
     def _releaseMPV(self):
         global mpv  # type: MyMPV
+        # close if mpv is mine
         if mpv is not None and mpv.source == self:
             mpv.close()
+            mpv = None
 
     @staticmethod
     def _getMPV() -> MyMPV:
@@ -73,13 +79,15 @@ class UsesMPV(abc.ABC):
         return mpv
 
     def close(self):
-        self._timePosTimer.finish()
+        if self._monitorTime:
+            self._timePosTimer.finish()
 
     def _startPlayback(self, filePath: str):
         self._getMPV().command("loadfile", filePath, "replace")
         # mpv can be paused, unpause
         self._getMPV().play()
-        self._timePosTimer.trigger()
+        if self._monitorTime:
+            self._timePosTimer.trigger()
 
     def _appendToPlayback(self, filePath: str):
         self._getMPV().command("loadfile", filePath, "append")
@@ -93,18 +101,20 @@ class UsesMPV(abc.ABC):
         pass
 
     def pauseWasChanged(self, pause: bool):
-        if pause:
-            self._timePosTimer.disable()
-        else:
-            self._timePosTimer.trigger()
+        if self._monitorTime:
+            if pause:
+                self._timePosTimer.disable()
+            else:
+                self._timePosTimer.trigger()
 
     def idleWasChanged(self, idle: bool):
-        if idle:
+        if self._monitorTime and idle:
             self._timePosTimer.disable()
 
-    def pathWasChanged(self, filePath: str):
-        self._timePosTimer.trigger()
-        self.__duration = None
+    def _resetTimePosTimer(self):
+        if self._monitorTime:
+            self._timePosTimer.trigger()
+            self.__duration = None
 
     def _getDuration(self) -> Optional[int]:
         if self.__duration is None:
@@ -122,10 +132,15 @@ class UsesMPV(abc.ABC):
     def timePosWasChanged(self, timePos: int):
         pass
 
+    @abc.abstractmethod
+    def pathWasChanged(self, mpvPath: str):
+        pass
+
 
 class TimePosTimer(Thread):
-    def __init__(self, callbackFn):
+    def __init__(self, callbackFn, owner: 'UsesMPV'):
         Thread.__init__(self)
+        self._owner = owner
         self._callbackFn = callbackFn
         self._finishEvent = Event()
         self._triggerEvent = Event()
@@ -140,13 +155,15 @@ class TimePosTimer(Thread):
             sleep = TIME_POS_READ_INTERVAL + timeAdj
             self._triggerEvent.wait(timeout=sleep)
             if self._enabled:
-                self._getMPV().register_property_callback(TIME_POS_PROPERTY, self.timePosCallback)
-                timePos = self._queue.get()
-                self._getMPV().unregister_property_callback(TIME_POS_PROPERTY, self.timePosCallback)
-                posInt = roundToInt(timePos)
-                timeAdj = posInt - timePos
-                # print("TimePos: " + str(timePos) + "; posInt: " + str(posInt) + "; timeAdj: " + str(timeAdj))
-                self._callbackFn(posInt)
+                mpv = self._getMPV()
+                if mpv is not None:
+                    mpv.register_property_callback(TIME_POS_PROPERTY, self.timePosCallback)
+                    timePos = self._queue.get()
+                    mpv.unregister_property_callback(TIME_POS_PROPERTY, self.timePosCallback)
+                    posInt = roundToInt(timePos)
+                    timeAdj = posInt - timePos
+                    # print("TimePos: " + str(timePos) + "; posInt: " + str(posInt) + "; timeAdj: " + str(timeAdj))
+                    self._callbackFn(posInt)
             # reset the trigger event to wait the TIME_POS_READ_INTERVAL in next cycle
             self._triggerEvent.clear()
 
@@ -160,10 +177,9 @@ class TimePosTimer(Thread):
         self._enabled = True
         self._triggerEvent.set()
 
-    @staticmethod
-    def _getMPV() -> MyMPV:
+    def _getMPV(self) -> MyMPV:
         global mpv
-        return mpv
+        return mpv if mpv.source == self else None
 
     def timePosCallback(self, timePos: float):
         if timePos is not None:
