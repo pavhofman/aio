@@ -93,9 +93,9 @@ class NodeSelectFSBox(gui.HBox):
 
     def _nextButtonOnClick(self, widget):
         fromIndex = self._nodeStruct.fromChildIndex + MAX_CHILDREN
-        lastIndex = self._nodeStruct.totalChildren - 1
-        if fromIndex > lastIndex:
-            fromIndex = lastIndex
+        lastFromIndex = self._nodeStruct.totalChildren - MAX_CHILDREN
+        if fromIndex > lastFromIndex:
+            fromIndex = lastFromIndex
         self.sendReqNodeMsg(self._nodeStruct.node.nodeID, fromIndex)
 
     # noinspection PyUnusedLocal
