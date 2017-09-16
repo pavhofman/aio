@@ -2,11 +2,13 @@
 
 import logging
 import os
-from typing import List
+from typing import Optional
 
 from lxml import etree
+from lxml.etree import Element
 from treelib import Tree
 
+from msgs.nodemsg import NodeID
 from sources.nodeidprovider import NodeIDProvider
 
 PLAYLIST_FILENAME = "radios.xml"
@@ -28,30 +30,27 @@ class RadioPlaylist(NodeIDProvider):
     def loadTreeFromFile(self) -> Tree:
         self.log.info('Loading radios file: %s', self._filename)
         self._xmlRoot = etree.parse(self._filename).getroot()
-        self.log.debug('Bookmarks file loaded with success')
+        self.log.debug('File %s loaded with success', self._filename)
 
         tree = Tree()
         rootID = self._getNextID()
         tree.create_node(identifier=rootID, parent=None, data=GroupItem("Radios"))
-        for groupName in self._listGroupNames():
-            groupID = self._getNextID()
-            tree.create_node(identifier=groupID, parent=rootID, data=GroupItem(groupName))
-            for radioName in self._listRadioNamesInGroup(groupName):
-                radioID = self._getNextID()
-                tree.create_node(identifier=radioID, parent=groupID,
-                                 data=RadioItem(radioName, self._getRadioUrl(radioName)))
+        for childNode in self._xmlRoot:
+            self._parseNode(childNode, tree, rootID)
         return tree
 
-    def _listGroupNames(self) -> List[str]:
-        return self._xmlRoot.xpath("//group/@name")
-
-    def _listRadioNamesInGroup(self, group: str) -> List[str]:
-        return self._xmlRoot.xpath("//group[@name=$var]/bookmark/@name", var=group)
-
-    def _getRadioUrl(self, radioName: str) -> str:
-        result = self._xmlRoot.xpath("//bookmark[@name=$var]/@url", var=radioName)
-        if len(result) >= 1:
-            return result[0]
+    def _parseNode(self, node: Element, tree: Tree, parentID: Optional[NodeID]):
+        nodeID = self._getNextID()
+        if node.tag == "group":
+            groupName = node.attrib["name"]
+            tree.create_node(identifier=nodeID, parent=parentID, data=GroupItem(groupName))
+            for childNode in node:
+                self._parseNode(childNode, tree, nodeID)
+        elif node.tag == "bookmark":
+            radioName = node.attrib["name"]
+            url = node.attrib["url"]
+            tree.create_node(identifier=nodeID, parent=parentID,
+                             data=RadioItem(radioName, url))
 
 
 class GroupItem:
