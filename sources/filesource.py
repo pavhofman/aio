@@ -23,7 +23,8 @@ class FileSource(MPVTreeSource[Path], NodeIDProvider):
         self._pathsByID = {}  # type: Dict[NodeID, Path]
         self._idsByPathStr = {}  # type: Dict[str, NodeID]
         self._cacheLock = Lock()
-        super().__init__(ModuleID.FILE_SOURCE, dispatcher, monitorTime=True)
+        NodeIDProvider.__init__(self)
+        MPVTreeSource.__init__(self, ModuleID.FILE_SOURCE, dispatcher, monitorTime=True)
 
     def _getRootNodeItem(self) -> NodeItem:
         return self._getNodeItemForPath(ROOT_PATH)
