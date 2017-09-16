@@ -77,9 +77,9 @@ class WebSourcePart(SourcePart, abc.ABC):
 
     # noinspection PyUnusedLocal
     def _onActivateButtonPressed(self, widget) -> None:
-        if self.sourceStatus.isAvailable():
+        if self.sourceStatus.isAvailable() and not self.sourceStatus.isActivated():
             # changing
-            self._app.sendSwitchSourceReq(source=self, activate=not self.sourceStatus.isActivated())
+            self._app.sendSwitchSourceReq(source=self, activate=True)
         # closing
         self.showSelectorBox()
 
