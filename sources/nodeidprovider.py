@@ -18,10 +18,7 @@ class NodeIDProvider:
         self.__myLock = Lock()
         self.__lastNodeID = 0
 
-    def _getLastID(self) -> NodeID:
-        return self.__lastNodeID
-
     def _getNextID(self) -> NodeID:
         with locked(self.__myLock):
             self.__lastNodeID += 1
-        return self.__lastNodeID
+            return self.__lastNodeID
