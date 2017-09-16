@@ -1,5 +1,8 @@
 from typing import TYPE_CHECKING
 
+from groupid import GroupID
+from msgid import MsgID
+from msgs.requestmsg import RequestMsg
 from remi import gui
 
 if TYPE_CHECKING:
@@ -32,7 +35,13 @@ class OverviewPanel(gui.Widget):
 
     # noinspection PyUnusedLocal
     def _onSourcesPanelClicked(self, widget):
+        # check on status change, should heartbeat not run
+        self._requestAllSourcesStatus()
         self._app.showActivateSourceFSBox()
+
+    def _requestAllSourcesStatus(self):
+        msg = RequestMsg(self._app.id, typeID=MsgID.REQ_SOURCE_STATUS, groupID=GroupID.SOURCE)
+        self._app.dispatcher.distribute(msg)
 
     def _onSettingsButtonPressed(self, widget):
         pass
