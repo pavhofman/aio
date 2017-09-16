@@ -106,8 +106,11 @@ class WebApp(App, CanSendMessage, HasSourceParts):
 
     def _readMsg(self) -> Optional[Message]:
         try:
-            msg = self._inputQueue.get_nowait()
-            return msg
+            if hasattr(self, '_inputQueue'):
+                msg = self._inputQueue.get_nowait()
+                return msg
+            else:
+                return None
         except Empty:
             return None
 
