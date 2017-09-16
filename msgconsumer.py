@@ -38,6 +38,7 @@ class MsgConsumer(CanSendMessage, Thread, abc.ABC):
         return self.__event.isSet()
 
     def run(self):
+        self._initializeInThread()
         try:
             while not self.stopped():
                 # no timeout
@@ -67,3 +68,9 @@ class MsgConsumer(CanSendMessage, Thread, abc.ABC):
 
     def close(self):
         self.stop()
+
+    def _initializeInThread(self):
+        """
+        For children to run as first code of the thread
+        """
+        pass

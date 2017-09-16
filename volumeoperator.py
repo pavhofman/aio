@@ -21,9 +21,13 @@ class VolumeOperator(MsgConsumer):
     def __init__(self, dispatcher: 'Dispatcher'):
         # call the thread class
         super().__init__(id=ModuleID.VOLUME_OPERATOR, dispatcher=dispatcher)
-        self.volume = self.__readCurrentVolume()
 
     # consuming the message
+
+    def _initializeInThread(self):
+        super()._initializeInThread()
+        self.volume = self.__readCurrentVolume()
+
     def _consume(self, msg: 'Message'):
         if msg.typeID == MsgID.SET_VOL:
             msg = msg  # type: IntegerMsg

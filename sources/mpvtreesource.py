@@ -24,7 +24,10 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
         self._playedNodeID = NON_EXISTING_NODE_ID  # type: NodeID
         TreeSource.__init__(self, id=id, dispatcher=dispatcher)
         UsesMPV.__init__(self, monitorTime=monitorTime)
+
+    def _initializeInThread(self):
         self._rootNode = self._getRootNodeItem()
+        super()._initializeInThread()
 
     def _changePlaybackTo(self, playback: PlaybackStatus):
         UsesMPV._changePlaybackTo(self, playback)
