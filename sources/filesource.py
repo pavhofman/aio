@@ -62,10 +62,11 @@ class FileSource(MPVTreeSource[Path], NodeIDProvider):
                 return newNodeID
 
     def _getPath(self, nodeID: NodeID) -> Optional[Path]:
-        if nodeID in self._pathsByID.keys():
-            return self._pathsByID[nodeID]
-        else:
-            return None
+        with locked(self._cacheLock):
+            if nodeID in self._pathsByID.keys():
+                return self._pathsByID[nodeID]
+            else:
+                return None
 
     def _getNodeLabelFor(self, path: Path) -> str:
         # UNICODE -> ASCII
