@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 INITIAL_VOLUME = 10
 
 '''
-Volume operator 
+Handles physical volume control
 '''
 
 
@@ -21,8 +21,6 @@ class VolumeOperator(MsgConsumer):
     def __init__(self, dispatcher: 'Dispatcher'):
         # call the thread class
         super().__init__(id=ModuleID.VOLUME_OPERATOR, dispatcher=dispatcher)
-
-    # consuming the message
 
     def _initializeInThread(self):
         super()._initializeInThread()
@@ -36,7 +34,7 @@ class VolumeOperator(MsgConsumer):
             self.__sendCurrentVolume()
 
     def __handleSetVolumeMsg(self, msg: IntegerMsg):
-        newVolume = self.__getVolume(msg)
+        newVolume = msg.value
         if newVolume != self.volume:
             self.__setVolume(newVolume)
             self.volume = newVolume
@@ -45,11 +43,6 @@ class VolumeOperator(MsgConsumer):
     @staticmethod
     def __readCurrentVolume() -> int:
         return INITIAL_VOLUME
-
-    # if cannot read, throws exception
-    @staticmethod
-    def __getVolume(msg: IntegerMsg) -> int:
-        return msg.value
 
     @staticmethod
     def __setVolume(newVolume: int):
