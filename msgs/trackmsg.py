@@ -1,12 +1,8 @@
-from typing import NewType
-
 from groupid import GroupID
 from moduleid import ModuleID
 from msgid import MsgID
 from msgs.message import Message
-
-NodeID = NewType('NodeID', int)
-NON_EXISTING_NODE_ID = 0
+from msgs.nodemsg import NodeID
 
 
 class TrackMsg(Message):
