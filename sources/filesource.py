@@ -18,13 +18,13 @@ ROOT_PATH = Path("/home/pavel/Hudba")
 MAX_DIR_DEPTH = 20
 
 
-class FileSource(MPVTreeSource[Path], NodeIDProvider):
+class FileSource(MPVTreeSource[Path]):
     def __init__(self, dispatcher: 'Dispatcher'):
         self._pathsByID = {}  # type: Dict[NodeID, Path]
         self._idsByPathStr = {}  # type: Dict[str, NodeID]
         self._cacheLock = Lock()
-        NodeIDProvider.__init__(self)
-        MPVTreeSource.__init__(self, ModuleID.FILE_SOURCE, dispatcher, monitorTime=True)
+        self._idProvider = NodeIDProvider()
+        super().__init__(ModuleID.FILE_SOURCE, dispatcher, monitorTime=True)
 
     def _getRootNodeItem(self) -> NodeItem:
         return self._getNodeItemForPath(ROOT_PATH)
@@ -56,7 +56,7 @@ class FileSource(MPVTreeSource[Path], NodeIDProvider):
                 return self._idsByPathStr[pathStr]
             else:
                 # add to caches, generate new ID
-                newNodeID = self._getNextID()
+                newNodeID = self._idProvider.getNextID()
                 self._pathsByID[newNodeID] = path
                 self._idsByPathStr[pathStr] = newNodeID
                 return newNodeID

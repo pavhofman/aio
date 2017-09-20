@@ -14,13 +14,13 @@ from sources.nodeidprovider import NodeIDProvider
 PLAYLIST_FILENAME = "radios.xml"
 
 
-class RadioPlaylist(NodeIDProvider):
+class RadioPlaylist():
     """
     Loading radio groups and items from PLAYLIST_FILENAME
     """
 
     def __init__(self, filename):
-        NodeIDProvider.__init__(self)
+        self._idProvider = NodeIDProvider()
         self.log = logging.getLogger('RadioPlaylist')
         if os.access(filename, os.R_OK):  # if can read, then use.
             self._filename = filename
@@ -33,14 +33,14 @@ class RadioPlaylist(NodeIDProvider):
         self.log.debug('File %s loaded with success', self._filename)
 
         tree = Tree()
-        rootID = self._getNextID()
+        rootID = self._idProvider.getNextID()
         tree.create_node(identifier=rootID, parent=None, data=GroupItem("Radios"))
         for childNode in self._xmlRoot:
             self._parseNode(childNode, tree, rootID)
         return tree
 
     def _parseNode(self, node: Element, tree: Tree, parentID: Optional[NodeID]):
-        nodeID = self._getNextID()
+        nodeID = self._idProvider.getNextID()
         if node.tag == "group":
             groupName = node.attrib["name"]
             tree.create_node(identifier=nodeID, parent=parentID, data=GroupItem(groupName))
