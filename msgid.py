@@ -52,5 +52,8 @@ class MsgID(Enum):
     # BiIntegerMsg(value1 = timepos in seconds, value2 = duration in seconds, fromID=source, forID=UI)
     TIME_POS_INFO = 13
 
-    # TrackMsg(fromID=source, forID=UI)
+    # TrackMsg(trackItem, fromID=source, forID=UI)
     TRACK_INFO = 14
+
+    # AudioParamsMsg(paramsItem, fromID=source, forID=UI)
+    AUDIOPARAMS_INFO = 15
