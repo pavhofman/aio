@@ -115,3 +115,6 @@ class RadioSource(MPVTreeSource[Node]):
             logging.error('Data not retrieved because %s\nURL: %s', error, playlistUrl)
         logging.debug("Extracted NO stream URL from playlistUrl " + playlistUrl)
         return None
+
+    def _areEqual(self, path1: Node, path2: Node) -> bool:
+        return path1.identifier == path2.identifier

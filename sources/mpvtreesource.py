@@ -81,7 +81,7 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
         index = 0
         orderedPaths = self._getOrderedChildPaths(parentPath)
         for childPath in orderedPaths:
-            if childPath.__eq__(path):
+            if self._areEqual(childPath, path):
                 return index, len(orderedPaths)
             index += 1
         return 0, len(orderedPaths)
@@ -217,4 +217,8 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
 
     @abc.abstractmethod
     def _getOrderedChildPaths(self, path: PATH) -> List[PATH]:
+        pass
+
+    @abc.abstractmethod
+    def _areEqual(self, path1: PATH, path2: PATH) -> bool:
         pass

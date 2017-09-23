@@ -119,3 +119,6 @@ class FileSource(MPVTreeSource[Path]):
 
     def _getPathFor(self, filePath: str) -> Path:
         return Path(filePath)
+
+    def _areEqual(self, path1: Path, path2: Path) -> bool:
+        return path1.__eq__(path2)
