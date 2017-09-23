@@ -47,21 +47,17 @@ class AddsPlaybackButtons(CanAppendWidget, abc.ABC):
                          forID=self._sourcePart.sourceID)
         self._app.dispatcher.distribute(msg)
 
-    def drawPlaybackStopped(self) -> None:
-        self._clearTrackInfo()
+    def _updateButtonsStopped(self) -> None:
         self._playBtn.set_enabled(False)
         self._pauseBtn.set_enabled(False)
         self._stopBtn.set_enabled(False)
 
-    def drawPlaybackPaused(self) -> None:
+    def _updateButtonsPaused(self) -> None:
         self._playBtn.set_enabled(True)
         self._pauseBtn.set_enabled(False)
         self._stopBtn.set_enabled(True)
 
-    def drawPlaybackPlaying(self) -> None:
+    def _updateButtonsPlaying(self) -> None:
         self._playBtn.set_enabled(False)
         self._pauseBtn.set_enabled(True)
         self._stopBtn.set_enabled(True)
-
-    def _clearTrackInfo(self):
-        pass

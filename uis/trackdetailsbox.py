@@ -31,5 +31,15 @@ class TrackDetailsBox(gui.VBox, AddsPlaybackButtons):
         self._trackLabel.set_text(trackItem.label)
         self.drawPlaybackPlaying()
 
-    def _clearTrackInfo(self):
+    def drawPlaybackPaused(self) -> None:
+        self._updateButtonsPaused()
+
+    def drawPlaybackPlaying(self) -> None:
+        self._updateButtonsPlaying()
+
+    def drawPlaybackStopped(self) -> None:
+        self._updateButtonsStopped()
+        self._clearTrackInfo()
+
+    def _clearTrackInfo(self) -> None:
         self._trackLabel.set_text("")

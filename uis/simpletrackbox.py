@@ -21,7 +21,17 @@ class SimpleTrackBox(gui.HBox, AddsPlaybackButtons):
     # noinspection PyUnusedLocal
     def drawTrack(self, trackItem: TrackItem) -> None:
         self._trackLabel.set_text(trackItem.label)
-        self.drawPlaybackPlaying()
+        self._updateButtonsPlaying()
+
+    def drawPlaybackPaused(self) -> None:
+        self._updateButtonsPaused()
+
+    def drawPlaybackPlaying(self) -> None:
+        self._updateButtonsPlaying()
+
+    def drawPlaybackStopped(self) -> None:
+        self._updateButtonsStopped()
+        self._clearTrackInfo()
 
     def _clearTrackInfo(self):
         self._trackLabel.set_text("")

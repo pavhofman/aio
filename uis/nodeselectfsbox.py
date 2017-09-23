@@ -129,7 +129,7 @@ class NodeSelectFSBox(gui.HBox):
                          forID=self._sourcePart.sourceID)
         self._app.dispatcher.distribute(msg)
 
-    def _createTrackBox(self, width: int, height: int) -> gui.Widget:
+    def _createTrackBox(self, width: int, height: int) -> SimpleTrackBox:
         return SimpleTrackBox(width=width, height=height, app=self._app, sourcePart=self._sourcePart)
 
     def drawStruct(self, nodeStruct: NodeStruct) -> None:
