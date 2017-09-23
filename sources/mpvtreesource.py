@@ -8,6 +8,7 @@ from moduleid import ModuleID
 from msgid import MsgID
 from msgs.audioparamsmsg import ParamsItem, AudioParamsMsg
 from msgs.integermsg import BiIntegerMsg
+from msgs.jsonmsg import JsonMsg
 from msgs.nodemsg import NodeMsg, NodeItem, NodeID, NON_EXISTING_NODE_ID, NodeStruct
 from msgs.trackmsg import TrackMsg, TrackItem
 from sources.playbackstatus import PlaybackStatus
@@ -171,8 +172,9 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
                 return int(m.group())
         return None
 
-    def metadataWasChanged(self, metadata: dict):
-        pass
+    def _sendMetadataJson(self, mdJson: str) -> None:
+        msg = JsonMsg(json=mdJson, fromID=self.id, typeID=MsgID.METADATA_INFO, groupID=GroupID.UI)
+        self.dispatcher.distribute(msg)
 
     def pauseWasChanged(self, pause: bool):
         UsesMPV.pauseWasChanged(self, pause)

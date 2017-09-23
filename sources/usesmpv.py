@@ -5,6 +5,7 @@ from queue import Queue
 from threading import Thread, Event, Lock
 from typing import Optional
 
+from sources import mpvmetadataparser
 from sources.mpv import MPVCommandError
 from sources.mympv import MyMPV
 # global MPV for all sources
@@ -110,9 +111,11 @@ class UsesMPV(abc.ABC):
     def chapterWasChanged(self, chapter: int):
         pass
 
-    @abc.abstractmethod
     def metadataWasChanged(self, metadata: dict):
-        pass
+        if metadata:
+            json = mpvmetadataparser.INSTANCE.parseToJsonStr(metadata)
+            if json:
+                self._sendMetadataJson(json)
 
     def pauseWasChanged(self, pause: bool):
         if self._monitorTime:
@@ -152,6 +155,10 @@ class UsesMPV(abc.ABC):
 
     @abc.abstractmethod
     def pathWasChanged(self, mpvPath: str):
+        pass
+
+    @abc.abstractmethod
+    def _sendMetadataJson(self, json: str) -> None:
         pass
 
 
