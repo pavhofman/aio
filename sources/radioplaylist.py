@@ -57,11 +57,20 @@ class GroupItem:
     def __init__(self, name: str) -> None:
         self.name = name
 
+    def __str__(self) -> str:
+        return super().__str__() \
+               + "; name: " + self.name
+
 
 class RadioItem:
     def __init__(self, name: str, url: str) -> None:
         self.url = url
         self.name = name
+
+    def __str__(self) -> str:
+        return super().__str__() \
+               + "; name: " + self.name \
+               + "; url: " + self.url
 
 
 if __name__ == "__main__":
