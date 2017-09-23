@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from moduleid import ModuleID
 from msgid import MsgID
+from msgs.audioparamsmsg import AudioParamsMsg, ParamsItem
 from msgs.integermsg import IntegerMsg
 from msgs.nodemsg import NodeMsg
 from msgs.trackmsg import TrackItem, TrackMsg
@@ -110,6 +111,10 @@ class WebSourcePart(SourcePart, abc.ABC):
             msg = msg  # type: IntegerMsg
             self._showPlaybackStatus(statusID=msg.value)
             return True
+        elif msg.typeID == MsgID.AUDIOPARAMS_INFO:
+            msg = msg  # type: AudioParamsMsg
+            self._drawParams(paramsItem=msg.paramsItem)
+            return True
         else:
             return False
 
@@ -128,3 +133,6 @@ class WebSourcePart(SourcePart, abc.ABC):
         elif PlaybackStatus.PLAYING == status:
             self._trackBox.drawPlaybackPlaying()
             self._selectorBox.trackBox.drawPlaybackPlaying()
+
+    def _drawParams(self, paramsItem: ParamsItem):
+        self._trackBox.drawParams(paramsItem)

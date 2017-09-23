@@ -1,8 +1,10 @@
 from typing import TYPE_CHECKING
 
+from msgs.audioparamsmsg import ParamsItem
 from msgs.trackmsg import TrackItem
 from remi import gui, Button
 from uis.addsplaybackbuttons import AddsPlaybackButtons
+from uis.showsaudioparams import ShowsAudioParams
 from uis.utils import createBtn
 
 if TYPE_CHECKING:
@@ -10,10 +12,11 @@ if TYPE_CHECKING:
     from uis.webapp import WebApp
 
 
-class TrackDetailsBox(gui.VBox, AddsPlaybackButtons):
+class TrackDetailsBox(gui.VBox, AddsPlaybackButtons, ShowsAudioParams):
     def __init__(self, app: 'WebApp', sourcePart: 'WebSourcePart'):
         gui.VBox.__init__(self, width=400, height=app.getHeight(), margin='0px auto')
         AddsPlaybackButtons.__init__(self, app=app, sourcePart=sourcePart)
+        ShowsAudioParams.__init__(self)
         self._sourcePart = sourcePart
         self._app = app
         self._trackLabel = gui.Label(text="")
@@ -43,3 +46,7 @@ class TrackDetailsBox(gui.VBox, AddsPlaybackButtons):
 
     def _clearTrackInfo(self) -> None:
         self._trackLabel.set_text("")
+        self._clearParams()
+
+    def drawParams(self, paramsItem: ParamsItem) -> None:
+        self._showParams(paramsItem)
