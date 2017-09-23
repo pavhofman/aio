@@ -125,6 +125,10 @@ class UsesMPV(abc.ABC):
         if self._monitorTime and idle:
             self._timePosTimer.disable()
 
+    @abc.abstractmethod
+    def _audioParamsWereChanged(self, params: dict):
+        pass
+
     def _resetTimePosTimer(self):
         if self._monitorTime:
             self._timePosTimer.trigger()

@@ -59,6 +59,10 @@ class MyMPV(MPV):
     def on_property_idle(self, idle: bool = None):
         self._owner.idleWasChanged(idle)
 
+    def on_property_audio_params(self, params=None):
+        if params:
+            self._owner._audioParamsWereChanged(params)
+
     # -------------------------------------------------------------------------
     # Commands
     # -------------------------------------------------------------------------

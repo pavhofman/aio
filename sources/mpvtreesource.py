@@ -1,10 +1,12 @@
 import abc
+import re
 from time import sleep
 from typing import TYPE_CHECKING, Optional, Tuple, List, TypeVar, Generic
 
 from groupid import GroupID
 from moduleid import ModuleID
 from msgid import MsgID
+from msgs.audioparamsmsg import ParamsItem, AudioParamsMsg
 from msgs.integermsg import BiIntegerMsg
 from msgs.nodemsg import NodeMsg, NodeItem, NodeID, NON_EXISTING_NODE_ID, NodeStruct
 from msgs.trackmsg import TrackMsg, TrackItem
@@ -19,6 +21,7 @@ PATH = TypeVar('PATH')
 
 
 class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
+    # noinspection PyShadowingBuiltins
     def __init__(self, id: ModuleID, dispatcher: 'Dispatcher', monitorTime: bool):
         self._rootNode = None
         self._playedNodeID = NON_EXISTING_NODE_ID  # type: NodeID
@@ -150,6 +153,23 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
         trackItem = TrackItem(nodeID=self._playedNodeID, label=self._getTrackLabelFor(path), descr="")
         msg = TrackMsg(trackItem=trackItem, fromID=self.id, groupID=GroupID.UI)
         self.dispatcher.distribute(msg)
+
+    def _audioParamsWereChanged(self, params: dict):
+        bits = self.__parseBits(params)
+        if bits:
+            item = ParamsItem(params['samplerate'], bits, params['channel-count'])
+            msg = AudioParamsMsg(paramsItem=item, fromID=self.id, groupID=GroupID.UI)
+            self.dispatcher.distribute(msg)
+
+    @staticmethod
+    def __parseBits(params: dict) -> Optional[int]:
+        sampleFormat = params['format']  # type: str
+        if sampleFormat:
+            # typically 's16p', extracting int
+            m = re.search('\d+', sampleFormat)
+            if m:
+                return int(m.group())
+        return None
 
     def metadataWasChanged(self, metadata: dict):
         pass
