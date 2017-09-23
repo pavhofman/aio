@@ -57,3 +57,6 @@ class MsgID(Enum):
 
     # AudioParamsMsg(paramsItem, fromID=source, forID=UI)
     AUDIOPARAMS_INFO = 15
+
+    # JsonMsg(json=json_with_relevant_metadata, fromID=source, forID=UI)
+    METADATA_INFO = 16
