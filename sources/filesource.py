@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional, List, Dict
 
 from unidecode import unidecode
 
+from metadata import Metadata
 from moduleid import ModuleID
 from msgs.nodemsg import NodeID, NodeItem
 from sources.mpvtreesource import MPVTreeSource
@@ -122,3 +123,7 @@ class FileSource(MPVTreeSource[Path]):
 
     def _areEqual(self, path1: Path, path2: Path) -> bool:
         return path1.__eq__(path2)
+
+    def _getMetadataParserRules(self) -> Dict[Metadata, List[str]]:
+        # TODO no metadata configuration yet
+        return {}

@@ -1,9 +1,10 @@
 import abc
 import re
 from time import sleep
-from typing import TYPE_CHECKING, Optional, Tuple, List, TypeVar, Generic
+from typing import TYPE_CHECKING, Optional, Tuple, List, TypeVar, Generic, Dict
 
 from groupid import GroupID
+from metadata import Metadata
 from moduleid import ModuleID
 from msgid import MsgID
 from msgs.audioparamsmsg import ParamsItem, AudioParamsMsg
@@ -11,6 +12,7 @@ from msgs.integermsg import BiIntegerMsg
 from msgs.jsonmsg import JsonMsg
 from msgs.nodemsg import NodeMsg, NodeItem, NodeID, NON_EXISTING_NODE_ID, NodeStruct
 from msgs.trackmsg import TrackMsg, TrackItem
+from sources.metadataparser import MetadataParser
 from sources.playbackstatus import PlaybackStatus
 from sources.treesource import TreeSource, MAX_CHILDREN
 from sources.usesmpv import UsesMPV
@@ -26,6 +28,7 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
     def __init__(self, id: ModuleID, dispatcher: 'Dispatcher', monitorTime: bool):
         self._rootNode = None
         self._playedNodeID = NON_EXISTING_NODE_ID  # type: NodeID
+        self._metadataParser = MetadataParser(rules=self._getMetadataParserRules())
         TreeSource.__init__(self, id=id, dispatcher=dispatcher)
         UsesMPV.__init__(self, monitorTime=monitorTime)
 
@@ -144,6 +147,16 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
     def chapterWasChanged(self, chapter: int):
         pass
 
+    def metadataWasChanged(self, metadata: dict):
+        if metadata:
+            json = self._metadataParser.parseToJsonStr(metadata)
+            if json:
+                self.__sendMetadataJson(json)
+
+    def __sendMetadataJson(self, mdJson: str) -> None:
+        msg = JsonMsg(json=mdJson, fromID=self.id, typeID=MsgID.METADATA_INFO, groupID=GroupID.UI)
+        self.dispatcher.distribute(msg)
+
     def _switchedToNewPath(self, path: PATH):
         UsesMPV._resetTimePosTimer(self)
         self._playedNodeID = self._getID(path)
@@ -171,10 +184,6 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
             if m:
                 return int(m.group())
         return None
-
-    def _sendMetadataJson(self, mdJson: str) -> None:
-        msg = JsonMsg(json=mdJson, fromID=self.id, typeID=MsgID.METADATA_INFO, groupID=GroupID.UI)
-        self.dispatcher.distribute(msg)
 
     def pauseWasChanged(self, pause: bool):
         UsesMPV.pauseWasChanged(self, pause)
@@ -243,4 +252,8 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
 
     @abc.abstractmethod
     def _areEqual(self, path1: PATH, path2: PATH) -> bool:
+        pass
+
+    @abc.abstractmethod
+    def _getMetadataParserRules(self) -> Dict[Metadata, List[str]]:
         pass

@@ -1,10 +1,11 @@
 import logging
 import urllib
-from typing import TYPE_CHECKING, Optional, List
+from typing import TYPE_CHECKING, Optional, List, Dict
 
 from treelib import Node, Tree
 from unidecode import unidecode
 
+from metadata import Metadata
 from moduleid import ModuleID
 from msgs.nodemsg import NodeID, NodeItem
 from sources import playlistparsers
@@ -118,3 +119,9 @@ class RadioSource(MPVTreeSource[Node]):
 
     def _areEqual(self, path1: Node, path2: Node) -> bool:
         return path1.identifier == path2.identifier
+
+    def _getMetadataParserRules(self) -> Dict[Metadata, List[str]]:
+        return {
+            Metadata.TITLE: ["icy-title"],
+            Metadata.BITRATE: ["icy-br"],
+        }

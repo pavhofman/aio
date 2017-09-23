@@ -11,4 +11,4 @@ class Metadata(Enum):
     """
     TITLE = "T"
     # bitrate
-    BR = "B"
+    BITRATE = "B"
