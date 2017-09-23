@@ -5,6 +5,7 @@ from moduleid import ModuleID
 from msgid import MsgID
 from msgs.audioparamsmsg import AudioParamsMsg, ParamsItem
 from msgs.integermsg import IntegerMsg
+from msgs.jsonmsg import JsonMsg
 from msgs.nodemsg import NodeMsg
 from msgs.trackmsg import TrackItem, TrackMsg
 from remi import gui
@@ -115,6 +116,10 @@ class WebSourcePart(SourcePart, abc.ABC):
             msg = msg  # type: AudioParamsMsg
             self._drawParams(paramsItem=msg.paramsItem)
             return True
+        elif msg.typeID == MsgID.METADATA_INFO:
+            msg = msg  # type: JsonMsg
+            self._drawMetadata(mdJson=msg.json)
+            return True
         else:
             return False
 
@@ -136,3 +141,6 @@ class WebSourcePart(SourcePart, abc.ABC):
 
     def _drawParams(self, paramsItem: ParamsItem):
         self._trackBox.drawParams(paramsItem)
+
+    def _drawMetadata(self, mdJson: str):
+        self._trackBox.drawMetadata(mdJson)
