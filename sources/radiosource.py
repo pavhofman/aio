@@ -125,3 +125,6 @@ class RadioSource(MPVTreeSource[Node]):
             Metadata.TITLE: ["icy-title"],
             Metadata.BITRATE: ["icy-br"],
         }
+
+    def _checkAvailability(self) -> bool:
+        return True

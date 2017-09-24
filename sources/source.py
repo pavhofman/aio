@@ -30,8 +30,8 @@ class Source(MsgConsumer, abc.ABC):
     def _initializeInThread(self):
         super()._initializeInThread()
         # status init value
-        self._status = SourceStatus.NOT_ACTIVATED if self._isAvailable() \
-            else SourceStatus.UNAVAILABLE  # type: SourceStatus
+        if self._checkAvailability():
+            self._makeAvailable()
 
     # consuming the message
     def _consume(self, msg: 'Message') -> bool:
@@ -61,13 +61,17 @@ class Source(MsgConsumer, abc.ABC):
         if msg.value == self.id.value:
             # activate myself
             if self._status.isAvailable():
-                if self._activate():
-                    self.__sendSourceStatus()
+                self._activate()
         else:
             # activate some other source, i.e. deactivate myself if active
             if self._status.isActivated():
-                if self._deactive():
-                    self.__sendSourceStatus()
+                self._deactive()
+
+    def _changeSourceStatus(self, newStatus: SourceStatus):
+        if self._status != newStatus:
+            self._status = newStatus
+            # and notification on change
+            self.__sendSourceStatus()
 
     def __sendSourceStatus(self):
         statusValue = self._status.value  # type: int
@@ -79,29 +83,45 @@ class Source(MsgConsumer, abc.ABC):
     def _tryToActivate(self) -> bool:
         pass
 
-    def _activate(self) -> bool:
+    def _activate(self) -> None:
         """
         Activates the source.
         :return: if status changed
         """
         if self._tryToActivate():
-            self._status = SourceStatus.ACTIVATED
-            return True
+            self._changeSourceStatus(SourceStatus.ACTIVATED)
         else:
-            self._status = SourceStatus.NOT_ACTIVATED
-            return False
+            self._changeSourceStatus(SourceStatus.NOT_ACTIVATED)
 
-    def _deactive(self) -> bool:
+    def _deactive(self) -> None:
         """
         Deactivates the source.
         To be extended in ancestors
         :return: if status changed
         """
-        self._status = SourceStatus.NOT_ACTIVATED
-        return True
+        self._changeSourceStatus(SourceStatus.NOT_ACTIVATED)
+
+    def _makeUnavailable(self):
+        """
+        Make the source unavailable. Called from some resource monitor
+        Notifies UIs about new status
+        To be extended in ancestors
+        """
+        self._changeSourceStatus(SourceStatus.UNAVAILABLE)
+
+    def _makeAvailable(self):
+        """
+        Make the source available. Called from some resource monitor
+        Notifies UIs about new status
+        To be extended in ancestors
+        """
+        self._changeSourceStatus(SourceStatus.NOT_ACTIVATED)
 
     @abc.abstractmethod
     def _isAvailable(self) -> bool:
+        """
+        Fast method for returning availability. Usually just reading some cached status
+        """
         pass
 
     def _sendPlaybackInfo(self, newPlayback: PlaybackStatus) -> None:
@@ -117,4 +137,13 @@ class Source(MsgConsumer, abc.ABC):
 
     @abc.abstractmethod
     def _changePlaybackTo(self, newPlayback: PlaybackStatus):
+        pass
+
+    @abc.abstractmethod
+    def _checkAvailability(self):
+        """
+        Thorough method to check for availability. Called once at source init and
+        then usually by some timed task
+        :return: true = available, false = unavailable
+        """
         pass

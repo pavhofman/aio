@@ -44,9 +44,13 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
         UsesMPV.reInit(self)
         return True
 
-    def _deactive(self) -> bool:
+    def _deactive(self):
         UsesMPV.close(self)
-        return TreeSource._deactive(self)
+        TreeSource._deactive(self)
+
+    def _makeUnavailable(self):
+        UsesMPV.close(self)
+        TreeSource._makeUnavailable(self)
 
     def close(self):
         TreeSource.close(self)

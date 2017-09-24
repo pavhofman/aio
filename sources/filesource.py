@@ -127,3 +127,7 @@ class FileSource(MPVTreeSource[Path]):
     def _getMetadataParserRules(self) -> Dict[Metadata, List[str]]:
         # TODO no metadata configuration yet
         return {}
+
+    def _checkAvailability(self) -> bool:
+        # todo - real check for presence of files media
+        return True

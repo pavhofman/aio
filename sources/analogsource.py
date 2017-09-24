@@ -22,6 +22,15 @@ class AnalogSource(Source):
         return True
 
     def _isAvailable(self) -> bool:
+        """
+        Always available, no need to keep the status in any variable
+        """
+        return True
+
+    def _checkAvailability(self):
+        """
+        Always available
+        """
         return True
 
     def _determinePlayback(self) -> PlaybackStatus:
