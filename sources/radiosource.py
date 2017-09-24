@@ -1,4 +1,5 @@
 import logging
+import socket
 import urllib
 from typing import TYPE_CHECKING, Optional, List, Dict
 
@@ -10,11 +11,24 @@ from moduleid import ModuleID
 from msgs.nodemsg import NodeID, NodeItem
 from sources import playlistparsers
 from sources.mpvtreesource import MPVTreeSource
+from sources.periodictask import PeriodicTask
 from sources.playbackstatus import PlaybackStatus
 from sources.radioplaylist import RadioPlaylist, PLAYLIST_FILENAME, RadioItem
 
 if TYPE_CHECKING:
     from dispatcher import Dispatcher
+
+# periodic online check in seconds
+ONLINE_CHECK__INTERVAL = 5
+
+
+def isOnline() -> bool:
+    try:
+        socket.create_connection(("www.google.com", 80))
+        return True
+    except OSError:
+        pass
+    return False
 
 
 class RadioSource(MPVTreeSource[Node]):
@@ -25,13 +39,11 @@ class RadioSource(MPVTreeSource[Node]):
 
     def _initializeInThread(self):
         self._tree = self._initTree()
+        self.__onlineChecker = PeriodicTask(ONLINE_CHECK__INTERVAL, self._watchAvailability)
         super()._initializeInThread()
 
     def _getRootNodeItem(self) -> NodeItem:
         return self._getNodeItemForPath(self._getPath(self._tree.root))
-
-    def _isAvailable(self) -> bool:
-        return self._tree is not None
 
     def _getParentPath(self, path: Node) -> Node:
         return self._tree.parent(path.identifier)
@@ -127,4 +139,14 @@ class RadioSource(MPVTreeSource[Node]):
         }
 
     def _checkAvailability(self) -> bool:
-        return True
+        return isOnline()
+
+    def _watchAvailability(self):
+        """
+        called from online checker task
+        """
+        currentlyOnline = self._checkAvailability()
+        if currentlyOnline and not self._status.isAvailable():
+            self._makeAvailable()
+        elif not currentlyOnline and self._status.isAvailable():
+            self._makeUnavailable()
