@@ -111,6 +111,7 @@ if __name__ == "__main__":
             receiverOnMCU,
             Heartbeat(dispatcher=dispatcherOnMCU)
         ]
+        globalvars.consumersReadyEvent.set()
         while True:
             time.sleep(5)
             # dispatcherOnPC.printStats()

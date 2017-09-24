@@ -53,6 +53,8 @@ class Dispatcher:
 
 # noinspection PyShadowingBuiltins
 def getMsgConsumer(id: ModuleID) -> 'MsgConsumer':
+    # wait untill all consumers are instantiated
+    globalvars.consumersReadyEvent.wait()
     for consumer in globalvars.msgConsumers:
         if consumer.id == id:
             return consumer
