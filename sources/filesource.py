@@ -30,10 +30,6 @@ class FileSource(MPVTreeSource[Path]):
     def _getRootNodeItem(self) -> NodeItem:
         return self._getNodeItemForPath(ROOT_PATH)
 
-    def _isAvailable(self) -> bool:
-        # TODO
-        return True
-
     def _getParentPath(self, path: Path) -> Path:
         return path.parent
 

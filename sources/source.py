@@ -117,13 +117,6 @@ class Source(MsgConsumer, abc.ABC):
         """
         self._changeSourceStatus(SourceStatus.NOT_ACTIVATED)
 
-    @abc.abstractmethod
-    def _isAvailable(self) -> bool:
-        """
-        Fast method for returning availability. Usually just reading some cached status
-        """
-        pass
-
     def _sendPlaybackInfo(self, newPlayback: PlaybackStatus) -> None:
         msg = IntegerMsg(value=newPlayback.value, fromID=self.id, typeID=MsgID.SOURCE_PLAYBACK_INFO,
                          groupID=GroupID.UI)
