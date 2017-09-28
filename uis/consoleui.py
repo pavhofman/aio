@@ -51,5 +51,6 @@ class ConsoleUI(MsgConsumer, HasSourceParts):
         return [
             SourcePart(sourceID=ModuleID.ANALOG_SOURCE),
             SourcePart(sourceID=ModuleID.FILE_SOURCE),
-            SourcePart(sourceID=ModuleID.RADIO_SOURCE)
+            SourcePart(sourceID=ModuleID.RADIO_SOURCE),
+            SourcePart(sourceID=ModuleID.CD_SOURCE)
         ]
