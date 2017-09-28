@@ -61,7 +61,7 @@ class WebApp(App, CanSendMessage, HasSourceParts):
         # the margin 0px auto centers the main box
         self.mainFSBox = MainFSBox(self)
 
-        self._currentFSBox = self._prevFSBox = self.mainFSBox
+        self._currentFSBox = None
         self.setFSBox(self.mainFSBox)
         self._volFSBox = VolumeFSBox(self)
         self._activateSourceFSBox = ActivateSourceFSBox(self)
@@ -81,6 +81,10 @@ class WebApp(App, CanSendMessage, HasSourceParts):
         return HEIGHT
 
     def setFSBox(self, box: gui.Widget):
+        if self._currentFSBox != box:
+            self.__doSetFSBox(box)
+
+    def __doSetFSBox(self, box):
         if self._currentFSBox is not None \
                 and isinstance(self._currentFSBox, TimedClose):
             self._currentFSBox.closeTimer()
