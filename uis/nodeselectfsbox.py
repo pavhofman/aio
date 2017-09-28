@@ -36,10 +36,13 @@ class NodeSelectFSBox(gui.HBox):
         leftBox.append(self.trackBox, '2')
         self.append(leftBox, '1')
         self.append(self._controlsBox, '2')
-        self._nodeStruct = None  # type: Optional[NodeStruct]
-        self.drawStruct(EMPTY_NODE_STRUCT)
+        self.clear()
         # request root node
         self.sendReqNodeMsg(NON_EXISTING_NODE_ID, 0)
+
+    def clear(self):
+        self._nodeStruct = None  # type: Optional[NodeStruct]
+        self.drawStruct(EMPTY_NODE_STRUCT)
 
     def _createStructBox(self, width: int, height: int) -> gui.Widget:
         box = gui.VBox(width=width, height=height, margin='0px auto')
@@ -133,18 +136,14 @@ class NodeSelectFSBox(gui.HBox):
         return SimpleTrackBox(width=width, height=height, app=self._app, sourcePart=self._sourcePart)
 
     def drawStruct(self, nodeStruct: NodeStruct) -> None:
-        self._updateRequestRootButton(nodeStruct)
         self._nodeStruct = nodeStruct  # type: NodeStruct
         self._updateControls()
         if self._nodeStruct != EMPTY_NODE_STRUCT:
             self._fillStructBox(self._structBox)
-
-    def _updateRequestRootButton(self, nodeStruct: NodeStruct) -> None:
-        if nodeStruct == EMPTY_NODE_STRUCT:
-            # some info has arrived, no need to show the request button
-            self._structBox.append(self._requestRootButton)
         else:
-            self._structBox.remove_child(self._requestRootButton)
+            self._structBox.empty()
+            self._structBox.append(self._requestRootButton)
+            self.trackBox.clear()
 
     def _updateControls(self) -> None:
         notAtBegin = self._nodeStruct.fromChildIndex > 0

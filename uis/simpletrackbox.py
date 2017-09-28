@@ -35,3 +35,6 @@ class SimpleTrackBox(gui.HBox, AddsPlaybackButtons):
 
     def _clearTrackInfo(self):
         self._trackLabel.set_text("")
+
+    def clear(self):
+        self.drawPlaybackStopped()
