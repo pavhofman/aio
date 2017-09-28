@@ -96,8 +96,11 @@ class UsesMPV(abc.ABC):
             self._timePosTimer.finish()
         self._releaseMPV()
 
-    def _startPlayback(self, filePath: str):
-        self._getMPV().command("loadfile", filePath, "replace")
+    def _startPlayback(self, mpvPath: Optional[str] = None, chapter: Optional[int] = None) -> None:
+        if mpvPath is not None:
+            self._getMPV().command("loadfile", mpvPath, "replace")
+        if chapter is not None:
+            self._getMPV().set_property("chapter", chapter)
         # mpv can be paused, unpause
         self._getMPV().play()
         if self._monitorTime:
@@ -107,7 +110,7 @@ class UsesMPV(abc.ABC):
         self._getMPV().command("loadfile", filePath, "append")
 
     @abc.abstractmethod
-    def chapterWasChanged(self, chapter: int):
+    def chapterWasChanged(self, chapter: Optional[int]) -> None:
         pass
 
     @abc.abstractmethod

@@ -52,7 +52,7 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
         TreeSource.close(self)
         UsesMPV.close(self)
 
-    def chapterWasChanged(self, chapter: int):
+    def chapterWasChanged(self, chapter: Optional[int]) -> None:
         pass
 
     def metadataWasChanged(self, metadata: dict):
