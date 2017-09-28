@@ -205,9 +205,12 @@ class TimePosTimer(Thread):
         self._enabled = True
         self._triggerEvent.set()
 
-    def _getMPV(self) -> MyMPV:
+    def _getMPV(self) -> Optional[MyMPV]:
         global mpv
-        return mpv if mpv.getOwner() == self._owner else None
+        if mpv is not None and mpv.getOwner() == self._owner:
+            return mpv
+        else:
+            return None
 
     def timePosCallback(self, timePos: float):
         if timePos is not None:
