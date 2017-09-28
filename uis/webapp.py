@@ -12,6 +12,7 @@ from msgs.message import Message
 from remi import App, gui
 from uis.activatesourcefsbox import ActivateSourceFSBox
 from uis.analogsourcepart import AnalogSourcePart
+from uis.cdsourcepart import CDSourcePart
 from uis.filesourcepart import FileSourcePart
 from uis.hassourceparts import HasSourceParts
 from uis.mainfsbox import MainFSBox
@@ -35,7 +36,8 @@ class WebApp(App, CanSendMessage, HasSourceParts):
         return [
             AnalogSourcePart(self),
             FileSourcePart(self),
-            RadioSourcePart(self)
+            RadioSourcePart(self),
+            CDSourcePart(self)
         ]
 
     # noinspection PyAttributeOutsideInit,PyShadowingBuiltins
