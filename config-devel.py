@@ -13,3 +13,5 @@ VOLUME_PROPERTY = "volume"
 # enabling mpv.log file
 MPV_LOG_FILE = "/tmp/mpv.log"
 # MPV_LOG_FILE = None
+
+DEV_CDROM = '/dev/cdrom'

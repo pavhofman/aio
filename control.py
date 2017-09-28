@@ -16,6 +16,7 @@ from moduleid import ModuleID
 from serialreciever import SerialReciever
 from serialsender import SerialSender
 from sources.analogsource import AnalogSource
+from sources.cdsource import CDSource
 from sources.filesource import FileSource
 from sources.radiosource import RadioSource
 from uis.inputconsoleui import InputConsoleUI
@@ -43,6 +44,7 @@ routeMapOnPC = {
     ModuleID.WEBUI_PC: ModuleID.WEBUI_PC,
     ModuleID.FILE_SOURCE: ModuleID.FILE_SOURCE,
     ModuleID.RADIO_SOURCE: ModuleID.RADIO_SOURCE,
+    ModuleID.CD_SOURCE: ModuleID.CD_SOURCE,
     ModuleID.TO_MAIN_MCU_SENDER: ModuleID.TO_MAIN_MCU_SENDER,
     ModuleID.FROM_MAIN_MCU_RECEIVER: ModuleID.FROM_MAIN_MCU_RECEIVER,
 
@@ -63,13 +65,15 @@ routeMapOnMCU = {
     ModuleID.WEBUI_PC: ModuleID.TO_PC_SENDER,
     ModuleID.FILE_SOURCE: ModuleID.TO_PC_SENDER,
     ModuleID.RADIO_SOURCE: ModuleID.TO_PC_SENDER,
+    ModuleID.CD_SOURCE: ModuleID.TO_PC_SENDER,
     ModuleID.TO_MAIN_MCU_SENDER: ModuleID.TO_PC_SENDER,
     ModuleID.FROM_MAIN_MCU_RECEIVER: ModuleID.TO_PC_SENDER,
 }
 
 groupMapOnPC = {
     GroupID.UI: [ModuleID.WEBUI_PC, ModuleID.TO_MAIN_MCU_SENDER],
-    GroupID.SOURCE: [ModuleID.FILE_SOURCE, ModuleID.RADIO_SOURCE, ModuleID.TO_MAIN_MCU_SENDER],
+    GroupID.SOURCE: [ModuleID.FILE_SOURCE, ModuleID.RADIO_SOURCE,
+                     ModuleID.CD_SOURCE, ModuleID.TO_MAIN_MCU_SENDER],
 }
 
 groupMapOnMCU = {
@@ -78,7 +82,8 @@ groupMapOnMCU = {
 }
 
 # list of all real sources modIDs
-globalvars.realSourceIDs = [ModuleID.ANALOG_SOURCE, ModuleID.FILE_SOURCE, ModuleID.RADIO_SOURCE]  # type: List[ModuleID]
+globalvars.realSourceIDs = [ModuleID.ANALOG_SOURCE, ModuleID.FILE_SOURCE, ModuleID.RADIO_SOURCE,
+                            ModuleID.CD_SOURCE]  # type: List[ModuleID]
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s')
@@ -105,6 +110,7 @@ if __name__ == "__main__":
             AnalogSource(dispatcherOnMCU),
             FileSource(dispatcherOnPC),
             RadioSource(dispatcherOnPC),
+            CDSource(dispatcherOnPC),
             senderOnPC,
             senderOnMCU,
             receiverOnPC,

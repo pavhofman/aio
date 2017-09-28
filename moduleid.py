@@ -15,3 +15,4 @@ class ModuleID(Enum):
     FROM_MAIN_MCU_RECEIVER = 9
     HEARTBEAT = 10  # warning - the id is not routable, heartbeat does not listen to incoming messages
     RADIO_SOURCE = 11
+    CD_SOURCE = 12
