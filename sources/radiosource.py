@@ -86,7 +86,7 @@ class RadioSource(MPVTreeSource[Node]):
                 # not much we can do, stopping playback
                 self._changePlaybackTo(PlaybackStatus.STOPPED)
 
-    def timePosWasChanged(self, timePos: int):
+    def timePosWasChanged(self, timePosFromStart: int):
         # ignored
         pass
 

@@ -98,13 +98,14 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
         self._sendPlaybackInfo(PlaybackStatus.PAUSED if pause else PlaybackStatus.PLAYING)
         pass
 
-    def timePosWasChanged(self, timePos: int):
-        if timePos is not None and self._playedNodeID != NON_EXISTING_NODE_ID:
+    def timePosWasChanged(self, timePosFromStart: int):
+        if timePosFromStart is not None and self._playedNodeID != NON_EXISTING_NODE_ID:
             duration = self._getDuration()
-            duration = duration if duration is not None else 0
-            msg = BiIntegerMsg(value1=timePos, value2=duration, fromID=self.id, typeID=MsgID.TIME_POS_INFO,
-                               groupID=GroupID.UI)
-            self.dispatcher.distribute(msg)
+            timePos = self._convertTimePos(timePosFromStart)
+            if duration is not None and timePos is not None:
+                msg = BiIntegerMsg(value1=timePos, value2=duration, fromID=self.id, typeID=MsgID.TIME_POS_INFO,
+                                   groupID=GroupID.UI)
+                self.dispatcher.distribute(msg)
 
     def pathWasChanged(self, mpvPath: Optional[str]):
         if mpvPath is None:
@@ -113,6 +114,14 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
             path = self._getPathFor(mpvPath)
             if path is not None and self._isPlayable(path):
                 self._switchedToNewPath(path)
+
+    def _convertTimePos(self, timePosFromStart: int) -> Optional[int]:
+        """
+        Ancestors can modify the time position (e.g. calculate for chapter)
+        Default - no change
+        :return:
+        """
+        return timePosFromStart
 
     @abc.abstractmethod
     def _getMetadataParserRules(self) -> Dict[Metadata, List[str]]:

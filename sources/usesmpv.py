@@ -147,7 +147,7 @@ class UsesMPV(abc.ABC):
             return None
 
     @abc.abstractmethod
-    def timePosWasChanged(self, timePos: int):
+    def timePosWasChanged(self, timePosFromStart: int):
         pass
 
     @abc.abstractmethod
@@ -167,7 +167,7 @@ class TimePosTimer(Thread):
         self.start()
 
     def run(self):
-        timeAdj = 0
+        timeAdj = 0  # type: float
         while not self._finishEvent.is_set():
             # the timer is either triggered - run immediately, or waits TIME_POS_READ_INTERVAL
             sleep = TIME_POS_READ_INTERVAL + timeAdj
@@ -180,11 +180,11 @@ class TimePosTimer(Thread):
             # reset the trigger event to wait the TIME_POS_READ_INTERVAL in next cycle
             self._triggerEvent.clear()
 
-    def watchTimePos(self, timeAdj) -> int:
+    def watchTimePos(self, timeAdj) -> float:
         myMpv = self._getMPV()
         if myMpv is not None:
             myMpv.register_property_callback(TIME_POS_PROPERTY, self.timePosCallback)
-            timePos = self._queue.get()
+            timePos = self._queue.get()  # type: float
             myMpv.unregister_property_callback(TIME_POS_PROPERTY, self.timePosCallback)
             posInt = roundToInt(timePos)
             timeAdj = posInt - timePos
