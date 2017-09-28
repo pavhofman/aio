@@ -34,16 +34,19 @@ class TreeSource(Source, abc.ABC, Generic[PATH]):
     def _consume(self, msg: 'Message') -> bool:
         if not super()._consume(msg):
             if msg.typeID == MsgID.REQ_NODE:
-                msg = msg  # type: BiIntegerMsg
-                self._sendNodeInfo(msg.value1, msg.value2)
+                if self._status.isAvailable():
+                    msg = msg  # type: BiIntegerMsg
+                    self._sendNodeInfo(msg.value1, msg.value2)
                 return True
             elif msg.typeID == MsgID.REQ_PARENT_NODE:
-                msg = msg  # type: IntegerMsg
-                self._sendParentNodeInfo(msg.value)
+                if self._status.isAvailable():
+                    msg = msg  # type: IntegerMsg
+                    self._sendParentNodeInfo(msg.value)
                 return True
             elif msg.typeID == MsgID.PLAY_NODE:
-                msg = msg  # type: IntegerMsg
-                self._playNode(msg.value)
+                if self._status.isAvailable():
+                    msg = msg  # type: IntegerMsg
+                    self._playNode(msg.value)
                 return True
         else:
             return False
