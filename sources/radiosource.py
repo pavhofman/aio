@@ -81,7 +81,7 @@ class RadioSource(MPVTreeSource[Node]):
             item = node.data  # type: RadioItem
             streamUrl = self._extractStreamUrl(item.url)
             if streamUrl is not None:
-                self._startPlayback(item.url)
+                self._startPlayback(mpvPath=item.url)
             else:
                 # not much we can do, stopping playback
                 self._changePlaybackTo(PlaybackStatus.STOPPED)

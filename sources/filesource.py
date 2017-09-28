@@ -93,7 +93,7 @@ class FileSource(MPVTreeSource[Path]):
         if path.is_dir():
             self._appendChildrenToMPV(path, True, 0)
         else:
-            self._startPlayback(str(path))
+            self._startPlayback(mpvPath=str(path))
 
     def _appendChildrenToMPV(self, path: Path, firstToPlay: bool, level: int) -> None:
         """
@@ -107,7 +107,7 @@ class FileSource(MPVTreeSource[Path]):
         for childPath in self._getOrderedChildPaths(path):
             if childPath.is_file():
                 if firstToPlay:
-                    self._startPlayback(str(childPath))
+                    self._startPlayback(mpvPath=str(childPath))
                     firstToPlay = False
                 else:
                     self._appendToPlayback(str(childPath))

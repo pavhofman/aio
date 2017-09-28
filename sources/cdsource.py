@@ -133,14 +133,16 @@ class CDSource(MPVTreeSource[Node]):
         return self.__isCDInserted()
 
     def __playFromTrack(self, trackID: int) -> None:
+        # chapters are zero-based
+        chapter = trackID - 1
         try:
             self._getMPV().get_property("chapter")
             logging.debug("Chapter property available, just switching")
-            self._startPlayback(mpvPath=None, chapter=trackID - 1)
+            self._startPlayback(chapter=chapter)
         except MPVCommandError:
             logging.debug("Chapter property NOT available, loading path and switching to chapter in callback")
-            self._startPlayback(mpvPath=CDDA__MPV_FILEPATH, chapter=None)
-            self.__chapterToSwitch = trackID - 1
+            self._startPlayback(mpvPath=CDDA__MPV_FILEPATH)
+            self.__chapterToSwitch = chapter
 
     def chapterWasChanged(self, chapter: Optional[int]) -> None:
         """
@@ -157,7 +159,7 @@ class CDSource(MPVTreeSource[Node]):
                     self._switchedToNewPath(newNode)
 
     def __playChapterToSwitch(self):
-        self._startPlayback(mpvPath=None, chapter=self.__chapterToSwitch)
+        self._startPlayback(chapter=self.__chapterToSwitch)
         self.__chapterToSwitch = None  # type: Optional[int]
 
     def _convertTimePos(self, timePosFromStart: int) -> Optional[int]:
