@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from uis.nodeselectfsbox import NodeSelectFSBox
-from uis.simpletimetrackcontrainer import SimpleTimeTrackBox
+from uis.simpletimetrackbox import SimpleTimeTrackBox
 
 if TYPE_CHECKING:
     from uis.websourcepart import WebSourcePart
