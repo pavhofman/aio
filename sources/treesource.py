@@ -27,8 +27,6 @@ class TreeSource(Source, abc.ABC, Generic[PATH]):
 
     # noinspection PyShadowingBuiltins
     def __init__(self, id: ModuleID, dispatcher: 'Dispatcher'):
-        self._rootNode = None
-        self._playedNodeID = NON_EXISTING_NODE_ID  # type: NodeID
         # call the thread class
         super().__init__(id=id, dispatcher=dispatcher)
 
@@ -153,6 +151,14 @@ class TreeSource(Source, abc.ABC, Generic[PATH]):
             fromIndex = nodeIndex - PREVIOUS_SIBLINGS
         # lower limit = 0
         return fromIndex if fromIndex >= 0 else 0
+
+    def _initValuesForUnavailable(self):
+        self._rootNode = None  # is initialized in makeAvailable
+        self._playedNodeID = NON_EXISTING_NODE_ID  # type: NodeID
+
+    def _initValuesForAvailable(self) -> bool:
+        self._rootNode = self._getRootNodeItem()
+        return super()._initValuesForAvailable()
 
     @abc.abstractmethod
     def _playNode(self, nodeID: NodeID) -> None:

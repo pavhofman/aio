@@ -22,6 +22,7 @@ class Source(MsgConsumer, abc.ABC):
 
     # noinspection PyShadowingBuiltins
     def __init__(self, id: ModuleID, dispatcher: 'Dispatcher'):
+        self._initValuesForUnavailable()
         # status init value
         self._status = SourceStatus.UNAVAILABLE  # type: SourceStatus
         # call the thread class
@@ -107,15 +108,21 @@ class Source(MsgConsumer, abc.ABC):
         Notifies UIs about new status
         To be extended in ancestors
         """
+        self._initValuesForUnavailable()
         self._changeSourceStatus(SourceStatus.UNAVAILABLE)
 
-    def _makeAvailable(self):
+    def _makeAvailable(self) -> bool:
         """
         Make the source available. Called from some resource monitor
         Notifies UIs about new status
         To be extended in ancestors
+        :return whether making available succeeded
         """
-        self._changeSourceStatus(SourceStatus.NOT_ACTIVATED)
+        if self._initValuesForAvailable():
+            self._changeSourceStatus(SourceStatus.NOT_ACTIVATED)
+            return True
+        else:
+            return False
 
     def _sendPlaybackInfo(self, newPlayback: PlaybackStatus) -> None:
         msg = IntegerMsg(value=newPlayback.value, fromID=self.id, typeID=MsgID.SOURCE_PLAYBACK_INFO,
@@ -123,6 +130,19 @@ class Source(MsgConsumer, abc.ABC):
         self.dispatcher.distribute(msg)
 
         pass
+
+    def _initValuesForUnavailable(self):
+        """
+        for descendants
+        """
+        pass
+
+    def _initValuesForAvailable(self) -> bool:
+        """
+        for descendants
+        :return whether initialization succeeded
+        """
+        return True
 
     @abc.abstractmethod
     def _determinePlayback(self) -> PlaybackStatus:
