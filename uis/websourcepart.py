@@ -37,26 +37,33 @@ class WebSourcePart(SourcePart, abc.ABC):
         return NodeSelectFSBox(self._app, self)
 
     def _createOverviewLabel(self) -> StatusLabel:
-        label = StatusLabel(self._getLabelText())
+        label = StatusLabel(self.name)
         label.decorateForStatus(self.sourceStatus)
         return label
 
     def _createActivationButton(self) -> StatusButton:
-        button = StatusButton(text=self._getLabelText())
+        button = StatusButton(text=self.name)
         button.set_on_click_listener(self._onActivateButtonPressed)
         button.decorateForStatus(self.sourceStatus)
         return button
 
     def setStatus(self, newStatus: SourceStatus) -> bool:
         if super().setStatus(newStatus):
-            self._updateComponentsForNewStatus()
-            # update trackbox
-            if self.sourceStatus.isActivated():
-                self._app.mainFSBox.setTrackBox(self._trackBox)
+            self._decorateComponentsForNewStatus()
+            if self.sourceStatus == SourceStatus.UNAVAILABLE:
+                # clearing source boxes
+                self._selectorBox.clear()
+                self._trackBox.clear()
+            else:
+                if not self._hasDataFromSource():
+                    self._requestInitialDataFromSource()
 
-            elif self._app.getActiveSource() is None:
-                # deactivated
-                self._app.mainFSBox.setNoTrackBox()
+                if self.sourceStatus == SourceStatus.ACTIVATED:
+                    # activation
+                    pass
+                elif self.sourceStatus == SourceStatus.NOT_ACTIVATED:
+                    # not doing anything on this level
+                    pass
             return True
         else:
             return False
@@ -64,15 +71,12 @@ class WebSourcePart(SourcePart, abc.ABC):
     def getOverviewLabel(self) -> StatusLabel:
         return self._overviewLabel
 
-    # noinspection PyUnusedLocal
-    def _updateComponentsForNewStatus(self) -> None:
-        self._overviewLabel.set_text(self._getLabelText())
-        self._overviewLabel.decorateForStatus(self.sourceStatus)
-        self._activationButton.set_text(self._getLabelText())
-        self._activationButton.decorateForStatus(self.sourceStatus)
+    def getTrackBox(self) -> TrackDetailsBox:
+        return self._trackBox
 
-    def _getLabelText(self) -> str:
-        return self.name + str(self.sourceStatus.value)
+    def _decorateComponentsForNewStatus(self) -> None:
+        self._overviewLabel.decorateForStatus(self.sourceStatus)
+        self._activationButton.decorateForStatus(self.sourceStatus)
 
     def getSelectorFSBox(self) -> gui.Widget:
         return self._selectorBox
@@ -82,8 +86,6 @@ class WebSourcePart(SourcePart, abc.ABC):
         if self.sourceStatus.isAvailable() and not self.sourceStatus.isActivated():
             # changing
             self._app.sendSwitchSourceReq(source=self, activate=True)
-        # closing
-        self.showSelectorBox()
 
     def getActivationButton(self) -> StatusButton:
         return self._activationButton
@@ -95,12 +97,7 @@ class WebSourcePart(SourcePart, abc.ABC):
         self._app.setFSBox(self._selectorBox)
 
     def handleMsgFromSource(self, msg) -> bool:
-        if msg.typeID == MsgID.SOURCE_STATUS_INFO:
-            msg = msg  # type: IntegerMsg
-            status = SourceStatus(msg.value)
-            self.setStatus(status)
-            return True
-        elif msg.typeID == MsgID.TRACK_INFO:
+        if msg.typeID == MsgID.TRACK_INFO:
             msg = msg  # type: TrackMsg
             self._drawTrack(trackItem=msg.trackItem)
             return True
@@ -144,3 +141,10 @@ class WebSourcePart(SourcePart, abc.ABC):
 
     def _drawMetadata(self, mdJson: str):
         self._trackBox.drawMetadata(mdJson)
+
+    def _requestInitialDataFromSource(self):
+        # request root node
+        self._selectorBox.sendReqRootNodeMsg()
+
+    def _hasDataFromSource(self) -> bool:
+        return self._selectorBox.hasDataFromSource()

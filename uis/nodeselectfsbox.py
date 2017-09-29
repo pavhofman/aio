@@ -1,5 +1,5 @@
 import abc
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from msgid import MsgID
 from msgs.integermsg import BiIntegerMsg, IntegerMsg
@@ -37,28 +37,20 @@ class NodeSelectFSBox(gui.HBox):
         self.append(leftBox, '1')
         self.append(self._controlsBox, '2')
         self.clear()
-        # request root node
-        self.sendReqNodeMsg(NON_EXISTING_NODE_ID, 0)
 
     def clear(self):
-        self._nodeStruct = None  # type: Optional[NodeStruct]
+        self._nodeStruct = EMPTY_NODE_STRUCT
+        self._updateControls()
+        self._structBox.empty()
+        self.trackBox.clear()
+
         self.drawStruct(EMPTY_NODE_STRUCT)
 
     def _createStructBox(self, width: int, height: int) -> gui.Widget:
-        box = gui.VBox(width=width, height=height, margin='0px auto')
-        self._requestRootButton = self._getRequestRootButton()
-        return box
+        return gui.VBox(width=width, height=height, margin='0px auto')
 
-    def _getRequestRootButton(self) -> gui.Button:
-        button = gui.Button(text="Request root item")
-        button.set_on_click_listener(self._onRequestRootButtonPressed)
-        return button
-
-    # noinspection PyUnusedLocal
-    def _onRequestRootButtonPressed(self, widget):
+    def sendReqRootNodeMsg(self):
         self.sendReqNodeMsg(NON_EXISTING_NODE_ID, 0)
-
-    # noinspection PyUnusedLocal
 
     def _createControlsBox(self, width: int, height: int) -> gui.Widget:
         box = gui.VBox(width=width, height=height, margin='0px auto')
@@ -135,15 +127,13 @@ class NodeSelectFSBox(gui.HBox):
     def _createTrackBox(self, width: int, height: int) -> SimpleTrackBox:
         return SimpleTrackBox(width=width, height=height, app=self._app, sourcePart=self._sourcePart)
 
+    def hasDataFromSource(self) -> bool:
+        return self._nodeStruct != EMPTY_NODE_STRUCT
+
     def drawStruct(self, nodeStruct: NodeStruct) -> None:
         self._nodeStruct = nodeStruct  # type: NodeStruct
         self._updateControls()
-        if self._nodeStruct != EMPTY_NODE_STRUCT:
-            self._fillStructBox(self._structBox)
-        else:
-            self._structBox.empty()
-            self._structBox.append(self._requestRootButton)
-            self.trackBox.clear()
+        self._fillStructBox(self._structBox)
 
     def _updateControls(self) -> None:
         notAtBegin = self._nodeStruct.fromChildIndex > 0

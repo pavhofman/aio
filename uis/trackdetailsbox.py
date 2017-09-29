@@ -28,10 +28,10 @@ class TrackDetailsBox(gui.VBox, AddsPlaybackButtons, ShowsAudioParams, ShowsMeta
         button.set_on_click_listener(self._onOpenSelectorButtonPressed)
         self.append(createBtn("Select track", True, self._onOpenSelectorButtonPressed), "20")
 
+    # noinspection PyUnusedLocal
     def _onOpenSelectorButtonPressed(self, widget):
         self._sourcePart.showSelectorBox()
 
-    # noinspection PyUnusedLocal
     def drawTrack(self, trackItem: TrackItem) -> None:
         self._trackLabel.set_text(trackItem.label)
         self.drawPlaybackPlaying()
@@ -56,3 +56,7 @@ class TrackDetailsBox(gui.VBox, AddsPlaybackButtons, ShowsAudioParams, ShowsMeta
 
     def drawMetadata(self, mdJson: str) -> None:
         self._showMetadata(mdJson)
+
+    def clear(self) -> None:
+        # TODO
+        self.drawPlaybackStopped()

@@ -10,6 +10,7 @@ from msgid import MsgID
 from msgs.integermsg import IntegerMsg
 from msgs.message import Message
 from remi import App, gui
+from sources.sourcestatus import SourceStatus
 from uis.activatesourcefsbox import ActivateSourceFSBox
 from uis.analogsourcepart import AnalogSourcePart
 from uis.cdsourcepart import CDSourcePart
@@ -124,13 +125,40 @@ class WebApp(App, CanSendMessage, HasSourceParts):
         if msg.typeID == MsgID.CURRENT_VOL_INFO:
             msg = msg  # type: IntegerMsg
             self.setVolume(msg.value)
+        elif msg.typeID == MsgID.SOURCE_STATUS_INFO:
+            msg = msg  # type: IntegerMsg
+            status = SourceStatus(msg.value)
+            sourcePart = self.getSourcePart(msg.fromID)
+            self.__setStatusOfSource(status, sourcePart)
         elif msg.fromID in globalvars.realSourceIDs:
             sourcePart = self.getSourcePart(msg.fromID)  # type: WebSourcePart
             sourcePart.handleMsgFromSource(msg)
+        else:
+            # dropping the message alltogether
+            pass
 
     def setVolume(self, value: int) -> None:
         self._volFSBox.setVolume(value)
         self.mainFSBox.setVolume(value)
+
+    def __setStatusOfSource(self, newStatus, sourcePart):
+        oldStatus = sourcePart.sourceStatus
+        if sourcePart.setStatus(newStatus):
+            # change succeeded
+            if newStatus == SourceStatus.UNAVAILABLE and oldStatus == SourceStatus.ACTIVATED:
+                # we have to close the current source
+                self.showNoSource()
+            elif newStatus == SourceStatus.ACTIVATED:
+                self.mainFSBox.setTrackBox(sourcePart.getTrackBox())
+                self.setFSBox(sourcePart.getSelectorFSBox())
+            elif newStatus == SourceStatus.NOT_ACTIVATED:
+                if self.getActiveSource() is None:
+                    # closing source
+                    self.showNoSource()
+
+    def showNoSource(self):
+        self.mainFSBox.setNoTrackBox()
+        self.setFSBox(self.mainFSBox)
 
     def showVolFSBox(self) -> None:
         self.setFSBox(self._volFSBox)
