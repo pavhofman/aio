@@ -16,7 +16,7 @@ class MsgID(Enum):
     REQ_SOURCE_STATUS = 4
 
     # Sent to all UIs by a source upon reception of REQ_SOURCE_STATUS msg or detection of status change
-    # IntegerMsg(value=SourceStatus, fromID=source, groupID=UIs)
+    # IntegerMsg(value=SourceStatusID, fromID=source, groupID=UIs)
     SOURCE_STATUS_INFO = 5
 
     # IntegerMsg for all sources, value = ModID of activated source or 0 for deactivating all sources
@@ -29,11 +29,11 @@ class MsgID(Enum):
     PLAY_NODE = 7
 
     # IntegerMsg sent to a particular source, value = requested PlayCommand
-    # IntegerMsg(value=PlayCommand, forID=Source)
+    # IntegerMsg(value=PlayCommandID, forID=Source)
     SOURCE_PLAY_COMMAND = 8
 
     # Sent to all UIs by a source upon detection of playback change
-    # IntegerMsg(value=playbackID, fromID=source, groupID=UIs)
+    # IntegerMsg(value=playbackStatusID, fromID=source, groupID=UIs)
     SOURCE_PLAYBACK_INFO = 9
 
     # BiIntegerMsg(value1 = nodeID, value2 = fromIndex, forID=source)
