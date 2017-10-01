@@ -14,7 +14,7 @@ UI
 class AnalogSource(Source):
     def __init__(self, dispatcher: 'Dispatcher'):
         # call the thread class
-        self._playback = PlaybackStatus.STOPPED
+        self._status = PlaybackStatus.STOPPED
         super().__init__(id=ModuleID.ANALOG_SOURCE, dispatcher=dispatcher)
 
     def _tryToActivate(self) -> bool:
@@ -33,9 +33,9 @@ class AnalogSource(Source):
         """
         return True
 
-    def _determinePlayback(self) -> PlaybackStatus:
-        return self._playback
+    def _determinePlaybackStatus(self) -> PlaybackStatus:
+        return self._status
 
-    def _changePlaybackTo(self, newPlayback: PlaybackStatus):
+    def _changePlaybackStatusTo(self, newStatus: PlaybackStatus):
         # TODO - should call the soundcard/hardware mute switch
-        self._playback = newPlayback
+        self._status = newStatus

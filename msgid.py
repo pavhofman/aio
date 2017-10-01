@@ -28,9 +28,9 @@ class MsgID(Enum):
     # IntegerMsg(value=NodeID, forID=source)
     PLAY_NODE = 7
 
-    # IntegerMsg sent to a particular source, value = requested Playback
-    # IntegerMsg(value=Playback, forID=Source)
-    SET_SOURCE_PLAYBACK = 8
+    # IntegerMsg sent to a particular source, value = requested PlayCommand
+    # IntegerMsg(value=PlayCommand, forID=Source)
+    SOURCE_PLAY_COMMAND = 8
 
     # Sent to all UIs by a source upon detection of playback change
     # IntegerMsg(value=playbackID, fromID=source, groupID=UIs)

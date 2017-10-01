@@ -47,7 +47,7 @@ class UsesMPV(abc.ABC):
         status = self._getMPV().get_property("idle")
         return status
 
-    def _determinePlayback(self) -> PlaybackStatus:
+    def _determinePlaybackStatus(self) -> PlaybackStatus:
         if self._isIdle():
             return PlaybackStatus.STOPPED
         else:
@@ -56,14 +56,14 @@ class UsesMPV(abc.ABC):
             else:
                 return PlaybackStatus.PLAYING
 
-    def _changePlaybackTo(self, playback: PlaybackStatus):
-        if playback == PlaybackStatus.STOPPED:
+    def _changePlaybackStatusTo(self, newStatus: PlaybackStatus):
+        if newStatus == PlaybackStatus.STOPPED:
             self._getMPV().stop()
             if self._monitorTime:
                 self._timePosTimer.disable()
-        elif playback == PlaybackStatus.PLAYING:
+        elif newStatus == PlaybackStatus.PLAYING:
             self._getMPV().play()
-        elif playback == PlaybackStatus.PAUSED:
+        elif newStatus == PlaybackStatus.PAUSED:
             self._getMPV().pause()
 
     def _acquireMPV(self):

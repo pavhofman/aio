@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from msgs.trackmsg import TrackItem
 from remi import gui
+from sources.playbackstatus import PlaybackStatus
 from uis.addsplaybackbuttons import AddsPlaybackButtons
 
 if TYPE_CHECKING:
@@ -21,20 +22,21 @@ class SimpleTrackBox(gui.HBox, AddsPlaybackButtons):
     # noinspection PyUnusedLocal
     def drawTrack(self, trackItem: TrackItem) -> None:
         self._trackLabel.set_text(trackItem.label)
-        self._updateButtonsPlaying()
+        self._updateButtonsFor(PlaybackStatus.PLAYING)
 
     def drawPlaybackPaused(self) -> None:
-        self._updateButtonsPaused()
+        self._updateButtonsFor(PlaybackStatus.PAUSED)
 
     def drawPlaybackPlaying(self) -> None:
-        self._updateButtonsPlaying()
+        self._updateButtonsFor(PlaybackStatus.PLAYING)
 
     def drawPlaybackStopped(self) -> None:
-        self._updateButtonsStopped()
+        self._updateButtonsFor(PlaybackStatus.STOPPED)
         self._clearTrackInfo()
 
     def _clearTrackInfo(self):
         self._trackLabel.set_text("")
 
     def clear(self):
-        self.drawPlaybackStopped()
+        self._hideButtons()
+        self._clearTrackInfo()

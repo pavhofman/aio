@@ -8,7 +8,9 @@ from msgconsumer import MsgConsumer
 from msgid import MsgID
 from msgs.integermsg import IntegerMsg
 from msgs.message import Message
+from sources import playcommand
 from sources.playbackstatus import PlaybackStatus
+from sources.playcommand import PlayCommand
 from sources.sourcestatus import SourceStatus
 
 if TYPE_CHECKING:
@@ -40,10 +42,10 @@ class Source(MsgConsumer, abc.ABC):
         if msg.typeID == MsgID.REQ_SOURCE_STATUS:
             self.__sendSourceStatus()
             return True
-        elif msg.typeID == MsgID.SET_SOURCE_PLAYBACK:
+        elif msg.typeID == MsgID.SOURCE_PLAY_COMMAND:
             msg = msg  # type: IntegerMsg
-            newPlayback = PlaybackStatus(msg.value)
-            self._setPlayback(newPlayback)
+            command = playcommand.getCommand(msg.value)
+            self._executePlayCommand(command)
             return True
         elif msg.typeID == MsgID.ACTIVATE_SOURCE:
             msg = msg  # type: IntegerMsg
@@ -52,11 +54,26 @@ class Source(MsgConsumer, abc.ABC):
         else:
             return False
 
-    def _setPlayback(self, newPlayback: PlaybackStatus):
-        currentPlayback = self._determinePlayback()
-        if currentPlayback != newPlayback:
-            # changing
-            self._changePlaybackTo(newPlayback)
+    def _executePlayCommand(self, command: PlayCommand) -> None:
+        curPlaybackStatus = self._determinePlaybackStatus()
+        if command.isApplicableFor(curPlaybackStatus):
+            self._doExecuteCommand(command)
+
+    def _doExecuteCommand(self, command: PlayCommand) -> None:
+        if command == PlayCommand.STOP:
+            self._changePlaybackStatusTo(PlaybackStatus.STOPPED)
+        elif command == PlayCommand.UNPAUSE:
+            self._changePlaybackStatusTo(PlaybackStatus.PLAYING)
+        elif command == PlayCommand.PAUSE:
+            self._changePlaybackStatusTo(PlaybackStatus.PAUSED)
+        elif command == PlayCommand.SF:
+            self._skipForward()
+        elif command == PlayCommand.SB:
+            self._skipBackward()
+        elif command == PlayCommand.NEXT:
+            self._playNext()
+        elif command == PlayCommand.PREV:
+            self._playPrev()
 
     def _handleActivateMsg(self, msg: IntegerMsg):
         if msg.value == self.id.value:
@@ -144,12 +161,36 @@ class Source(MsgConsumer, abc.ABC):
         """
         return True
 
-    @abc.abstractmethod
-    def _determinePlayback(self) -> PlaybackStatus:
+    def _skipForward(self) -> None:
+        """
+        not defined for basic source
+        """
+        pass
+
+    def _skipBackward(self) -> None:
+        """
+        not defined for basic source
+        """
+        pass
+
+    def _playNext(self) -> None:
+        """
+        not defined for basic source
+        """
+        pass
+
+    def _playPrev(self) -> None:
+        """
+        not defined for basic source
+        """
         pass
 
     @abc.abstractmethod
-    def _changePlaybackTo(self, newPlayback: PlaybackStatus):
+    def _determinePlaybackStatus(self) -> PlaybackStatus:
+        pass
+
+    @abc.abstractmethod
+    def _changePlaybackStatusTo(self, newStatus: PlaybackStatus):
         pass
 
     @abc.abstractmethod

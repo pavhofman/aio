@@ -84,7 +84,7 @@ class RadioSource(MPVTreeSource[Node]):
                 self._startPlayback(mpvPath=item.url)
             else:
                 # not much we can do, stopping playback
-                self._changePlaybackTo(PlaybackStatus.STOPPED)
+                self._changePlaybackStatusTo(PlaybackStatus.STOPPED)
 
     def timePosWasChanged(self, timePosFromStart: int):
         # ignored

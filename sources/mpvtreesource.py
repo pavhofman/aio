@@ -28,12 +28,12 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
         TreeSource.__init__(self, id=id, dispatcher=dispatcher)
         UsesMPV.__init__(self, monitorTime=monitorTime)
 
-    def _changePlaybackTo(self, playback: PlaybackStatus):
-        UsesMPV._changePlaybackTo(self, playback)
+    def _changePlaybackStatusTo(self, newStatus: PlaybackStatus):
+        UsesMPV._changePlaybackStatusTo(self, newStatus)
         pass
 
-    def _determinePlayback(self) -> PlaybackStatus:
-        return UsesMPV._determinePlayback(self)
+    def _determinePlaybackStatus(self) -> PlaybackStatus:
+        return UsesMPV._determinePlaybackStatus(self)
 
     def _tryToActivate(self) -> bool:
         # no track selected, stopped

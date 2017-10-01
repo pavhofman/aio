@@ -9,7 +9,6 @@ from msgid import MsgID
 from msgs.integermsg import IntegerMsg, BiIntegerMsg
 from msgs.message import Message
 from msgs.requestmsg import RequestMsg
-from sources.playbackstatus import PlaybackStatus
 from uis.abstractreader import AbstractReader
 
 
@@ -53,10 +52,10 @@ class InputReader(AbstractReader):
             fromIndex = int(parts[3])
             return BiIntegerMsg(value1=nodeID, value2=fromIndex, fromID=self.id, typeID=MsgID.REQ_NODE,
                                 forID=ModuleID(sourceID))
-        elif msgID == MsgID.SET_SOURCE_PLAYBACK.value:
+        elif msgID == MsgID.SOURCE_PLAY_COMMAND.value:
             sourceID = int(parts[1])
-            playbackID = int(parts[2])
-            return IntegerMsg(value=PlaybackStatus(playbackID).value, fromID=self.id, typeID=MsgID.SET_SOURCE_PLAYBACK,
+            commandID = int(parts[2])
+            return IntegerMsg(value=commandID, fromID=self.id, typeID=MsgID.SOURCE_PLAY_COMMAND,
                               forID=ModuleID(sourceID))
 
         else:

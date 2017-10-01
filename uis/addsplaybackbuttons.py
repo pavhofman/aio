@@ -1,11 +1,12 @@
 import abc
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from msgid import MsgID
 from msgs.integermsg import IntegerMsg
+from remi import gui
 from sources.playbackstatus import PlaybackStatus
+from sources.playcommand import PlayCommand
 from uis.canappendwidget import CanAppendWidget
-from uis.utils import createBtn
 
 if TYPE_CHECKING:
     from uis.websourcepart import WebSourcePart
@@ -22,42 +23,50 @@ class AddsPlaybackButtons(CanAppendWidget, abc.ABC):
         self._app = app
         self._sourcePart = sourcePart
 
-        self._playBtn = createBtn(">", False, self._onPlayBtnClicked)
+        self._playBtn = createBtn(">", PlayCommand.UNPAUSE, self._onCommandBtnClicked)
         self.append(self._playBtn, "10")
-        self._pauseBtn = createBtn("II", False, self._onPauseBtnClicked)
+        self._pauseBtn = createBtn("II", PlayCommand.PAUSE, self._onCommandBtnClicked)
         self.append(self._pauseBtn, "11")
-        self._stopBtn = createBtn("O", False, self._onStopBtnClicked)
+        self._stopBtn = createBtn("O", PlayCommand.STOP, self._onCommandBtnClicked)
         self.append(self._stopBtn, "12")
 
-    # noinspection PyUnusedLocal
-    def _onPlayBtnClicked(self, widget):
-        self._sendPlaybackStatusMsg(PlaybackStatus.PLAYING)
+    def _onCommandBtnClicked(self, widget: 'CommandButton'):
+        self._sendPlayCommandMsg(widget.command)
 
-    # noinspection PyUnusedLocal
-    def _onPauseBtnClicked(self, widget):
-        self._sendPlaybackStatusMsg(PlaybackStatus.PAUSED)
-
-    # noinspection PyUnusedLocal
-    def _onStopBtnClicked(self, widget):
-        self._sendPlaybackStatusMsg(PlaybackStatus.STOPPED)
-
-    def _sendPlaybackStatusMsg(self, status: PlaybackStatus) -> None:
-        msg = IntegerMsg(value=status.value, fromID=self._app.id,
-                         typeID=MsgID.SET_SOURCE_PLAYBACK,
+    def _sendPlayCommandMsg(self, command: PlayCommand) -> None:
+        msg = IntegerMsg(value=command.id, fromID=self._app.id,
+                         typeID=MsgID.SOURCE_PLAY_COMMAND,
                          forID=self._sourcePart.sourceID)
         self._app.dispatcher.distribute(msg)
 
-    def _updateButtonsStopped(self) -> None:
-        self._playBtn.set_enabled(False)
-        self._pauseBtn.set_enabled(False)
-        self._stopBtn.set_enabled(False)
+    def _updateButtonsFor(self, status: PlaybackStatus) -> None:
+        for button in [self._playBtn, self._pauseBtn, self._stopBtn]:
+            button.setVisible(button.command.isApplicableFor(status))
 
-    def _updateButtonsPaused(self) -> None:
-        self._playBtn.set_enabled(True)
-        self._pauseBtn.set_enabled(False)
-        self._stopBtn.set_enabled(True)
+    def _hideButtons(self) -> None:
+        for button in [self._playBtn, self._pauseBtn, self._stopBtn]:
+            button.setVisible(False)
 
-    def _updateButtonsPlaying(self) -> None:
-        self._playBtn.set_enabled(False)
-        self._pauseBtn.set_enabled(True)
-        self._stopBtn.set_enabled(True)
+
+HIDDEN_ATTRIB = 'hidden'
+
+
+class CommandButton(gui.Button):
+    def __init__(self, command: PlayCommand, text='', **kwargs):
+        super().__init__(text, **kwargs)
+        self.command = command
+
+    def setVisible(self, visible: bool) -> None:
+        isHidden = HIDDEN_ATTRIB in self.attributes.keys()
+        if visible and isHidden:
+            del self.attributes[HIDDEN_ATTRIB]
+        elif not visible and not isHidden:
+            self.attributes[HIDDEN_ATTRIB] = HIDDEN_ATTRIB
+
+
+def createBtn(label: str, command: PlayCommand, listenerFn: Callable) -> CommandButton:
+    btn = CommandButton(command, label)
+    # all buttons are hidden initially
+    btn.setVisible(False)
+    btn.set_on_click_listener(listenerFn)
+    return btn

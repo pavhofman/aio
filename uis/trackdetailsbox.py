@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from msgs.audioparamsmsg import ParamsItem
 from msgs.trackmsg import TrackItem
 from remi import gui, Button
+from sources.playbackstatus import PlaybackStatus
 from uis.addsplaybackbuttons import AddsPlaybackButtons
 from uis.showsaudioparams import ShowsAudioParams
 from uis.showsmetadata import ShowsMetadata
@@ -37,13 +38,13 @@ class TrackDetailsBox(gui.VBox, AddsPlaybackButtons, ShowsAudioParams, ShowsMeta
         self.drawPlaybackPlaying()
 
     def drawPlaybackPaused(self) -> None:
-        self._updateButtonsPaused()
+        self._updateButtonsFor(PlaybackStatus.PAUSED)
 
     def drawPlaybackPlaying(self) -> None:
-        self._updateButtonsPlaying()
+        self._updateButtonsFor(PlaybackStatus.PLAYING)
 
     def drawPlaybackStopped(self) -> None:
-        self._updateButtonsStopped()
+        self._updateButtonsFor(PlaybackStatus.STOPPED)
         self._clearTrackInfo()
 
     def _clearTrackInfo(self) -> None:
@@ -58,5 +59,5 @@ class TrackDetailsBox(gui.VBox, AddsPlaybackButtons, ShowsAudioParams, ShowsMeta
         self._showMetadata(mdJson)
 
     def clear(self) -> None:
-        # TODO
-        self.drawPlaybackStopped()
+        self._hideButtons()
+        self._clearTrackInfo()
