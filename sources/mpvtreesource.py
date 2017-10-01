@@ -129,6 +129,12 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
         """
         return timePosFromStart
 
+    def _skipForward(self) -> None:
+        UsesMPV._skipForward(self)
+
+    def _skipBackward(self) -> None:
+        UsesMPV._skipBackward(self)
+
     @abc.abstractmethod
     def _getMetadataParserRules(self) -> Dict[Metadata, List[str]]:
         pass

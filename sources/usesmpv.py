@@ -11,6 +11,7 @@ from sources.mympv import MyMPV
 from sources.playbackstatus import PlaybackStatus
 
 # MPV property with time position of the current track
+SKIP_SECS = 10
 TIME_POS_PROPERTY = "playback-time"
 
 TIME_POS_READ_INTERVAL = 1
@@ -65,6 +66,29 @@ class UsesMPV(abc.ABC):
             self._getMPV().play()
         elif newStatus == PlaybackStatus.PAUSED:
             self._getMPV().pause()
+
+    def _skipForward(self):
+        self.__skipSecs(SKIP_SECS)
+
+    def _skipBackward(self):
+        self.__skipSecs(-1 * SKIP_SECS)
+
+    def __skipSecs(self, skipSecs: int):
+        if self._monitorTime:
+            timePos = self._getTimePosition()
+            if timePos is not None:
+                newTimePos = timePos + skipSecs
+                if newTimePos < 0:
+                    newTimePos = 0
+                self._getMPV().set_property(TIME_POS_PROPERTY, newTimePos)
+
+    def _getTimePosition(self) -> Optional[int]:
+        try:
+            timePosFloat = self._getMPV().get_property(TIME_POS_PROPERTY)
+            return roundToInt(timePosFloat) if timePosFloat is not None else None
+        except MPVCommandError:
+            # not much we can do
+            return None
 
     def _acquireMPV(self):
         global mpv
