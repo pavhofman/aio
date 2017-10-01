@@ -12,7 +12,6 @@ from metadata import Metadata
 from moduleid import ModuleID
 from msgs.nodemsg import NodeID, NodeItem
 from sources.cdplaylist import CDPlaylist, TrackItem, RootItem
-from sources.mpv import MPVCommandError
 from sources.mpvtreesource import MPVTreeSource
 
 if TYPE_CHECKING:
@@ -133,13 +132,16 @@ class CDSource(MPVTreeSource[Node]):
         return self.__isCDInserted()
 
     def __playFromTrack(self, trackID: int) -> None:
+        """
+        Start playback from track ID (1-based)
+        """
         # chapters are zero-based
         chapter = trackID - 1
-        try:
-            self._getMPV().get_property("chapter")
+        currentChapter = self._getChapter()
+        if currentChapter is not None:
             logging.debug("Chapter property available, just switching")
             self._startPlayback(chapter=chapter)
-        except MPVCommandError:
+        else:
             logging.debug("Chapter property NOT available, loading path and switching to chapter in callback")
             self._startPlayback(mpvPath=CDDA__MPV_FILEPATH)
             self.__chapterToSwitch = chapter

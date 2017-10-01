@@ -1,10 +1,10 @@
 import abc
-import decimal
 import logging
 from queue import Queue
 from threading import Thread, Event, Lock
 from typing import Optional
 
+from common.mathutils import roundToInt
 from sources.mpv import MPVCommandError
 from sources.mympv import MyMPV
 # global MPV for all sources
@@ -17,11 +17,6 @@ TIME_POS_PROPERTY = "playback-time"
 TIME_POS_READ_INTERVAL = 1
 mpv = None  # type: Optional[MyMPV]
 controlLock = Lock()
-
-
-def roundToInt(timePos: float) -> int:
-    return int(decimal.Decimal(timePos).quantize(decimal.Decimal(1),
-                                                 rounding=decimal.ROUND_HALF_UP))
 
 
 class UsesMPV(abc.ABC):
@@ -132,6 +127,16 @@ class UsesMPV(abc.ABC):
 
     def _appendToPlayback(self, filePath: str):
         self._getMPV().command("loadfile", filePath, "append")
+
+    def _getChapter(self) -> Optional[int]:
+        """
+        :return: current chapter of None if the property is not available
+        """
+        try:
+            chapter = self._getMPV().get_property("chapter")
+            return chapter
+        except MPVCommandError:
+            return None
 
     @abc.abstractmethod
     def chapterWasChanged(self, chapter: Optional[int]) -> None:
