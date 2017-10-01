@@ -25,10 +25,23 @@ class TrackDetailsBox(gui.VBox, AddsPlaybackButtons, ShowsAudioParams, ShowsMeta
         self._sourcePart = sourcePart
         self._trackLabel = gui.Label(text="")
         self.append(self._trackLabel, "1")
+        self._trackLabel.set_on_click_listener(self._trackLabelOnClick)
 
         button = Button(text="Select track")
         button.set_on_click_listener(self._onOpenSelectorButtonPressed)
         self.append(createBtn("Select track", True, self._onOpenSelectorButtonPressed), "20")
+
+        button = Button(text="Select track")
+        button.set_on_click_listener(self._onOpenSelectorButtonPressed)
+        self.append(createBtn("Select track", True, self._onOpenSelectorButtonPressed), "20")
+
+    # noinspection PyUnusedLocal
+    def _trackLabelOnClick(self, widget):
+        currentTrack = self._sourcePart._playingTrackItem
+        if currentTrack is not None:
+            # switching the selector to currentTrack list
+            self._sourcePart.sendReqParentNodeMsg(currentTrack.nodeID)
+        self._sourcePart.showSelectorBox()
 
     # noinspection PyUnusedLocal
     def _onOpenSelectorButtonPressed(self, widget):
@@ -49,7 +62,7 @@ class TrackDetailsBox(gui.VBox, AddsPlaybackButtons, ShowsAudioParams, ShowsMeta
         self._clearTrackInfo()
 
     def _clearTrackInfo(self) -> None:
-        self._trackLabel.set_text("")
+        self._trackLabel.set_text("Not playing now")
         self._clearParams()
         self._clearMetadata()
 
