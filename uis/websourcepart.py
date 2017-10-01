@@ -91,7 +91,7 @@ class WebSourcePart(SourcePart, abc.ABC):
         return self._activationButton
 
     def _createTrackBox(self) -> 'TrackDetailsBox':
-        return TrackDetailsBox(self._app, self)
+        return TrackDetailsBox(self._app, self, showSkipBtns=False)
 
     def showSelectorBox(self):
         self._app.setFSBox(self._selectorBox)

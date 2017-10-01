@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 class SimpleTrackBox(gui.HBox, AddsPlaybackButtons):
     def __init__(self, width: int, height: int, app: 'WebApp', sourcePart: 'WebSourcePart'):
         gui.HBox.__init__(self, width=width, height=height, margin='0px auto')
+        # never shows skip buttons - would not fit there
         AddsPlaybackButtons.__init__(self, app=app, sourcePart=sourcePart)
         self._sourcePart = sourcePart
         self._app = app
