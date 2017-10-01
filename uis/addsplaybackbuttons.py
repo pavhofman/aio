@@ -34,9 +34,12 @@ class AddsPlaybackButtons(CanAppendWidget, abc.ABC):
     Class appends playback buttons and defines corresponding listener methods
     """
 
-    def __init__(self, app: 'WebApp', sourcePart: 'WebSourcePart', showSkipBtns: bool = False):
+    def __init__(self, app: 'WebApp', sourcePart: 'WebSourcePart', posKey: str, showSkipBtns: bool = False):
         self._app = app
         self._sourcePart = sourcePart
+        # all buttons are inserted into HBox
+        self._box = gui.HBox()
+        self.append(self._box, posKey)
         self._buttons = [
             self._createBtn(">", "12", PlayCommand.UNPAUSE),
             self._createBtn("II", "13", PlayCommand.PAUSE),
@@ -57,7 +60,7 @@ class AddsPlaybackButtons(CanAppendWidget, abc.ABC):
         # all buttons are hidden initially
         btn.setVisible(False)
         btn.set_on_click_listener(self._onCommandBtnClicked)
-        self.append(btn, posKey)
+        self._box.append(btn, posKey)
         return btn
 
     def _onCommandBtnClicked(self, widget: 'CommandButton'):

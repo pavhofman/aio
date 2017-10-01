@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class TrackDetailsBox(gui.VBox, AddsPlaybackButtons, ShowsAudioParams, ShowsMetadata):
     def __init__(self, app: 'WebApp', sourcePart: 'WebSourcePart', showSkipBtns: bool):
         gui.VBox.__init__(self, width=400, height=app.getHeight(), margin='0px auto')
-        AddsPlaybackButtons.__init__(self, app=app, sourcePart=sourcePart, showSkipBtns=showSkipBtns)
+        AddsPlaybackButtons.__init__(self, app=app, sourcePart=sourcePart, posKey="10", showSkipBtns=showSkipBtns)
         ShowsAudioParams.__init__(self)
         ShowsMetadata.__init__(self)
         self._sourcePart = sourcePart
