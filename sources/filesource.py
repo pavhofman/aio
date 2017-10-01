@@ -130,3 +130,10 @@ class FileSource(MPVTreeSource[Path]):
     def _checkAvailability(self) -> bool:
         # todo - real check for presence of files media
         return True
+
+    def _playNext(self) -> None:
+        # filesource uses playlists
+        self._playNextInPlaylist()
+
+    def _playPrev(self) -> None:
+        self._playPrevInPlaylist()
