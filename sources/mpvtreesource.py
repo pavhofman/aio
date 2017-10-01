@@ -76,12 +76,6 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
         msg = TrackMsg(trackItem=trackItem, fromID=self.id, groupID=GroupID.UI)
         self.dispatcher.distribute(msg)
 
-    def _getPlayedNode(self) -> Optional[PATH]:
-        if self._playedNodeID != NON_EXISTING_NODE_ID:
-            return self._getPath(self._playedNodeID)
-        else:
-            return None
-
     def _audioParamsWereChanged(self, params: dict):
         bits = self.__parseBits(params)
         if bits:

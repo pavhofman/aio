@@ -163,6 +163,12 @@ class TreeSource(Source, abc.ABC, Generic[PATH]):
         self._rootNode = self._getRootNodeItem()
         return super()._initValuesForAvailable()
 
+    def _getPlayedNode(self) -> Optional[PATH]:
+        if self._playedNodeID != NON_EXISTING_NODE_ID:
+            return self._getPath(self._playedNodeID)
+        else:
+            return None
+
     @abc.abstractmethod
     def _playNode(self, nodeID: NodeID) -> None:
         pass
