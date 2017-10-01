@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 class SimpleTimeTrackBox(SimpleTrackBox, ShowsTrackTime):
     def __init__(self, width: int, height: int, app: 'WebApp', sourcePart: 'WebSourcePart'):
         SimpleTrackBox.__init__(self, width=width, height=height, app=app, sourcePart=sourcePart)
-        ShowsTrackTime.__init__(self)
+        ShowsTrackTime.__init__(self, "2")
 
     def _clearTrackInfo(self):
         SimpleTrackBox._clearTrackInfo(self)
