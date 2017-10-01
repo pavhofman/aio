@@ -1,6 +1,7 @@
 import abc
 from typing import TYPE_CHECKING, TypeVar, List, Optional, Generic, Tuple
 
+from common.mathutils import clamp
 from groupid import GroupID
 from moduleid import ModuleID
 from msgid import MsgID
@@ -168,6 +169,26 @@ class TreeSource(Source, abc.ABC, Generic[PATH]):
             return self._getPath(self._playedNodeID)
         else:
             return None
+
+    def _playNext(self) -> None:
+        self.__playSiblingOfCurrentPath(offset=1)
+
+    def _playPrev(self) -> None:
+        self.__playSiblingOfCurrentPath(offset=-1)
+
+    def __playSiblingOfCurrentPath(self, offset):
+        currentPath = self._getPlayedNode()
+        if currentPath is not None:
+            self._playSibling(currentPath, offset)
+
+    def _playSibling(self, currentPath: PATH, offset: int) -> None:
+        parent = self._getParentPath(currentPath)
+        if parent is not None:
+            paths = self._getOrderedChildPaths(parent)
+            currentIndex = paths.index(currentPath)
+            newIndex = clamp(currentIndex + offset, 0, len(paths) - 1)
+            pathToPlay = paths[newIndex]
+            self._playNode(self._getID(pathToPlay))
 
     @abc.abstractmethod
     def _playNode(self, nodeID: NodeID) -> None:
