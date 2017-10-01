@@ -34,7 +34,8 @@ class AddsPlaybackButtons(CanAppendWidget, abc.ABC):
     Class appends playback buttons and defines corresponding listener methods
     """
 
-    def __init__(self, app: 'WebApp', sourcePart: 'WebSourcePart', posKey: str, showSkipBtns: bool = False):
+    def __init__(self, app: 'WebApp', sourcePart: 'WebSourcePart', posKey: str,
+                 showSkipBtns: bool = False, showNextBtns: bool = False):
         self._app = app
         self._sourcePart = sourcePart
         # all buttons are inserted into HBox
@@ -48,10 +49,15 @@ class AddsPlaybackButtons(CanAppendWidget, abc.ABC):
         if showSkipBtns:
             self._buttons += [
                 # posKeys - to the left
-                self._createBtn("|<<", "10", PlayCommand.PREV),
                 self._createBtn("<<", "11", PlayCommand.SB),
                 # posKeys - to the right
                 self._createBtn(">>", "15", PlayCommand.SF),
+            ]
+        if showNextBtns:
+            self._buttons += [
+                # posKeys - to the left
+                self._createBtn("|<<", "10", PlayCommand.PREV),
+                # posKeys - to the right
                 self._createBtn(">>|", "16", PlayCommand.NEXT),
             ]
 
