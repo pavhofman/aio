@@ -7,6 +7,7 @@ from msgid import MsgID
 from msgs.integermsg import BiIntegerMsg, IntegerMsg
 from msgs.nodemsg import NodeMsg, NodeStruct, NodeID
 from msgs.trackmsg import TrackMsg, TrackItem
+from sources.playbackstatus import PlaybackStatus
 from uis.sourcepart import SourcePart
 
 if TYPE_CHECKING:
@@ -22,8 +23,8 @@ class TreeSourcePart(SourcePart, abc.ABC):
     def __init__(self, id: ModuleID, dispatcher: Dispatcher, sourceID: ModuleID, name: str):
         SourcePart.__init__(self, id=id, dispatcher=dispatcher, sourceID=sourceID)
         self.name = name
-        # last played trackitem
-        self._playedTrackItem = None  # type: Optional[TrackItem]
+        # currently played trackitem
+        self._playingTrackItem = None  # type: Optional[TrackItem]
 
     def handleMsgFromSource(self, msg) -> bool:
         if super().handleMsgFromSource(msg):
@@ -43,8 +44,14 @@ class TreeSourcePart(SourcePart, abc.ABC):
         pass
 
     def _handleTrackItem(self, trackItem: TrackItem) -> None:
-        self._playedTrackItem = trackItem
+        self._playingTrackItem = trackItem
         pass
+
+    def _handlePlaybackStatus(self, status: PlaybackStatus) -> None:
+        super()._handlePlaybackStatus(status)
+        # clearing the playedTrackItem
+        if status == PlaybackStatus.STOPPED:
+            self._playingTrackItem = None
 
     def sendReqNodeMsg(self, nodeID: NodeID, fromIndex: int) -> None:
         msg = BiIntegerMsg(value1=nodeID, value2=fromIndex, fromID=self.id,
@@ -63,7 +70,3 @@ class TreeSourcePart(SourcePart, abc.ABC):
                          typeID=MsgID.REQ_PARENT_NODE,
                          forID=self.sourceID)
         self.dispatcher.distribute(msg)
-
-    def _statusChangedToUnavailable(self) -> None:
-        super()._statusChangedToUnavailable()
-        self._playedTrackItem = None
