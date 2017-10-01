@@ -132,3 +132,7 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
     @abc.abstractmethod
     def _getMetadataParserRules(self) -> Dict[Metadata, List[str]]:
         pass
+
+    @abc.abstractmethod
+    def _getPathFor(self, filePath: str) -> Optional[PATH]:
+        pass

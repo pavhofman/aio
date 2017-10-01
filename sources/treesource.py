@@ -174,10 +174,6 @@ class TreeSource(Source, abc.ABC, Generic[PATH]):
         pass
 
     @abc.abstractmethod
-    def _getPathFor(self, filePath: str) -> Optional[PATH]:
-        pass
-
-    @abc.abstractmethod
     def _getRootPath(self) -> PATH:
         pass
 
