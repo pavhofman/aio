@@ -45,7 +45,7 @@ class RadioSource(MPVTreeSource[Node]):
     def _getRootNodeItem(self) -> NodeItem:
         return self._getNodeItemForPath(self._getPath(self._tree.root))
 
-    def _getParentPath(self, path: Node) -> Node:
+    def _getParentPath(self, path: Node) -> Optional[Node]:
         return self._tree.parent(path.identifier)
 
     def _isLeaf(self, path: Node) -> bool:

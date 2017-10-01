@@ -198,7 +198,7 @@ class TreeSource(Source, abc.ABC, Generic[PATH]):
         pass
 
     @abc.abstractmethod
-    def _getParentPath(self, path: PATH) -> PATH:
+    def _getParentPath(self, path: PATH) -> Optional[PATH]:
         pass
 
     @abc.abstractmethod
