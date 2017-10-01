@@ -129,6 +129,8 @@ class WebSourcePart(SourcePart, abc.ABC):
         if PlaybackStatus.STOPPED == status:
             self._trackBox.drawPlaybackStopped()
             self._selectorBox.trackBox.drawPlaybackStopped()
+            # switching to node selector box automatically
+            self.showSelectorBox()
         elif PlaybackStatus.PAUSED == status:
             self._trackBox.drawPlaybackPaused()
             self._selectorBox.trackBox.drawPlaybackPaused()
