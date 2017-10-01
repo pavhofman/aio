@@ -10,7 +10,6 @@ from uis.canappendwidget import CanAppendWidget
 
 if TYPE_CHECKING:
     from uis.websourcepart import WebSourcePart
-    from uis.webapp import WebApp
 
 HIDDEN_ATTRIB = 'hidden'
 
@@ -34,9 +33,8 @@ class AddsPlaybackButtons(CanAppendWidget, abc.ABC):
     Class appends playback buttons and defines corresponding listener methods
     """
 
-    def __init__(self, app: 'WebApp', sourcePart: 'WebSourcePart', posKey: str,
+    def __init__(self, sourcePart: 'WebSourcePart', posKey: str,
                  showSkipBtns: bool = False, showNextBtns: bool = False):
-        self._app = app
         self._sourcePart = sourcePart
         # all buttons are inserted into HBox
         self._box = gui.HBox()
@@ -73,10 +71,10 @@ class AddsPlaybackButtons(CanAppendWidget, abc.ABC):
         self._sendPlayCommandMsg(widget.command)
 
     def _sendPlayCommandMsg(self, command: PlayCommand) -> None:
-        msg = IntegerMsg(value=command.id, fromID=self._app.id,
+        msg = IntegerMsg(value=command.id, fromID=self._sourcePart.id,
                          typeID=MsgID.SOURCE_PLAY_COMMAND,
                          forID=self._sourcePart.sourceID)
-        self._app.dispatcher.distribute(msg)
+        self._sourcePart.dispatcher.distribute(msg)
 
     def _updateButtonsFor(self, status: PlaybackStatus) -> None:
         for button in self._buttons:

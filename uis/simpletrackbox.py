@@ -6,17 +6,15 @@ from sources.playbackstatus import PlaybackStatus
 from uis.addsplaybackbuttons import AddsPlaybackButtons
 
 if TYPE_CHECKING:
-    from uis.webapp import WebApp
     from uis.websourcepart import WebSourcePart
 
 
 class SimpleTrackBox(gui.HBox, AddsPlaybackButtons):
-    def __init__(self, width: int, height: int, app: 'WebApp', sourcePart: 'WebSourcePart'):
+    def __init__(self, width: int, height: int, sourcePart: 'WebSourcePart'):
         gui.HBox.__init__(self, width=width, height=height, margin='0px auto')
         # never shows skip buttons - would not fit there
-        AddsPlaybackButtons.__init__(self, app=app, posKey="10", sourcePart=sourcePart)
+        AddsPlaybackButtons.__init__(self, sourcePart=sourcePart, posKey="10")
         self._sourcePart = sourcePart
-        self._app = app
         self._trackLabel = gui.Label(text="")
         self.append(self._trackLabel, "1")
 

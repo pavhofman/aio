@@ -13,4 +13,4 @@ class TimeNodeSelectFSBox(NodeSelectFSBox):
         NodeSelectFSBox.__init__(self, app, sourcePart)
 
     def _createTrackBox(self, width: int, height: int) -> SimpleTimeTrackBox:
-        return SimpleTimeTrackBox(width=width, height=height, app=self._app, sourcePart=self._sourcePart)
+        return SimpleTimeTrackBox(width=width, height=height, sourcePart=self._sourcePart)

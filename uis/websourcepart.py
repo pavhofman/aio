@@ -2,27 +2,24 @@ import abc
 from typing import TYPE_CHECKING
 
 from moduleid import ModuleID
-from msgid import MsgID
-from msgs.audioparamsmsg import AudioParamsMsg, ParamsItem
-from msgs.integermsg import IntegerMsg
-from msgs.jsonmsg import JsonMsg
-from msgs.nodemsg import NodeMsg
-from msgs.trackmsg import TrackItem, TrackMsg
+from msgs.audioparamsmsg import ParamsItem
+from msgs.nodemsg import NodeStruct
+from msgs.trackmsg import TrackItem
 from remi import gui
 from sources.playbackstatus import PlaybackStatus
-from sources.sourcestatus import SourceStatus
 from uis.nodeselectfsbox import NodeSelectFSBox
 from uis.sourcepart import SourcePart
 from uis.statuswidgets import StatusButton, StatusLabel
 from uis.trackdetailsbox import TrackDetailsBox
+from uis.treesourcepart import TreeSourcePart
 
 if TYPE_CHECKING:
     from uis.webapp import WebApp
 
 
-class WebSourcePart(SourcePart, abc.ABC):
+class WebSourcePart(TreeSourcePart, abc.ABC):
     def __init__(self, sourceID: ModuleID, name: str, app: 'WebApp'):
-        SourcePart.__init__(self, sourceID=sourceID)
+        SourcePart.__init__(self, id=app.id, dispatcher=app.dispatcher, sourceID=sourceID)
         self._app = app  # type: 'WebApp'
         self.name = name
         self._initGUIComponents()
@@ -47,26 +44,15 @@ class WebSourcePart(SourcePart, abc.ABC):
         button.decorateForStatus(self.sourceStatus)
         return button
 
-    def setStatus(self, newStatus: SourceStatus) -> bool:
-        if super().setStatus(newStatus):
-            self._decorateComponentsForNewStatus()
-            if self.sourceStatus == SourceStatus.UNAVAILABLE:
-                # clearing source boxes
-                self._selectorBox.clear()
-                self._trackBox.clear()
-            else:
-                if not self._hasDataFromSource():
-                    self._requestInitialDataFromSource()
+    def _statusChanged(self) -> None:
+        super()._statusChanged()
+        self._decorateComponentsForNewStatus()
 
-                if self.sourceStatus == SourceStatus.ACTIVATED:
-                    # activation
-                    pass
-                elif self.sourceStatus == SourceStatus.NOT_ACTIVATED:
-                    # not doing anything on this level
-                    pass
-            return True
-        else:
-            return False
+    def _statusChangedToUnavailable(self) -> None:
+        super()._statusChangedToUnavailable()
+        # clearing source boxes
+        self._selectorBox.clear()
+        self._trackBox.clear()
 
     def getOverviewLabel(self) -> StatusLabel:
         return self._overviewLabel
@@ -93,39 +79,27 @@ class WebSourcePart(SourcePart, abc.ABC):
     def _createTrackBox(self) -> 'TrackDetailsBox':
         return TrackDetailsBox(self._app, self, showSkipBtns=False, showNextBtns=False)
 
-    def showSelectorBox(self):
+    def showSelectorBox(self) -> None:
         self._app.setFSBox(self._selectorBox)
 
-    def handleMsgFromSource(self, msg) -> bool:
-        if msg.typeID == MsgID.TRACK_INFO:
-            msg = msg  # type: TrackMsg
-            self._drawTrack(trackItem=msg.trackItem)
-            return True
-        elif msg.typeID == MsgID.NODE_INFO:
-            msg = msg  # type: NodeMsg
-            self._selectorBox.drawStruct(msg.nodeStruct)
-            return True
-        elif msg.typeID == MsgID.SOURCE_PLAYBACK_INFO:
-            msg = msg  # type: IntegerMsg
-            self._showPlaybackStatus(statusID=msg.value)
-            return True
-        elif msg.typeID == MsgID.AUDIOPARAMS_INFO:
-            msg = msg  # type: AudioParamsMsg
-            self._drawParams(paramsItem=msg.paramsItem)
-            return True
-        elif msg.typeID == MsgID.METADATA_INFO:
-            msg = msg  # type: JsonMsg
-            self._drawMetadata(mdJson=msg.json)
-            return True
-        else:
-            return False
+    def _handleNodeInfo(self, nodeStruct: NodeStruct) -> None:
+        super()._handleNodeInfo(nodeStruct)
+        self._selectorBox.drawStruct(nodeStruct)
 
-    def _drawTrack(self, trackItem: TrackItem) -> None:
-        self._trackBox.drawTrack(trackItem)
-        self._selectorBox.trackBox.drawTrack(trackItem)
+    def _handleTrackItem(self, trackItem: TrackItem) -> None:
+        super()._handleTrackItem(trackItem)
+        self._drawTrack(trackItem=trackItem)
 
-    def _showPlaybackStatus(self, statusID: int):
-        status = PlaybackStatus(statusID)
+    def _handleAudioParams(self, paramsItem: ParamsItem) -> None:
+        super()._handleAudioParams(paramsItem)
+        self._drawParams(paramsItem=paramsItem)
+
+    def _handleMetadata(self, json: str):
+        super()._handleMetadata(json)
+        self._drawMetadata(mdJson=json)
+
+    def _handlePlaybackStatus(self, status: PlaybackStatus) -> None:
+        super()._handlePlaybackStatus(status)
         if PlaybackStatus.STOPPED == status:
             self._trackBox.drawPlaybackStopped()
             self._selectorBox.trackBox.drawPlaybackStopped()
@@ -138,13 +112,17 @@ class WebSourcePart(SourcePart, abc.ABC):
             self._trackBox.drawPlaybackPlaying()
             self._selectorBox.trackBox.drawPlaybackPlaying()
 
-    def _drawParams(self, paramsItem: ParamsItem):
+    def _drawTrack(self, trackItem: TrackItem) -> None:
+        self._trackBox.drawTrack(trackItem)
+        self._selectorBox.trackBox.drawTrack(trackItem)
+
+    def _drawParams(self, paramsItem: ParamsItem) -> None:
         self._trackBox.drawParams(paramsItem)
 
-    def _drawMetadata(self, mdJson: str):
+    def _drawMetadata(self, mdJson: str) -> None:
         self._trackBox.drawMetadata(mdJson)
 
-    def _requestInitialDataFromSource(self):
+    def _requestInitialDataFromSource(self) -> None:
         # request root node
         self._selectorBox.sendReqRootNodeMsg()
 

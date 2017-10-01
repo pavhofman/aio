@@ -128,7 +128,7 @@ class WebApp(App, CanSendMessage, HasSourceParts):
         elif msg.typeID == MsgID.SOURCE_STATUS_INFO:
             msg = msg  # type: IntegerMsg
             status = SourceStatus(msg.value)
-            sourcePart = self.getSourcePart(msg.fromID)
+            sourcePart = self.getSourcePart(msg.fromID)  # type: WebSourcePart
             self.__setStatusOfSource(status, sourcePart)
         elif msg.fromID in globalvars.realSourceIDs:
             sourcePart = self.getSourcePart(msg.fromID)  # type: WebSourcePart
@@ -141,7 +141,7 @@ class WebApp(App, CanSendMessage, HasSourceParts):
         self._volFSBox.setVolume(value)
         self.mainFSBox.setVolume(value)
 
-    def __setStatusOfSource(self, newStatus, sourcePart):
+    def __setStatusOfSource(self, newStatus: SourceStatus, sourcePart: WebSourcePart):
         oldStatus = sourcePart.sourceStatus
         if sourcePart.setStatus(newStatus):
             # change succeeded

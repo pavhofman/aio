@@ -1,8 +1,6 @@
 import abc
 from typing import TYPE_CHECKING
 
-from msgid import MsgID
-from msgs.integermsg import BiIntegerMsg, IntegerMsg
 from msgs.nodemsg import NodeStruct, NodeItem, NON_EXISTING_NODE_ID, NodeID
 from remi import gui
 from sources.treesource import MAX_CHILDREN
@@ -36,6 +34,8 @@ class NodeSelectFSBox(gui.HBox):
         leftBox.append(self.trackBox, '2')
         self.append(leftBox, '1')
         self.append(self._controlsBox, '2')
+        # currently displayed node in selector
+        self._nodeStruct = EMPTY_NODE_STRUCT
         self.clear()
 
     def clear(self):
@@ -50,7 +50,7 @@ class NodeSelectFSBox(gui.HBox):
         return gui.VBox(width=width, height=height, margin='0px auto')
 
     def sendReqRootNodeMsg(self):
-        self.sendReqNodeMsg(NON_EXISTING_NODE_ID, 0)
+        self._sourcePart.sendReqNodeMsg(NON_EXISTING_NODE_ID, 0)
 
     def _createControlsBox(self, width: int, height: int) -> gui.Widget:
         box = gui.VBox(width=width, height=height, margin='0px auto')
@@ -74,7 +74,7 @@ class NodeSelectFSBox(gui.HBox):
 
     # noinspection PyUnusedLocal
     def _homeButtonOnClick(self, widget):
-        self.sendReqNodeMsg(self._nodeStruct.node.nodeID, 0)
+        self._sourcePart.sendReqNodeMsg(self._nodeStruct.node.nodeID, 0)
 
     # noinspection PyUnusedLocal
 
@@ -82,7 +82,7 @@ class NodeSelectFSBox(gui.HBox):
         fromIndex = self._nodeStruct.fromChildIndex - MAX_CHILDREN
         if fromIndex < 0:
             fromIndex = 0
-        self.sendReqNodeMsg(self._nodeStruct.node.nodeID, fromIndex)
+        self._sourcePart.sendReqNodeMsg(self._nodeStruct.node.nodeID, fromIndex)
 
     # noinspection PyUnusedLocal
 
@@ -91,7 +91,7 @@ class NodeSelectFSBox(gui.HBox):
         lastFromIndex = self._nodeStruct.totalChildren - MAX_CHILDREN
         if fromIndex > lastFromIndex:
             fromIndex = lastFromIndex
-        self.sendReqNodeMsg(self._nodeStruct.node.nodeID, fromIndex)
+        self._sourcePart.sendReqNodeMsg(self._nodeStruct.node.nodeID, fromIndex)
 
     # noinspection PyUnusedLocal
 
@@ -100,32 +100,14 @@ class NodeSelectFSBox(gui.HBox):
         fromIndex = self._nodeStruct.totalChildren - MAX_CHILDREN
         if fromIndex < 0:
             fromIndex = 0
-        self.sendReqNodeMsg(self._nodeStruct.node.nodeID, fromIndex)
+        self._sourcePart.sendReqNodeMsg(self._nodeStruct.node.nodeID, fromIndex)
 
     # noinspection PyUnusedLocal
     def _closeButtonOnClick(self, widget):
         self._app.setFSBox(self._app.mainFSBox)
 
-    def sendReqNodeMsg(self, nodeID: NodeID, fromIndex: int) -> None:
-        msg = BiIntegerMsg(value1=nodeID, value2=fromIndex, fromID=self._app.id,
-                           typeID=MsgID.REQ_NODE,
-                           forID=self._sourcePart.sourceID)
-        self._app.dispatcher.distribute(msg)
-
-    def sendPlayNodeMsg(self, nodeID: NodeID) -> None:
-        msg = IntegerMsg(value=nodeID, fromID=self._app.id,
-                         typeID=MsgID.PLAY_NODE,
-                         forID=self._sourcePart.sourceID)
-        self._app.dispatcher.distribute(msg)
-
-    def sendReqParentNodeMsg(self, nodeID: NodeID) -> None:
-        msg = IntegerMsg(value=nodeID, fromID=self._app.id,
-                         typeID=MsgID.REQ_PARENT_NODE,
-                         forID=self._sourcePart.sourceID)
-        self._app.dispatcher.distribute(msg)
-
     def _createTrackBox(self, width: int, height: int) -> SimpleTrackBox:
-        return SimpleTrackBox(width=width, height=height, app=self._app, sourcePart=self._sourcePart)
+        return SimpleTrackBox(width=width, height=height, sourcePart=self._sourcePart)
 
     def hasDataFromSource(self) -> bool:
         return self._nodeStruct != EMPTY_NODE_STRUCT
@@ -184,11 +166,11 @@ class ANodeBox(gui.HBox, abc.ABC):
 
     # noinspection PyUnusedLocal
     def _playNodeOnClick(self, widget):
-        self._myBox.sendPlayNodeMsg(self._node.nodeID)
+        self._myBox._sourcePart.sendPlayNodeMsg(self._node.nodeID)
 
     # noinspection PyUnusedLocal
     def _openNodeOnClick(self, widget):
-        self._myBox.sendReqNodeMsg(self._node.nodeID, 0)
+        self._myBox._sourcePart.sendReqNodeMsg(self._node.nodeID, 0)
 
     @abc.abstractmethod
     def _getLabelBox(self, width, height) -> gui.Widget:
@@ -227,7 +209,7 @@ class NodeBox(ANodeBox):
 
     # noinspection PyUnusedLocal
     def _openParentNodeOnClick(self, widget):
-        self._myBox.sendReqParentNodeMsg(self._node.nodeID)
+        self._myBox._sourcePart.sendReqParentNodeMsg(self._node.nodeID)
 
 
 class ChildBox(ANodeBox):

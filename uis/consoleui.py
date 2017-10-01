@@ -49,8 +49,8 @@ class ConsoleUI(MsgConsumer, HasSourceParts):
 
     def _initSourceParts(self) -> List['SourcePart']:
         return [
-            SourcePart(sourceID=ModuleID.ANALOG_SOURCE),
-            SourcePart(sourceID=ModuleID.FILE_SOURCE),
-            SourcePart(sourceID=ModuleID.RADIO_SOURCE),
-            SourcePart(sourceID=ModuleID.CD_SOURCE)
+            SourcePart(id=self.id, dispatcher=self.dispatcher, sourceID=ModuleID.ANALOG_SOURCE),
+            SourcePart(id=self.id, dispatcher=self.dispatcher, sourceID=ModuleID.FILE_SOURCE),
+            SourcePart(id=self.id, dispatcher=self.dispatcher, sourceID=ModuleID.RADIO_SOURCE),
+            SourcePart(id=self.id, dispatcher=self.dispatcher, sourceID=ModuleID.CD_SOURCE)
         ]
