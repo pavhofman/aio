@@ -8,7 +8,6 @@ from msgs.trackmsg import TrackItem
 from remi import gui
 from sources.playbackstatus import PlaybackStatus
 from uis.nodeselectfsbox import NodeSelectFSBox
-from uis.sourcepart import SourcePart
 from uis.statuswidgets import StatusButton, StatusLabel
 from uis.trackdetailsbox import TrackDetailsBox
 from uis.treesourcepart import TreeSourcePart
@@ -19,7 +18,8 @@ if TYPE_CHECKING:
 
 class WebSourcePart(TreeSourcePart, abc.ABC):
     def __init__(self, sourceID: ModuleID, name: str, app: 'WebApp'):
-        SourcePart.__init__(self, id=app.id, dispatcher=app.dispatcher, sourceID=sourceID)
+        TreeSourcePart.__init__(self, id=app.id, dispatcher=app.dispatcher,
+                                sourceID=sourceID, name=name)
         self._app = app  # type: 'WebApp'
         self.name = name
         self._initGUIComponents()
@@ -102,19 +102,19 @@ class WebSourcePart(TreeSourcePart, abc.ABC):
         super()._handlePlaybackStatus(status)
         if PlaybackStatus.STOPPED == status:
             self._trackBox.drawPlaybackStopped()
-            self._selectorBox.trackBox.drawPlaybackStopped()
+            self._selectorBox.drawPlaybackStopped()
             # switching to node selector box automatically
             self.showSelectorBox()
         elif PlaybackStatus.PAUSED == status:
             self._trackBox.drawPlaybackPaused()
-            self._selectorBox.trackBox.drawPlaybackPaused()
+            self._selectorBox.drawPlaybackPaused()
         elif PlaybackStatus.PLAYING == status:
             self._trackBox.drawPlaybackPlaying()
-            self._selectorBox.trackBox.drawPlaybackPlaying()
+            self._selectorBox.drawPlaybackPlaying()
 
     def _drawTrack(self, trackItem: TrackItem) -> None:
         self._trackBox.drawTrack(trackItem)
-        self._selectorBox.trackBox.drawTrack(trackItem)
+        self._selectorBox.drawTrack(trackItem)
 
     def _drawParams(self, paramsItem: ParamsItem) -> None:
         self._trackBox.drawParams(paramsItem)

@@ -1,7 +1,8 @@
 import abc
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from msgs.nodemsg import NodeStruct, NodeItem, NON_EXISTING_NODE_ID, NodeID
+from msgs.trackmsg import TrackItem
 from remi import gui
 from sources.treesource import MAX_CHILDREN
 from uis.simpletrackbox import SimpleTrackBox
@@ -28,21 +29,24 @@ class NodeSelectFSBox(gui.HBox):
         self._leftWidth = app.getWidth() - CONTROLS_WIDTH - 10
         self._structBox = self._createStructBox(self._leftWidth, app.getHeight() - CUR_TRACK_HEIGHT)
         self._controlsBox = self._createControlsBox(CONTROLS_WIDTH, app.getHeight() - 10)
-        self.trackBox = self._createTrackBox(self._leftWidth, CUR_TRACK_HEIGHT)
+        self.__trackBox = self._createTrackBox(self._leftWidth, CUR_TRACK_HEIGHT)
         leftBox = gui.VBox(width=self._leftWidth, height=app.getHeight(), margin='0px auto')
         leftBox.append(self._structBox, '1')
-        leftBox.append(self.trackBox, '2')
+        leftBox.append(self.__trackBox, '2')
         self.append(leftBox, '1')
         self.append(self._controlsBox, '2')
         # currently displayed node in selector
         self._nodeStruct = EMPTY_NODE_STRUCT
+        # list of rendered child boxes
+        self._childBoxes = []  # type: List[ChildBox]
         self.clear()
 
     def clear(self):
         self._nodeStruct = EMPTY_NODE_STRUCT
         self._updateControls()
         self._structBox.empty()
-        self.trackBox.clear()
+        self.__trackBox.clear()
+        self._childBoxes.clear()
 
         self.drawStruct(EMPTY_NODE_STRUCT)
 
@@ -139,14 +143,47 @@ class NodeSelectFSBox(gui.HBox):
         # list of child boxes
         if self._nodeStruct.fromChildIndex > 0:
             box.append(gui.Label("..."))
+        self._childBoxes.clear()
         order = 0
         for child in self._nodeStruct.children:
             order += 1
-            box.append(ChildBox(child, self._nodeStruct.fromChildIndex + order,
-                                self._leftWidth, 20, self))
+            childBox = ChildBox(child, self._nodeStruct.fromChildIndex + order, self._leftWidth, 20, self)
+            if self.__shouldMarkPlaying(child):
+                childBox.setPlaying(True)
+
+            box.append(childBox)
+            self._childBoxes.append(childBox)
         if self._nodeStruct.fromChildIndex + order < self._nodeStruct.totalChildren:
             box.append(gui.Label("..."))
         pass
+
+    def __shouldMarkPlaying(self, nodeItem: NodeItem) -> bool:
+        playingTrackItem = self._sourcePart._playingTrackItem
+        return playingTrackItem is not None \
+               and playingTrackItem.nodeID == nodeItem.nodeID
+
+    def drawTrack(self, trackItem: TrackItem) -> None:
+        self.__trackBox.drawTrack(trackItem)
+        self.__markPlayingChildBox(trackItem)
+
+    def __markPlayingChildBox(self, trackItem):
+        for childBox in self._childBoxes:
+            if childBox._node.nodeID == trackItem.nodeID:
+                childBox.setPlaying(True)
+            else:
+                childBox.setPlaying(False)
+
+    def drawPlaybackStopped(self) -> None:
+        self.__trackBox.drawPlaybackStopped()
+        # clearing all childBox playmarks
+        for childBox in self._childBoxes:
+            childBox.setPlaying(False)
+
+    def drawPlaybackPaused(self) -> None:
+        self.__trackBox.drawPlaybackPaused()
+
+    def drawPlaybackPlaying(self) -> None:
+        self.__trackBox.drawPlaybackPlaying()
 
 
 class ANodeBox(gui.HBox, abc.ABC):
@@ -215,11 +252,14 @@ class NodeBox(ANodeBox):
 class ChildBox(ANodeBox):
     def __init__(self, node: NodeItem, index: int, width: int, height: int, myBox: NodeSelectFSBox):
         self._index = index
+        self.__isPlaying = False
+        self.__playingMark = gui.Label("")
         super().__init__(node=node, width=width, height=height, myBox=myBox)
 
     def _getLabelBox(self, width, height):
         box = gui.HBox(width=width - 20, height=height, margin='0px auto')
         # index
+        box.append(self.__playingMark, '0')
         box.append(gui.Label(text=str(self._index) + ':'), '1')
         box.append(self._getIcon(self._node), '2')
         box.append(gui.Label(text=self._node.label), '3')
@@ -228,6 +268,11 @@ class ChildBox(ANodeBox):
         else:
             box.set_on_click_listener(self._openNodeOnClick)
         return box
+
+    def setPlaying(self, isPlaying: bool) -> None:
+        if self.__isPlaying != isPlaying:
+            self.__isPlaying = isPlaying
+            self.__playingMark.set_text('*' if isPlaying else '')
 
     @staticmethod
     def _getIcon(node: NodeItem) -> gui.Widget:
