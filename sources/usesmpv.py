@@ -2,9 +2,9 @@ import abc
 import logging
 from queue import Queue
 from threading import Thread, Event, Lock
-from typing import Optional
+from typing import Optional, Tuple
 
-from common.mathutils import roundToInt
+from common.mathutils import roundToInt, clamp
 from sources.mpv import MPVCommandError
 from sources.mympv import MyMPV
 # global MPV for all sources
@@ -130,13 +130,48 @@ class UsesMPV(abc.ABC):
 
     def _getChapter(self) -> Optional[int]:
         """
-        :return: current chapter of None if the property is not available
+        :return: current chapter or None if the property is not available
         """
         try:
             chapter = self._getMPV().get_property("chapter")
             return chapter
         except MPVCommandError:
             return None
+
+    def __getPlaylistInfo(self) -> Optional[Tuple[int, int]]:
+        """
+        :return: (playlistPos, playlistCount) or None if the property is not available
+        """
+        try:
+            playlistPos = self._getMPV().get_property("playlist-pos")
+            playlistCount = self._getMPV().get_property("playlist-count")
+            if playlistPos is not None and playlistCount is not None:
+                return playlistPos, playlistCount
+        except MPVCommandError:
+            return None
+
+    def _playNextInPlaylist(self):
+        if self.__shufflePlaylist(offset=1):
+            self._getMPV().play()
+
+    def _playPrevInPlaylist(self):
+        if self.__shufflePlaylist(offset=-1):
+            self._getMPV().play()
+
+    def __shufflePlaylist(self, offset) -> bool:
+        """
+        Changes playlist-pos by offset is possible
+        :return: change succeeded, i.e. can start playback
+        """
+        info = self.__getPlaylistInfo()
+        if info is not None:
+            playlistPos, playlistCount = info
+            # position is 0-based
+            newPlaylistPos = clamp(playlistPos + offset, 0, playlistCount - 1)
+            self._getMPV().set_property("playlist-pos", newPlaylistPos)
+            return True
+        else:
+            return False
 
     @abc.abstractmethod
     def chapterWasChanged(self, chapter: Optional[int]) -> None:
