@@ -141,7 +141,7 @@ class WebApp(App, CanSendMessage, HasSourceParts):
         self._volFSBox.setVolume(value)
         self.mainFSBox.setVolume(value)
 
-    def __setStatusOfSource(self, newStatus: SourceStatus, sourcePart: WebSourcePart):
+    def __setStatusOfSource(self, newStatus: SourceStatus, sourcePart: 'WebSourcePart'):
         oldStatus = sourcePart.sourceStatus
         if sourcePart.setStatus(newStatus):
             # change succeeded
