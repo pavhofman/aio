@@ -27,7 +27,7 @@ class NodeItem:
     Item for the Node, data container between Source and UI
     """
 
-    def __init__(self, nodeID: NodeID, label: str, isPlayable: bool, isLeaf: bool):
+    def __init__(self, nodeID: NodeID, label: str, isPlayable: bool, isLeaf: bool, hasBookmark: bool):
         # fixed ID tracked by the source. Used to streamline the messages
         self.nodeID = nodeID
         # shown in the UI
@@ -36,14 +36,16 @@ class NodeItem:
         self.isPlayable = isPlayable
         # whether to offer item expansion in UI
         self.isLeaf = isLeaf
+        # whether the node has a bookmark defined
+        self.hasBookmark = hasBookmark
 
     def __str__(self) -> str:
         return super().__str__() \
                + "; nodeID: " + str(self.nodeID) \
                + "; label: " + self.label \
                + "; isPlayable: " + str(self.isPlayable) \
-               + "; isLeaf: " + str(self.isLeaf)
-
+               + "; isLeaf: " + str(self.isLeaf) \
+               + "; hasBookmark: " + str(self.hasBookmark)
 
 class NodeStruct:
     def __init__(self,

@@ -79,10 +79,8 @@ class FileSource(MPVTreeSource[Path]):
         # UNICODE -> ASCII
         return unidecode(fullname)
 
-    def _playNode(self, nodeID: NodeID) -> None:
-        path = self._getPath(nodeID)
-        if path is not None:
-            self._loadFilesToMPV(path)
+    def _playPath(self, path: Path) -> None:
+        self._loadFilesToMPV(path)
 
     def _loadFilesToMPV(self, path: Path) -> None:
         """
@@ -137,3 +135,13 @@ class FileSource(MPVTreeSource[Path]):
 
     def _playPrev(self) -> None:
         self._playPrevInPlaylist()
+
+    def _hasBookmark(self, path: Path) -> bool:
+        # TODO
+        return False
+
+    def _deleteBookmark(self, path: Path) -> None:
+        pass
+
+    def _createBookmark(self, path: Path) -> None:
+        pass

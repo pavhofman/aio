@@ -75,10 +75,9 @@ class RadioSource(MPVTreeSource[Node]):
         # UNICODE -> ASCII
         return unidecode(path.data.name)
 
-    def _playNode(self, nodeID: NodeID) -> None:
-        node = self._getPath(nodeID)
-        if isinstance(node.data, RadioItem):
-            item = node.data  # type: RadioItem
+    def _playPath(self, path: Node) -> None:
+        if isinstance(path.data, RadioItem):
+            item = path.data  # type: RadioItem
             streamUrl = self._extractStreamUrl(item.url)
             if streamUrl is not None:
                 self._startPlayback(mpvPath=item.url)
@@ -150,3 +149,13 @@ class RadioSource(MPVTreeSource[Node]):
             self._makeAvailable()
         elif not currentlyOnline and self._status.isAvailable():
             self._makeUnavailable()
+
+    def _hasBookmark(self, path: Node) -> bool:
+        # TODO
+        return False
+
+    def _deleteBookmark(self, path: Node) -> None:
+        pass
+
+    def _createBookmark(self, path: Node) -> None:
+        pass

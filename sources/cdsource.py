@@ -79,13 +79,12 @@ class CDSource(MPVTreeSource[Node]):
         # UNICODE -> ASCII
         return unidecode(path.data.name)
 
-    def _playNode(self, nodeID: NodeID) -> None:
-        node = self._getPath(nodeID)
-        if isinstance(node.data, RootItem):
+    def _playPath(self, path: Node) -> None:
+        if isinstance(path.data, RootItem):
             # whole CD - from track 1
             self.__playFromTrack(1)
-        elif isinstance(node.data, TrackItem):
-            item = node.data  # type: TrackItem
+        elif isinstance(path.data, TrackItem):
+            item = path.data  # type: TrackItem
             trackID = item.trackID
             self.__playFromTrack(trackID)
 
@@ -189,3 +188,13 @@ class CDSource(MPVTreeSource[Node]):
             return node.data.lengthSecs
         else:
             return None
+
+    def _hasBookmark(self, path: Node) -> bool:
+        # TODO
+        return False
+
+    def _deleteBookmark(self, path: Node) -> None:
+        pass
+
+    def _createBookmark(self, path: Node) -> None:
+        pass

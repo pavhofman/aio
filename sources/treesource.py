@@ -34,23 +34,38 @@ class TreeSource(Source, abc.ABC, Generic[PATH]):
     # consuming the message
     def _consume(self, msg: 'Message') -> bool:
         if not super()._consume(msg):
-            if msg.typeID == MsgID.REQ_NODE:
-                if self._status.isAvailable():
+            if self._status.isAvailable():
+                if msg.typeID == MsgID.REQ_NODE:
                     msg = msg  # type: BiIntegerMsg
                     self._sendNodeInfo(msg.value1, msg.value2)
-                return True
-            elif msg.typeID == MsgID.REQ_PARENT_NODE:
-                if self._status.isAvailable():
+                    return True
+                elif msg.typeID == MsgID.REQ_PARENT_NODE:
                     msg = msg  # type: IntegerMsg
                     self._sendParentNodeInfo(msg.value)
-                return True
-            elif msg.typeID == MsgID.PLAY_NODE:
-                if self._status.isAvailable():
-                    msg = msg  # type: IntegerMsg
-                    self._playNode(msg.value)
-                return True
-        else:
-            return False
+                    return True
+                elif msg.typeID == MsgID.PLAY_NODE:
+                    path = self.__getPathFromNodeIntegerMsg(msg)
+                    if path is not None:
+                        self._playPath(path)
+                    return True
+                elif msg.typeID == MsgID.CREATE_NODE_BOOKMARK:
+                    path = self.__getPathFromNodeIntegerMsg(msg)
+                    if path is not None:
+                        self._createBookmark(path)
+                    return True
+                elif msg.typeID == MsgID.DELETE_NODE_BOOKMARK:
+                    path = self.__getPathFromNodeIntegerMsg(msg)
+                    if path is not None:
+                        self._deleteBookmark(path)
+                    return True
+
+        return False
+
+    def __getPathFromNodeIntegerMsg(self, msg: Message) -> Optional[PATH]:
+        msg = msg  # type: IntegerMsg
+        nodeID = msg.value  # type: NodeID
+        path = self._getPath(nodeID)
+        return path
 
     def _sendNodeInfo(self, nodeID: NodeID, fromIndex: int) -> None:
         nodeID = self._getExistingNodeID(nodeID)
@@ -117,7 +132,7 @@ class TreeSource(Source, abc.ABC, Generic[PATH]):
             return self._rootNode
         else:
             return NodeItem(nodeID=nodeID, label=self._getNodeLabelFor(path), isPlayable=self._isPlayable(path),
-                            isLeaf=self._isLeaf(path))
+                            isLeaf=self._isLeaf(path), hasBookmark=self._hasBookmark(path))
 
     def _getExistingNodeID(self, nodeID: NodeID) -> NodeID:
         path = self._getPath(nodeID)
@@ -188,10 +203,10 @@ class TreeSource(Source, abc.ABC, Generic[PATH]):
             currentIndex = paths.index(currentPath)
             newIndex = clamp(currentIndex + offset, 0, len(paths) - 1)
             pathToPlay = paths[newIndex]
-            self._playNode(self._getID(pathToPlay))
+            self._playPath(self._getID(pathToPlay))
 
     @abc.abstractmethod
-    def _playNode(self, nodeID: NodeID) -> None:
+    def _playPath(self, path: PATH) -> None:
         pass
 
     @abc.abstractmethod
@@ -236,4 +251,16 @@ class TreeSource(Source, abc.ABC, Generic[PATH]):
 
     @abc.abstractmethod
     def _areEqual(self, path1: PATH, path2: PATH) -> bool:
+        pass
+
+    @abc.abstractmethod
+    def _hasBookmark(self, path: PATH) -> bool:
+        pass
+
+    @abc.abstractmethod
+    def _createBookmark(self, PATH) -> None:
+        pass
+
+    @abc.abstractmethod
+    def _deleteBookmark(self, PATH) -> None:
         pass

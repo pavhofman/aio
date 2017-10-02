@@ -60,3 +60,11 @@ class MsgID(Enum):
 
     # JsonMsg(json=json_with_relevant_metadata, fromID=source, forID=UI)
     METADATA_INFO = 16
+
+    # IntegerMsg(value = nodeID, forID=source)
+    # request for bookmark creation
+    CREATE_NODE_BOOKMARK = 17
+
+    # IntegerMsg(value = nodeID, forID=source)
+    # request for bookmark deletion
+    DELETE_NODE_BOOKMARK = 18
