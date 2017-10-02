@@ -17,7 +17,7 @@ CONTROLS_WIDTH = 60
 CUR_TRACK_HEIGHT = 50
 
 # initial empty NodeStruct
-EMPTY_NODE_ITEM = NodeItem(nodeID=NON_EXISTING_NODE_ID, label="", isPlayable=False, isLeaf=True)
+EMPTY_NODE_ITEM = NodeItem(nodeID=NON_EXISTING_NODE_ID, label="", isPlayable=False, isLeaf=True, hasBookmark=False)
 EMPTY_NODE_STRUCT = NodeStruct(node=EMPTY_NODE_ITEM,
                                rootNode=EMPTY_NODE_ITEM, totalParents=0, parentID=NON_EXISTING_NODE_ID,
                                children=[], fromChildIndex=0, totalChildren=0)
@@ -66,7 +66,7 @@ class NodeSelectFSBox(gui.HBox):
         self._prevButton = gui.Button("PREV")
         self._prevButton.set_on_click_listener(self._prevButtonOnClick)
         box.append(self._prevButton)
-        self._closeButton = createBtn("CLOSE", True, self._closeButtonOnClick)
+        box.append(createBtn("CLOSE", True, self._closeButtonOnClick))
         self._nextButton = gui.Button("NEXT")
         self._nextButton.set_on_click_listener(self._nextButtonOnClick)
         box.append(self._nextButton)
@@ -215,12 +215,15 @@ class ANodeBox(gui.HBox, abc.ABC):
     def _openNodeOnClick(self, widget):
         self._myBox._sourcePart.sendReqNodeMsg(self._node.nodeID, 0)
 
+    def _getMenuBox(self) -> MenuFSBox:
+        return MenuFSBox(self._myBox._sourcePart, self._node, self._isRoot())
+
+    def _isRoot(self) -> bool:
+        return False
+
     @abc.abstractmethod
     def _getLabelBox(self, width, height) -> gui.Widget:
         pass
-
-    def _getMenuBox(self) -> MenuFSBox:
-        return MenuFSBox(self._myBox._app, self._node)
 
 
 class RootBox(ANodeBox):
@@ -238,6 +241,9 @@ class RootBox(ANodeBox):
         box.append(gui.Label(text=text), '1')
         box.set_on_click_listener(self._openNodeOnClick)
         return box
+
+    def _isRoot(self) -> bool:
+        return True
 
 
 class NodeBox(ANodeBox):

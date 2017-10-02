@@ -60,13 +60,19 @@ class TreeSourcePart(SourcePart, abc.ABC):
         self.dispatcher.distribute(msg)
 
     def sendPlayNodeMsg(self, nodeID: NodeID) -> None:
-        msg = IntegerMsg(value=nodeID, fromID=self.id,
-                         typeID=MsgID.PLAY_NODE,
-                         forID=self.sourceID)
-        self.dispatcher.distribute(msg)
+        self.__sendIntegerNodeMsgToSource(MsgID.PLAY_NODE, nodeID)
 
     def sendReqParentNodeMsg(self, nodeID: NodeID) -> None:
+        self.__sendIntegerNodeMsgToSource(MsgID.REQ_PARENT_NODE, nodeID)
+
+    def sendCreateBookmarkMsg(self, nodeID: NodeID) -> None:
+        self.__sendIntegerNodeMsgToSource(MsgID.CREATE_NODE_BOOKMARK, nodeID)
+
+    def sendDeleteBookmarkMsg(self, nodeID: NodeID) -> None:
+        self.__sendIntegerNodeMsgToSource(MsgID.DELETE_NODE_BOOKMARK, nodeID)
+
+    def __sendIntegerNodeMsgToSource(self, msgID: MsgID, nodeID: NodeID):
         msg = IntegerMsg(value=nodeID, fromID=self.id,
-                         typeID=MsgID.REQ_PARENT_NODE,
+                         typeID=msgID,
                          forID=self.sourceID)
         self.dispatcher.distribute(msg)
