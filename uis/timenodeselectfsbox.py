@@ -14,3 +14,6 @@ class TimeNodeSelectFSBox(NodeSelectFSBox):
 
     def _createTrackBox(self, width: int, height: int) -> SimpleTimeTrackBox:
         return SimpleTimeTrackBox(width=width, height=height, sourcePart=self._sourcePart)
+
+    def drawTimePos(self, timePos: int, duration: int):
+        self._trackBox.drawTimePos(timePos, duration)

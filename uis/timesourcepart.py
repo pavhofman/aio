@@ -24,7 +24,7 @@ class TimeSourcePart(WebSourcePart, abc.ABC):
 
     def _drawTimePos(self, timePos: int, duration: int) -> None:
         self._trackBox.drawTimePos(timePos=timePos, duration=duration)
-        self._selectorBox.trackBox.drawTimePos(timePos=timePos, duration=duration)
+        self._selectorBox.drawTimePos(timePos=timePos, duration=duration)
 
     def _createSelectorBox(self) -> TimeNodeSelectFSBox:
         return TimeNodeSelectFSBox(self._app, self)

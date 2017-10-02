@@ -29,10 +29,10 @@ class NodeSelectFSBox(gui.HBox):
         self._leftWidth = app.getWidth() - CONTROLS_WIDTH - 10
         self._structBox = self._createStructBox(self._leftWidth, app.getHeight() - CUR_TRACK_HEIGHT)
         self._controlsBox = self._createControlsBox(CONTROLS_WIDTH, app.getHeight() - 10)
-        self.__trackBox = self._createTrackBox(self._leftWidth, CUR_TRACK_HEIGHT)
+        self._trackBox = self._createTrackBox(self._leftWidth, CUR_TRACK_HEIGHT)
         leftBox = gui.VBox(width=self._leftWidth, height=app.getHeight(), margin='0px auto')
         leftBox.append(self._structBox, '1')
-        leftBox.append(self.__trackBox, '2')
+        leftBox.append(self._trackBox, '2')
         self.append(leftBox, '1')
         self.append(self._controlsBox, '2')
         # currently displayed node in selector
@@ -45,7 +45,7 @@ class NodeSelectFSBox(gui.HBox):
         self._nodeStruct = EMPTY_NODE_STRUCT
         self._updateControls()
         self._structBox.empty()
-        self.__trackBox.clear()
+        self._trackBox.clear()
         self._childBoxes.clear()
 
         self.drawStruct(EMPTY_NODE_STRUCT)
@@ -163,7 +163,7 @@ class NodeSelectFSBox(gui.HBox):
                and playingTrackItem.nodeID == nodeItem.nodeID
 
     def drawTrack(self, trackItem: TrackItem) -> None:
-        self.__trackBox.drawTrack(trackItem)
+        self._trackBox.drawTrack(trackItem)
         self.__markPlayingChildBox(trackItem)
 
     def __markPlayingChildBox(self, trackItem):
@@ -174,16 +174,16 @@ class NodeSelectFSBox(gui.HBox):
                 childBox.setPlaying(False)
 
     def drawPlaybackStopped(self) -> None:
-        self.__trackBox.drawPlaybackStopped()
+        self._trackBox.drawPlaybackStopped()
         # clearing all childBox playmarks
         for childBox in self._childBoxes:
             childBox.setPlaying(False)
 
     def drawPlaybackPaused(self) -> None:
-        self.__trackBox.drawPlaybackPaused()
+        self._trackBox.drawPlaybackPaused()
 
     def drawPlaybackPlaying(self) -> None:
-        self.__trackBox.drawPlaybackPlaying()
+        self._trackBox.drawPlaybackPlaying()
 
 
 class ANodeBox(gui.HBox, abc.ABC):
