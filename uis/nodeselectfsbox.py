@@ -5,7 +5,9 @@ from msgs.nodemsg import NodeStruct, NodeItem, NON_EXISTING_NODE_ID, NodeID
 from msgs.trackmsg import TrackItem
 from remi import gui
 from sources.treesource import MAX_CHILDREN
+from uis.menufsbox import MenuFSBox
 from uis.simpletrackbox import SimpleTrackBox
+from uis.utils import createBtn
 
 if TYPE_CHECKING:
     from uis.websourcepart import WebSourcePart
@@ -64,9 +66,7 @@ class NodeSelectFSBox(gui.HBox):
         self._prevButton = gui.Button("PREV")
         self._prevButton.set_on_click_listener(self._prevButtonOnClick)
         box.append(self._prevButton)
-        self._closeButton = gui.Button("CLOSE")
-        box.append(self._closeButton)
-        self._closeButton.set_on_click_listener(self._closeButtonOnClick)
+        self._closeButton = createBtn("CLOSE", True, self._closeButtonOnClick)
         self._nextButton = gui.Button("NEXT")
         self._nextButton.set_on_click_listener(self._nextButtonOnClick)
         box.append(self._nextButton)
@@ -191,19 +191,25 @@ class ANodeBox(gui.HBox, abc.ABC):
         gui.HBox.__init__(self, width=width, height=height, margin='0px auto')
         self._node = node
         self._myBox = myBox
+        self.append(self._getMenuButton(), '0')
         self.append(self._getLabelBox(width, height), '1')
         if self._node.isPlayable:
             # TODO - image
             self.append(self._getPlayButton(), '2')
 
     def _getPlayButton(self):
-        playButton = gui.Button(text="Play")
-        playButton.set_on_click_listener(self._playNodeOnClick)
-        return playButton
+        return createBtn("Play", True, self._playNodeOnClick)
+
+    def _getMenuButton(self):
+        return createBtn("M", True, self._menuOnClick)
 
     # noinspection PyUnusedLocal
     def _playNodeOnClick(self, widget):
         self._myBox._sourcePart.sendPlayNodeMsg(self._node.nodeID)
+
+    # noinspection PyUnusedLocal
+    def _menuOnClick(self, widget):
+        self._myBox._app.setFSBox(self._getMenuBox())
 
     # noinspection PyUnusedLocal
     def _openNodeOnClick(self, widget):
@@ -212,6 +218,9 @@ class ANodeBox(gui.HBox, abc.ABC):
     @abc.abstractmethod
     def _getLabelBox(self, width, height) -> gui.Widget:
         pass
+
+    def _getMenuBox(self) -> MenuFSBox:
+        return MenuFSBox(self._myBox._app, self._node)
 
 
 class RootBox(ANodeBox):
