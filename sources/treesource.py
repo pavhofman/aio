@@ -132,7 +132,7 @@ class TreeSource(Source, abc.ABC, Generic[PATH]):
             return self._rootNode
         else:
             return NodeItem(nodeID=nodeID, label=self._getNodeLabelFor(path), isPlayable=self._isPlayable(path),
-                            isLeaf=self._isLeaf(path), hasBookmark=self._hasBookmark(path))
+                            isLeaf=self._isLeaf(path), bookmarkID=self._hasBookmark(path))
 
     def _getExistingNodeID(self, nodeID: NodeID) -> NodeID:
         path = self._getPath(nodeID)

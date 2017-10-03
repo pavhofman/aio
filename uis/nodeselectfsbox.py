@@ -17,7 +17,8 @@ CONTROLS_WIDTH = 60
 CUR_TRACK_HEIGHT = 50
 
 # initial empty NodeStruct
-EMPTY_NODE_ITEM = NodeItem(nodeID=NON_EXISTING_NODE_ID, label="", isPlayable=False, isLeaf=True, hasBookmark=False)
+EMPTY_NODE_ITEM = NodeItem(nodeID=NON_EXISTING_NODE_ID, label="", isPlayable=False, isLeaf=True,
+                           bookmarkID=NON_EXISTING_NODE_ID)
 EMPTY_NODE_STRUCT = NodeStruct(node=EMPTY_NODE_ITEM,
                                rootNode=EMPTY_NODE_ITEM, totalParents=0, parentID=NON_EXISTING_NODE_ID,
                                children=[], fromChildIndex=0, totalChildren=0)

@@ -1,4 +1,4 @@
-from typing import List, NewType
+from typing import List, NewType, Optional
 
 from groupid import GroupID
 from moduleid import ModuleID
@@ -6,7 +6,15 @@ from msgid import MsgID
 from msgs.message import Message
 
 NodeID = NewType('NodeID', int)
+
 NON_EXISTING_NODE_ID = 0
+
+
+def isBookmark(nodeID: NodeID) -> bool:
+    """
+    nodeIDs of bookmark nodes are < 0
+    """
+    return nodeID < 0
 
 
 class NodeMsg(Message):
@@ -27,7 +35,7 @@ class NodeItem:
     Item for the Node, data container between Source and UI
     """
 
-    def __init__(self, nodeID: NodeID, label: str, isPlayable: bool, isLeaf: bool, hasBookmark: bool):
+    def __init__(self, nodeID: NodeID, label: str, isPlayable: bool, isLeaf: bool, bookmarkID: Optional[NodeID]):
         # fixed ID tracked by the source. Used to streamline the messages
         self.nodeID = nodeID
         # shown in the UI
@@ -36,8 +44,8 @@ class NodeItem:
         self.isPlayable = isPlayable
         # whether to offer item expansion in UI
         self.isLeaf = isLeaf
-        # whether the node has a bookmark defined
-        self.hasBookmark = hasBookmark
+        # ID of corresponding bookmark node, optional
+        self.bookmarkID = bookmarkID
 
     def __str__(self) -> str:
         return super().__str__() \
@@ -45,7 +53,8 @@ class NodeItem:
                + "; label: " + self.label \
                + "; isPlayable: " + str(self.isPlayable) \
                + "; isLeaf: " + str(self.isLeaf) \
-               + "; hasBookmark: " + str(self.hasBookmark)
+               + "; bookmakrID: " + str(self.bookmarkID)
+
 
 class NodeStruct:
     def __init__(self,

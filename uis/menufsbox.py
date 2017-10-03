@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from msgs.nodemsg import NodeItem
+from msgs.nodemsg import NodeItem, isBookmark
 from remi import gui
 from uis.utils import createBtn
 
@@ -27,7 +27,7 @@ class MenuFSBox(gui.VBox):
         self.append(createBtn("CLOSE", True, self._closeButtonOnClick), "100")
 
     def _getBookmarkBtn(self) -> gui.Button:
-        if self._node.hasBookmark:
+        if isBookmark(self._node.bookmarkID):
             return createBtn("Delete bookmark", True, self._deleteBookmarkOnClick)
         else:
             return createBtn("Create bookmark", True, self._createBookmarkOnClick)
