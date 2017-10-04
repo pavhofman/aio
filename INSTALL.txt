@@ -2,10 +2,11 @@ sudo pip3 install unidecode
 sudo pip3 install pyudev
 sudo pip3 install discid
 sudo pip3 install musicbrainzngs
+sudo pip3 install sqlalchemy
 
 
 http://treelib.readthedocs.io/en/latest/index.html :
 sudo easy_install -U treelib
 
-MPV:1
-sudo apt update && sudo apt install mpv
+sudo apt install mpv libdiscid0
+
