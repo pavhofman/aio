@@ -3,10 +3,8 @@ sudo pip3 install pyudev
 sudo pip3 install discid
 sudo pip3 install musicbrainzngs
 sudo pip3 install sqlalchemy
+sudo pip3 install treelib
 
-
-http://treelib.readthedocs.io/en/latest/index.html :
-sudo easy_install -U treelib
 
 sudo apt install mpv libdiscid0
 
