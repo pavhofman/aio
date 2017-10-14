@@ -1,7 +1,8 @@
 import abc
-from typing import TYPE_CHECKING, TypeVar, List, Optional, Generic, Tuple
+from typing import TypeVar, List, Generic, Tuple, Optional
 
 from common.mathutils import clamp
+from dispatcher import Dispatcher
 from groupid import GroupID
 from moduleid import ModuleID
 from msgid import MsgID
@@ -9,9 +10,6 @@ from msgs.integermsg import BiIntegerMsg, IntegerMsg
 from msgs.message import Message
 from msgs.nodemsg import NodeID, NON_EXISTING_NODE_ID, NodeItem, NodeStruct, NodeMsg
 from sources.source import Source
-
-if TYPE_CHECKING:
-    from dispatcher import Dispatcher
 
 # how many children nodes to send in NodesStruct - should correspond to number of nodes displayed in UI
 MAX_CHILDREN = 5
@@ -143,14 +141,14 @@ class TreeSource(Source, abc.ABC, Generic[PATH]):
 
     def _getParentsTotalAndID(self, path: PATH) -> Tuple[int, NodeID]:
         rootPath = self._getRootPath()  # type: PATH
-        if path.__eq__(rootPath):
+        if self._areEqual(path, rootPath):
             # directly _xmlRoot
             return 0, NON_EXISTING_NODE_ID
         else:
             parentPath = self._getParentPath(path)  # type: PATH
             directParentID = self._getID(parentPath)
             totalParents = 1  # type: int
-            while not parentPath.__eq__(rootPath):
+            while not self._areEqual(parentPath, rootPath):
                 parentPath = self._getParentPath(parentPath)
                 totalParents += 1
             return totalParents, directParentID
@@ -203,7 +201,7 @@ class TreeSource(Source, abc.ABC, Generic[PATH]):
             currentIndex = paths.index(currentPath)
             newIndex = clamp(currentIndex + offset, 0, len(paths) - 1)
             pathToPlay = paths[newIndex]
-            self._playPath(self._getID(pathToPlay))
+            self._playPath(pathToPlay)
 
     @abc.abstractmethod
     def _playPath(self, path: PATH) -> None:
