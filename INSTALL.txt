@@ -8,3 +8,10 @@ sudo pip3 install treelib
 
 sudo apt install mpv libdiscid0
 
+
+
+ sudo aptitude install python3-dev
+ git clone https://github.com/tuffy/python-audio-tools.git
+ cd python-audio-tools
+ make
+ sudo make install

@@ -2,6 +2,7 @@ from multiprocessing import Lock
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, List, Dict
 
+import audiotools
 from unidecode import unidecode
 
 from metadata import Metadata
@@ -44,7 +45,15 @@ class FileSource(MPVTreeSource[Path]):
         return True
 
     def _getOrderedChildPaths(self, path: Path) -> List[Path]:
-        return sorted(path.iterdir(), key=lambda k: str(k).lower())
+        children = (item for item in path.iterdir() if item.is_dir() or self._isAudio(item))
+        return sorted(children, key=lambda k: str(k).lower())
+
+    def _isAudio(self, item: Path) -> bool:
+        try:
+            audiotools.open(str(item))
+            return True
+        except audiotools.UnsupportedFile:
+            return False
 
     def _getRootPath(self):
         return ROOT_PATH
