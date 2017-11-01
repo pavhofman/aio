@@ -68,3 +68,7 @@ class MsgID(Enum):
     # IntegerMsg(value = nodeID, forID=source)
     # request for bookmark deletion
     DELETE_NODE_BOOKMARK = 18
+
+    # IntegerMsg(value = bitmapped groupIDs)
+    # informs dispatchers about groups of the sender
+    IN_GROUPS_MSG = 19

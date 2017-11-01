@@ -1,6 +1,7 @@
 import logging
 from typing import List, TYPE_CHECKING
 
+from groupid import GroupID
 from moduleid import ModuleID
 from msgconsumer import MsgConsumer
 from msgid import MsgID
@@ -54,3 +55,6 @@ class ConsoleUI(MsgConsumer, HasSourceParts):
             SourcePart(id=self.id, dispatcher=self.dispatcher, sourceID=ModuleID.RADIO_SOURCE),
             SourcePart(id=self.id, dispatcher=self.dispatcher, sourceID=ModuleID.CD_SOURCE)
         ]
+
+    def _getGroupIDs(self) -> List[GroupID]:
+        return [GroupID.UI]

@@ -51,4 +51,4 @@ class VolumeOperator(MsgConsumer):
 
     def __sendCurrentVolume(self):
         msg = IntegerMsg(value=self.volume, fromID=self.id, typeID=MsgID.CURRENT_VOL_INFO, groupID=GroupID.UI)
-        self.dispatcher.distribute(msg)
+        self.dispatcher.distribute(msg, self.id)

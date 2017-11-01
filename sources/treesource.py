@@ -79,7 +79,7 @@ class TreeSource(Source, abc.ABC, Generic[PATH]):
                             fromChildIndex=fromIndex,
                             totalChildren=totalChildren)
         msg = NodeMsg(nodeStruct=struct, fromID=self.id, groupID=GroupID.UI)
-        self.dispatcher.distribute(msg)
+        self.dispatcher.distribute(msg, self.id)
 
     def _sendParentNodeInfo(self, nodeID: NodeID) -> None:
         nodeID = self._getExistingNodeID(nodeID)

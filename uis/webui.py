@@ -1,8 +1,9 @@
 import logging
 from queue import Queue
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 import globalvars
+from groupid import GroupID
 from moduleid import ModuleID
 from msgconsumer import MsgConsumer
 from msgs.message import Message
@@ -42,6 +43,9 @@ class WebUI(MsgConsumer):
         """This method starts the webserver with a specific App subclass."""
         logging.getLogger('remi').setLevel(level=logging.DEBUG)
         return MyServer(mainGuiClass, start=True, **kwargs, userdata=(self.id, self.dispatcher, self._appQueue))
+
+    def _getGroupIDs(self) -> List[GroupID]:
+        return [GroupID.UI]
 
 
 class MyServer(Server):

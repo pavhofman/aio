@@ -171,7 +171,7 @@ class WebApp(App, CanSendMessage, HasSourceParts):
 
     def sendSwitchSourceReq(self, source: 'WebSourcePart', activate: bool) -> None:
         msg = self._createActivationMsg(source, activate)
-        self.dispatcher.distribute(msg)
+        self.dispatcher.distribute(msg, self.id)
 
     def _createActivationMsg(self, source: 'WebSourcePart', activate: bool) -> IntegerMsg:
         if activate:

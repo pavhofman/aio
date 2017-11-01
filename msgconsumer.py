@@ -2,10 +2,14 @@ import abc
 import logging
 from queue import Queue, Empty
 from threading import Thread, Event
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
+import dispatcher
 from cansendmessage import CanSendMessage
+from groupid import GroupID
 from moduleid import ModuleID
+from msgid import MsgID
+from msgs.integermsg import IntegerMsg
 from msgs.message import Message
 
 if TYPE_CHECKING:
@@ -70,7 +74,13 @@ class MsgConsumer(CanSendMessage, Thread, abc.ABC):
         self.stop()
 
     def _initializeInThread(self):
-        """
-        For children to run as first code of the thread
-        """
-        pass
+        # always sending "I am here" msg at start, to fill route maps of all dispatchers
+        self.dispatcher.distribute(
+            IntegerMsg(self._getEncodedGroupIDs(), self.id, MsgID.IN_GROUPS_MSG), self.id)
+
+    def _getEncodedGroupIDs(self) -> int:
+        groupIDs = self._getGroupIDs()  # type: List[GroupID]
+        return dispatcher.encodeGroupIDs(groupIDs)
+
+    def _getGroupIDs(self) -> List[GroupID]:
+        return []

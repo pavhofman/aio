@@ -1,6 +1,6 @@
 import abc
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from groupid import GroupID
 from moduleid import ModuleID
@@ -95,7 +95,7 @@ class Source(MsgConsumer, abc.ABC):
         statusValue = self._status.value  # type: int
         msg = IntegerMsg(value=statusValue, fromID=self.id, typeID=MsgID.SOURCE_STATUS_INFO,
                          groupID=GroupID.UI)
-        self.dispatcher.distribute(msg)
+        self.dispatcher.distribute(msg, self.id)
 
     @abc.abstractmethod
     def _tryToActivate(self) -> bool:
@@ -144,7 +144,7 @@ class Source(MsgConsumer, abc.ABC):
     def _sendPlaybackInfo(self, newPlayback: PlaybackStatus) -> None:
         msg = IntegerMsg(value=newPlayback.value, fromID=self.id, typeID=MsgID.SOURCE_PLAYBACK_INFO,
                          groupID=GroupID.UI)
-        self.dispatcher.distribute(msg)
+        self.dispatcher.distribute(msg, self.id)
 
         pass
 
@@ -184,6 +184,9 @@ class Source(MsgConsumer, abc.ABC):
         not defined for basic source
         """
         pass
+
+    def _getGroupIDs(self) -> List[GroupID]:
+        return [GroupID.SOURCE]
 
     @abc.abstractmethod
     def _determinePlaybackStatus(self) -> PlaybackStatus:

@@ -58,4 +58,4 @@ class VolumeFSBox(gui.Widget, TimedClose):
 
     def _sendVolume(self, value: int):
         msg = IntegerMsg(value=value, fromID=self._app.id, typeID=MsgID.SET_VOL, forID=ModuleID.VOLUME_OPERATOR)
-        self._app.dispatcher.distribute(msg)
+        self._app.dispatcher.distribute(msg, self._app.id)

@@ -74,7 +74,7 @@ class AddsPlaybackButtons(CanAppendWidget, abc.ABC):
         msg = IntegerMsg(value=command.id, fromID=self._sourcePart.id,
                          typeID=MsgID.SOURCE_PLAY_COMMAND,
                          forID=self._sourcePart.sourceID)
-        self._sourcePart.dispatcher.distribute(msg)
+        self._sourcePart.dispatcher.distribute(msg, self._sourcePart.id)
 
     def _updateButtonsFor(self, status: PlaybackStatus) -> None:
         for button in self._buttons:

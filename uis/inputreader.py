@@ -62,4 +62,4 @@ class InputReader(AbstractReader):
             return None
 
     def _processMsg(self, msg: 'Message'):
-        self._module.dispatcher.distribute(msg)
+        self._module.dispatcher.distribute(msg, self.id)

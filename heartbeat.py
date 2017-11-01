@@ -35,9 +35,9 @@ class Heartbeat(Thread):
         while not self.stopped():
             time.sleep(2)
             msg = RequestMsg(ModuleID.HEARTBEAT, typeID=MsgID.REQ_SOURCE_STATUS, groupID=GroupID.SOURCE)
-            self.dispatcher.distribute(msg)
+            self.dispatcher.distribute(msg, ModuleID.HEARTBEAT)
             msg = RequestMsg(ModuleID.HEARTBEAT, typeID=MsgID.REQ_CURRENT_VOL_INFO, forID=ModuleID.VOLUME_OPERATOR)
-            self.dispatcher.distribute(msg)
+            self.dispatcher.distribute(msg, ModuleID.HEARTBEAT)
             # only one run during development
             self.stop()
 

@@ -10,7 +10,6 @@ from typing import List
 import globalvars
 from dispatcher import Dispatcher
 from exiting import exitHandler, exitCleanly
-from groupid import GroupID
 from heartbeat import Heartbeat
 from moduleid import ModuleID
 from serialreciever import SerialReciever
@@ -40,46 +39,6 @@ MAIN_MCU:
 RC: zatim nic
 """
 
-routeMapOnPC = {
-    ModuleID.WEBUI_PC: ModuleID.WEBUI_PC,
-    ModuleID.FILE_SOURCE: ModuleID.FILE_SOURCE,
-    ModuleID.RADIO_SOURCE: ModuleID.RADIO_SOURCE,
-    ModuleID.CD_SOURCE: ModuleID.CD_SOURCE,
-    ModuleID.TO_MAIN_MCU_SENDER: ModuleID.TO_MAIN_MCU_SENDER,
-    ModuleID.FROM_MAIN_MCU_RECEIVER: ModuleID.FROM_MAIN_MCU_RECEIVER,
-
-    ModuleID.VOLUME_OPERATOR: ModuleID.TO_MAIN_MCU_SENDER,
-    ModuleID.ANALOG_SOURCE: ModuleID.TO_MAIN_MCU_SENDER,
-    ModuleID.TO_PC_SENDER: ModuleID.TO_MAIN_MCU_SENDER,
-    ModuleID.FROM_PC_RECEIVER: ModuleID.TO_MAIN_MCU_SENDER,
-    ModuleID.UI_MAIN_DISPLAY: ModuleID.TO_MAIN_MCU_SENDER,
-}
-
-routeMapOnMCU = {
-    ModuleID.VOLUME_OPERATOR: ModuleID.VOLUME_OPERATOR,
-    ModuleID.ANALOG_SOURCE: ModuleID.ANALOG_SOURCE,
-    ModuleID.TO_PC_SENDER: ModuleID.TO_PC_SENDER,
-    ModuleID.FROM_PC_RECEIVER: ModuleID.FROM_PC_RECEIVER,
-    ModuleID.UI_MAIN_DISPLAY: ModuleID.UI_MAIN_DISPLAY,
-
-    ModuleID.WEBUI_PC: ModuleID.TO_PC_SENDER,
-    ModuleID.FILE_SOURCE: ModuleID.TO_PC_SENDER,
-    ModuleID.RADIO_SOURCE: ModuleID.TO_PC_SENDER,
-    ModuleID.CD_SOURCE: ModuleID.TO_PC_SENDER,
-    ModuleID.TO_MAIN_MCU_SENDER: ModuleID.TO_PC_SENDER,
-    ModuleID.FROM_MAIN_MCU_RECEIVER: ModuleID.TO_PC_SENDER,
-}
-
-groupMapOnPC = {
-    GroupID.UI: [ModuleID.WEBUI_PC, ModuleID.TO_MAIN_MCU_SENDER],
-    GroupID.SOURCE: [ModuleID.FILE_SOURCE, ModuleID.RADIO_SOURCE,
-                     ModuleID.CD_SOURCE, ModuleID.TO_MAIN_MCU_SENDER],
-}
-
-groupMapOnMCU = {
-    GroupID.UI: [ModuleID.UI_MAIN_DISPLAY, ModuleID.TO_PC_SENDER],
-    GroupID.SOURCE: [ModuleID.ANALOG_SOURCE, ModuleID.TO_PC_SENDER],
-}
 
 # list of all real sources modIDs
 globalvars.realSourceIDs = [ModuleID.ANALOG_SOURCE, ModuleID.FILE_SOURCE, ModuleID.RADIO_SOURCE,
@@ -90,8 +49,8 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, exitHandler)
     signal.signal(signal.SIGTERM, exitHandler)
     try:
-        dispatcherOnPC = Dispatcher("On PC", routeMap=routeMapOnPC, groupMap=groupMapOnPC)
-        dispatcherOnMCU = Dispatcher("On MCU", routeMap=routeMapOnMCU, groupMap=groupMapOnMCU)
+        dispatcherOnPC = Dispatcher("On PC", gatewayIDs=[ModuleID.TO_MAIN_MCU_SENDER])
+        dispatcherOnMCU = Dispatcher("On MCU", gatewayIDs=[ModuleID.TO_PC_SENDER])
 
         receiverOnPC = SerialReciever(
             id=ModuleID.FROM_MAIN_MCU_RECEIVER, dispatcher=dispatcherOnPC, mySideSenderID=ModuleID.TO_MAIN_MCU_SENDER)

@@ -63,7 +63,7 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
 
     def __sendMetadataJson(self, mdJson: str) -> None:
         msg = JsonMsg(json=mdJson, fromID=self.id, typeID=MsgID.METADATA_INFO, groupID=GroupID.UI)
-        self.dispatcher.distribute(msg)
+        self.dispatcher.distribute(msg, self.id)
 
     def _switchedToNewPath(self, path: PATH):
         UsesMPV._resetTimePosTimer(self)
@@ -74,14 +74,14 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
         # send msg
         trackItem = TrackItem(nodeID=self._playedNodeID, label=self._getTrackLabelFor(path), descr="")
         msg = TrackMsg(trackItem=trackItem, fromID=self.id, groupID=GroupID.UI)
-        self.dispatcher.distribute(msg)
+        self.dispatcher.distribute(msg, self.id)
 
     def _audioParamsWereChanged(self, params: dict):
         bits = self.__parseBits(params)
         if bits:
             item = ParamsItem(params['samplerate'], bits, params['channel-count'])
             msg = AudioParamsMsg(paramsItem=item, fromID=self.id, groupID=GroupID.UI)
-            self.dispatcher.distribute(msg)
+            self.dispatcher.distribute(msg, self.id)
 
     @staticmethod
     def __parseBits(params: dict) -> Optional[int]:
@@ -105,7 +105,7 @@ class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
             if duration is not None and timePos is not None:
                 msg = BiIntegerMsg(value1=timePos, value2=duration, fromID=self.id, typeID=MsgID.TIME_POS_INFO,
                                    groupID=GroupID.UI)
-                self.dispatcher.distribute(msg)
+                self.dispatcher.distribute(msg, self.id)
 
     def pathWasChanged(self, mpvPath: Optional[str]):
         if mpvPath is None:

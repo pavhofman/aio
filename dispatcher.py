@@ -1,10 +1,12 @@
 import logging
-from typing import TYPE_CHECKING, DefaultDict, List
+from typing import TYPE_CHECKING, DefaultDict, List, Iterator
 
 import globalvars
 from errors import ParameterError
 from groupid import GroupID
 from moduleid import ModuleID
+from msgid import MsgID
+from msgs.integermsg import IntegerMsg
 from msgs.message import Message
 
 if TYPE_CHECKING:
@@ -15,25 +17,62 @@ Message dispatcher
 
 
 class Dispatcher:
-    def __init__(self, name, routeMap: DefaultDict[ModuleID, ModuleID], groupMap: DefaultDict[GroupID, List[ModuleID]]):
+    def __init__(self, name, gatewayIDs: List[ModuleID]):
         # call the thread class
         super().__init__()
         self.name = name
-        self.routeMap = routeMap  # type: DefaultDict[ModuleID, ModuleID]
-        self.groupMap = groupMap  # type: DefaultDict[GroupID, List[ModuleID]]
-        self.msgCount = 0
+        self._gatewayIDs = gatewayIDs
+        self._routeMap = self._initRouteMap(gatewayIDs)  # type: DefaultDict[ModuleID, ModuleID]
+        self._groupMap = {}  # type: DefaultDict[GroupID, List[ModuleID]]
+        self._msgCount = 0
 
-    # distributing the message
-    def distribute(self, msg: 'Message', excludeID=None):
-        if msg.forID is not ModuleID.ANY:
-            targetID = self.routeMap[msg.forID]  # type: ModuleID
+    def _initRouteMap(self, gatewayIDs: List[ModuleID]) -> DefaultDict[ModuleID, ModuleID]:
+        """
+        Initial filling the route map with gateways
+        """
+        routeMap = {}
+        for gatewayID in gatewayIDs:
+            routeMap[gatewayID] = gatewayID
+        return routeMap
+
+    def distribute(self, msg: 'Message', senderID: ModuleID):
+        """
+        Distributing the message.
+        :param senderID: bordering sender. Not the original sender (stored in msg.fromID)!
+        """
+        self._updateRouteMap(msg, senderID)
+        if msg.typeID == MsgID.IN_GROUPS_MSG:
+            msg = msg  # type: IntegerMsg
+            self._updateGroupMap(msg.value, senderID)
+            self._distributeToGateways(msg, senderID)
+        elif msg.forID is not ModuleID.ANY \
+                and msg.forID in self._routeMap.keys():
+            targetID = self._routeMap[msg.forID]  # type: ModuleID
             # checking just in case
             if targetID is not None:
                 self._submitToTargetID(msg, targetID)
-        elif msg.groupID is not GroupID.ANY:
-            for targetID in self.groupMap[msg.groupID]:
-                if targetID != excludeID:
+        elif msg.groupID is not GroupID.ANY \
+                and msg.groupID in self._groupMap.keys():
+            for targetID in self._groupMap[msg.groupID]:
+                if targetID != senderID:
                     self._submitToTargetID(msg, targetID)
+
+    def _updateRouteMap(self, msg: 'Message', senderID: ModuleID) -> None:
+        if msg.fromID not in self._routeMap.keys():
+            self._routeMap[msg.fromID] = senderID
+
+    def _updateGroupMap(self, encodedGroupIDs: int, senderID: ModuleID) -> None:
+        for groupID in decodeGroupIDs(encodedGroupIDs):
+            if groupID not in self._groupMap.keys():
+                self._groupMap[groupID] = []
+            if senderID not in self._groupMap[groupID]:
+                self._groupMap[groupID].append(senderID)
+
+    def _distributeToGateways(self, msg: IntegerMsg, senderID: ModuleID):
+        # distribute to all other gateways
+        for gatewayID in self._gatewayIDs:
+            if senderID != gatewayID:
+                self._submitToTargetID(msg, gatewayID)
 
     def _submitToTargetID(self, msg: 'Message', targetID):
         if msg.fromID == targetID:
@@ -45,10 +84,10 @@ class Dispatcher:
             consumer.receive(msg)
             logging.debug(self.name + ": submitted message " + str(msg) + " to " + str(consumer))
             # increment message counter
-            self.msgCount += 1
+            self._msgCount += 1
 
     def printStats(self):
-        print("Dispatcher " + self.name + ": " + str(self.msgCount))
+        print("Dispatcher " + self.name + ": " + str(self._msgCount))
 
 
 # noinspection PyShadowingBuiltins
@@ -59,3 +98,24 @@ def getMsgConsumer(id: ModuleID) -> 'MsgConsumer':
         if consumer.id == id:
             return consumer
     raise ParameterError("Unknown module ID " + str(id))
+
+
+def bits(number: int) -> Iterator[int]:
+    bit = 1
+    position = 0
+    while number >= bit:
+        if number & bit:
+            yield position
+        bit <<= 1
+        position += 1
+
+
+def decodeGroupIDs(value: int) -> List[GroupID]:
+    return list(GroupID(groupValue) for groupValue in bits(value))
+
+
+def encodeGroupIDs(groupIDs: List[GroupID]) -> int:
+    result = 0
+    for groupID in groupIDs:
+        result |= 1 << groupID.value
+    return result

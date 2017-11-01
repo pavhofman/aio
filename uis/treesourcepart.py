@@ -57,7 +57,7 @@ class TreeSourcePart(SourcePart, abc.ABC):
         msg = BiIntegerMsg(value1=nodeID, value2=fromIndex, fromID=self.id,
                            typeID=MsgID.REQ_NODE,
                            forID=self.sourceID)
-        self.dispatcher.distribute(msg)
+        self.dispatcher.distribute(msg, self.id)
 
     def sendPlayNodeMsg(self, nodeID: NodeID) -> None:
         self.__sendIntegerNodeMsgToSource(MsgID.PLAY_NODE, nodeID)
@@ -75,4 +75,4 @@ class TreeSourcePart(SourcePart, abc.ABC):
         msg = IntegerMsg(value=nodeID, fromID=self.id,
                          typeID=msgID,
                          forID=self.sourceID)
-        self.dispatcher.distribute(msg)
+        self.dispatcher.distribute(msg, self.id)

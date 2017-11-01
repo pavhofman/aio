@@ -41,7 +41,7 @@ class OverviewPanel(gui.Widget):
 
     def _requestAllSourcesStatus(self):
         msg = RequestMsg(self._app.id, typeID=MsgID.REQ_SOURCE_STATUS, groupID=GroupID.SOURCE)
-        self._app.dispatcher.distribute(msg)
+        self._app.dispatcher.distribute(msg, self._app.id)
 
     def _onSettingsButtonPressed(self, widget):
         pass
