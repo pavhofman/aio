@@ -39,7 +39,6 @@ MAIN_MCU:
 RC: zatim nic
 """
 
-
 # list of all real sources modIDs
 globalvars.realSourceIDs = [ModuleID.ANALOG_SOURCE, ModuleID.FILE_SOURCE, ModuleID.RADIO_SOURCE,
                             ModuleID.CD_SOURCE]  # type: List[ModuleID]
@@ -49,18 +48,27 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, exitHandler)
     signal.signal(signal.SIGTERM, exitHandler)
     try:
-        dispatcherOnPC = Dispatcher("On PC", gatewayIDs=[ModuleID.TO_MAIN_MCU_SENDER])
-        dispatcherOnMCU = Dispatcher("On MCU", gatewayIDs=[ModuleID.TO_PC_SENDER])
+        dispatcherOnPC = Dispatcher("On PC", gatewayIDs=[ModuleID.PC_MCU_SENDER])
+        dispatcherOnMCU = Dispatcher("On MCU", gatewayIDs=[ModuleID.MCU_PC_SENDER, ModuleID.MCU_RC_SENDER])
+        dispatcherOnRC = Dispatcher("On RC", gatewayIDs=[ModuleID.RC_MCU_SENDER])
 
-        receiverOnPC = SerialReciever(
-            id=ModuleID.FROM_MAIN_MCU_RECEIVER, dispatcher=dispatcherOnPC, mySideSenderID=ModuleID.TO_MAIN_MCU_SENDER)
-        receiverOnMCU = SerialReciever(
-            id=ModuleID.FROM_PC_RECEIVER, dispatcher=dispatcherOnMCU, mySideSenderID=ModuleID.TO_PC_SENDER)
+        receiverMCU_PC = SerialReciever(
+            id=ModuleID.MCU_PC_RECEIVER, dispatcher=dispatcherOnPC, mySideSenderID=ModuleID.PC_MCU_SENDER)
+        receiverPC_MCU = SerialReciever(
+            id=ModuleID.PC_MCU_RECEIVER, dispatcher=dispatcherOnMCU, mySideSenderID=ModuleID.MCU_PC_SENDER)
+        receiverRC_MCU = SerialReciever(
+            id=ModuleID.RC_MCU_RECEIVER, dispatcher=dispatcherOnMCU, mySideSenderID=ModuleID.MCU_RC_SENDER)
+        receiverMCU_RC = SerialReciever(
+            id=ModuleID.MCU_RC_RECEIVER, dispatcher=dispatcherOnRC, mySideSenderID=ModuleID.RC_MCU_SENDER)
 
-        senderOnPC = SerialSender(
-            id=ModuleID.TO_MAIN_MCU_SENDER, dispatcher=dispatcherOnPC, otherSideReceiver=receiverOnMCU)
-        senderOnMCU = SerialSender(
-            id=ModuleID.TO_PC_SENDER, dispatcher=dispatcherOnMCU, otherSideReceiver=receiverOnPC)
+        senderPC_MCU = SerialSender(
+            id=ModuleID.PC_MCU_SENDER, dispatcher=dispatcherOnPC, otherSideReceiver=receiverPC_MCU)
+        senderMCU_PC = SerialSender(
+            id=ModuleID.MCU_PC_SENDER, dispatcher=dispatcherOnMCU, otherSideReceiver=receiverMCU_PC)
+        senderMCU_RC = SerialSender(
+            id=ModuleID.MCU_RC_SENDER, dispatcher=dispatcherOnMCU, otherSideReceiver=receiverMCU_RC)
+        senderRC_MCU = SerialSender(
+            id=ModuleID.RC_MCU_SENDER, dispatcher=dispatcherOnRC, otherSideReceiver=receiverRC_MCU)
 
         globalvars.msgConsumers = [
             VolumeOperator(dispatcherOnMCU),
@@ -70,10 +78,14 @@ if __name__ == "__main__":
             FileSource(dispatcherOnPC),
             RadioSource(dispatcherOnPC),
             CDSource(dispatcherOnPC),
-            senderOnPC,
-            senderOnMCU,
-            receiverOnPC,
-            receiverOnMCU,
+            senderPC_MCU,
+            senderMCU_PC,
+            senderMCU_RC,
+            senderRC_MCU,
+            receiverMCU_PC,
+            receiverPC_MCU,
+            receiverRC_MCU,
+            receiverMCU_RC,
             Heartbeat(dispatcher=dispatcherOnMCU)
         ]
         globalvars.consumersReadyEvent.set()
