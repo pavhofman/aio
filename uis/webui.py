@@ -20,12 +20,12 @@ WEB UI
 
 class WebUI(MsgConsumer):
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher'):
+    def __init__(self, id: ModuleID, name: str, dispatcher: 'Dispatcher', port: int):
         # call the thread class
-        super().__init__(id=id, name='WebUI', dispatcher=dispatcher)
+        super().__init__(id=id, name=name, dispatcher=dispatcher)
         # to make it available to webapp
         self._appQueue = Queue()
-        self._server = self._startServer(WebApp, address='0.0.0.0', start_browser=True)
+        self._server = self._startServer(WebApp, address='0.0.0.0', port=port, start_browser=True)
 
     def stop(self):
         super().stop()
@@ -42,7 +42,9 @@ class WebUI(MsgConsumer):
     def _startServer(self, mainGuiClass, **kwargs) -> 'Server':
         """This method starts the webserver with a specific App subclass."""
         logging.getLogger('remi').setLevel(level=logging.INFO)
-        return MyServer(mainGuiClass, start=True, **kwargs, userdata=(self.id, self.dispatcher, self._appQueue))
+        multipleInstance = True if globalvars.startSecondWebUI else False
+        return MyServer(mainGuiClass, start=True, multiple_instance=multipleInstance, **kwargs,
+                        userdata=(self.id, self.dispatcher, self._appQueue))
 
     def _getGroupIDs(self) -> List[GroupID]:
         return [GroupID.UI]

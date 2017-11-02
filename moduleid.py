@@ -20,3 +20,4 @@ class ModuleID(Enum):
     RC_MCU_RECEIVER = 14
     RC_MCU_SENDER = 15
     MCU_RC_RECEIVER = 16
+    WEBUI_RC = 17

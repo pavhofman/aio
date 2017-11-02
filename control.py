@@ -44,7 +44,7 @@ globalvars.realSourceIDs = [ModuleID.ANALOG_SOURCE, ModuleID.FILE_SOURCE, Module
                             ModuleID.CD_SOURCE]  # type: List[ModuleID]
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s')
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s')
     signal.signal(signal.SIGINT, exitHandler)
     signal.signal(signal.SIGTERM, exitHandler)
     try:
@@ -75,13 +75,6 @@ if __name__ == "__main__":
             id=ModuleID.RC_MCU_SENDER, name='RC->MCU', dispatcher=dispatcherOnRC, otherSideReceiver=receiverRC_MCU)
 
         globalvars.msgConsumers = [
-            VolumeOperator(dispatcherOnMCU),
-            WebUI(id=ModuleID.WEBUI_PC, dispatcher=dispatcherOnPC),
-            InputConsoleUI(id=ModuleID.UI_MAIN_DISPLAY, dispatcher=dispatcherOnRC),
-            AnalogSource(dispatcherOnMCU),
-            FileSource(dispatcherOnPC),
-            RadioSource(dispatcherOnPC),
-            CDSource(dispatcherOnPC),
             senderPC_MCU,
             senderMCU_PC,
             senderMCU_RC,
@@ -90,8 +83,19 @@ if __name__ == "__main__":
             receiverPC_MCU,
             receiverRC_MCU,
             receiverMCU_RC,
+            VolumeOperator(dispatcherOnMCU),
+            WebUI(id=ModuleID.WEBUI_PC, name='WebUI PC', dispatcher=dispatcherOnPC, port=8081),
+            InputConsoleUI(id=ModuleID.UI_MAIN_DISPLAY, dispatcher=dispatcherOnRC),
+            AnalogSource(dispatcherOnMCU),
+            FileSource(dispatcherOnPC),
+            RadioSource(dispatcherOnPC),
+            CDSource(dispatcherOnPC),
             Heartbeat(dispatcher=dispatcherOnMCU)
         ]
+        if globalvars.startSecondWebUI:
+            globalvars.msgConsumers.append(
+                WebUI(id=ModuleID.WEBUI_RC, name='WebUI RC', dispatcher=dispatcherOnRC, port=8082)
+            )
         globalvars.consumersReadyEvent.set()
         while True:
             time.sleep(5)
