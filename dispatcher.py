@@ -16,6 +16,7 @@ Message dispatcher
 """
 
 log = logging.getLogger("dispatcher")
+log.setLevel(logging.DEBUG)
 
 
 class Dispatcher:
@@ -37,7 +38,7 @@ class Dispatcher:
             routeMap[gatewayID] = gatewayID
         return routeMap
 
-    def distribute(self, msg: 'Message', senderID: ModuleID):
+    def distribute(self, msg: Message, senderID: ModuleID):
         """
         Distributing the message.
         :param senderID: bordering sender. Not the original sender (stored in msg.fromID)!
@@ -48,19 +49,26 @@ class Dispatcher:
             msg = msg  # type: IntegerMsg
             self._updateGroupMap(msg.value, senderID)
             self._distributeToGateways(msg, senderID)
-        elif msg.forID is not ModuleID.ANY \
-                and msg.forID in self._routeMap.keys():
-            targetID = self._routeMap[msg.forID]  # type: ModuleID
-            # checking just in case
-            if targetID is not None:
-                self._submitToTargetID(msg, targetID)
-        elif msg.groupID is not GroupID.ANY \
-                and msg.groupID in self._groupMap.keys():
-            for targetID in self._groupMap[msg.groupID]:
-                if targetID != senderID:
-                    self._submitToTargetID(msg, targetID)
+        elif msg.forID is not ModuleID.ANY and msg.forID in self._routeMap.keys():
+            self._distributeToForID(msg)
+        elif msg.groupID is not GroupID.ANY and msg.groupID in self._groupMap.keys():
+            self._distributeToGroupID(msg, senderID)
+        else:
+            # no specific targets found, sending to all gateways
+            self._distributeToGateways(msg, senderID)
 
-    def _updateRouteMap(self, msg: 'Message', senderID: ModuleID) -> None:
+    def _distributeToGroupID(self, msg, senderID):
+        for targetID in self._groupMap[msg.groupID]:
+            if targetID != senderID:
+                self._submitToTargetID(msg, targetID)
+
+    def _distributeToForID(self, msg):
+        targetID = self._routeMap[msg.forID]  # type: ModuleID
+        # checking just in case
+        if targetID is not None:
+            self._submitToTargetID(msg, targetID)
+
+    def _updateRouteMap(self, msg: Message, senderID: ModuleID) -> None:
         if msg.fromID not in self._routeMap.keys():
             self._routeMap[msg.fromID] = senderID
 
@@ -71,13 +79,13 @@ class Dispatcher:
             if senderID not in self._groupMap[groupID]:
                 self._groupMap[groupID].append(senderID)
 
-    def _distributeToGateways(self, msg: IntegerMsg, senderID: ModuleID):
+    def _distributeToGateways(self, msg: Message, senderID: ModuleID):
         # distribute to all other gateways
         for gatewayID in self._gatewayIDs:
             if senderID != gatewayID:
                 self._submitToTargetID(msg, gatewayID)
 
-    def _submitToTargetID(self, msg: 'Message', targetID):
+    def _submitToTargetID(self, msg: Message, targetID):
         if msg.fromID == targetID:
             logging.warning("Trying to send msg " + msg.__str__() + " to originator, skipping")
             return
