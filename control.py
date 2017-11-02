@@ -53,27 +53,31 @@ if __name__ == "__main__":
         dispatcherOnRC = Dispatcher("On RC", gatewayIDs=[ModuleID.RC_MCU_SENDER])
 
         receiverMCU_PC = SerialReciever(
-            id=ModuleID.MCU_PC_RECEIVER, dispatcher=dispatcherOnPC, mySideSenderID=ModuleID.PC_MCU_SENDER)
+            id=ModuleID.MCU_PC_RECEIVER, name='MCU->PC', dispatcher=dispatcherOnPC,
+            mySideSenderID=ModuleID.PC_MCU_SENDER)
         receiverPC_MCU = SerialReciever(
-            id=ModuleID.PC_MCU_RECEIVER, dispatcher=dispatcherOnMCU, mySideSenderID=ModuleID.MCU_PC_SENDER)
+            id=ModuleID.PC_MCU_RECEIVER, name='PC->MCU', dispatcher=dispatcherOnMCU,
+            mySideSenderID=ModuleID.MCU_PC_SENDER)
         receiverRC_MCU = SerialReciever(
-            id=ModuleID.RC_MCU_RECEIVER, dispatcher=dispatcherOnMCU, mySideSenderID=ModuleID.MCU_RC_SENDER)
+            id=ModuleID.RC_MCU_RECEIVER, name='RC->MCU', dispatcher=dispatcherOnMCU,
+            mySideSenderID=ModuleID.MCU_RC_SENDER)
         receiverMCU_RC = SerialReciever(
-            id=ModuleID.MCU_RC_RECEIVER, dispatcher=dispatcherOnRC, mySideSenderID=ModuleID.RC_MCU_SENDER)
+            id=ModuleID.MCU_RC_RECEIVER, name='MCU->RC', dispatcher=dispatcherOnRC,
+            mySideSenderID=ModuleID.RC_MCU_SENDER)
 
         senderPC_MCU = SerialSender(
-            id=ModuleID.PC_MCU_SENDER, dispatcher=dispatcherOnPC, otherSideReceiver=receiverPC_MCU)
+            id=ModuleID.PC_MCU_SENDER, name='PC->MCU', dispatcher=dispatcherOnPC, otherSideReceiver=receiverPC_MCU)
         senderMCU_PC = SerialSender(
-            id=ModuleID.MCU_PC_SENDER, dispatcher=dispatcherOnMCU, otherSideReceiver=receiverMCU_PC)
+            id=ModuleID.MCU_PC_SENDER, name='MCU->PC', dispatcher=dispatcherOnMCU, otherSideReceiver=receiverMCU_PC)
         senderMCU_RC = SerialSender(
-            id=ModuleID.MCU_RC_SENDER, dispatcher=dispatcherOnMCU, otherSideReceiver=receiverMCU_RC)
+            id=ModuleID.MCU_RC_SENDER, name='MCU->RC', dispatcher=dispatcherOnMCU, otherSideReceiver=receiverMCU_RC)
         senderRC_MCU = SerialSender(
-            id=ModuleID.RC_MCU_SENDER, dispatcher=dispatcherOnRC, otherSideReceiver=receiverRC_MCU)
+            id=ModuleID.RC_MCU_SENDER, name='RC->MCU', dispatcher=dispatcherOnRC, otherSideReceiver=receiverRC_MCU)
 
         globalvars.msgConsumers = [
             VolumeOperator(dispatcherOnMCU),
             WebUI(id=ModuleID.WEBUI_PC, dispatcher=dispatcherOnPC),
-            InputConsoleUI(id=ModuleID.UI_MAIN_DISPLAY, dispatcher=dispatcherOnMCU),
+            InputConsoleUI(id=ModuleID.UI_MAIN_DISPLAY, dispatcher=dispatcherOnRC),
             AnalogSource(dispatcherOnMCU),
             FileSource(dispatcherOnPC),
             RadioSource(dispatcherOnPC),

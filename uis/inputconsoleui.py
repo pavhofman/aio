@@ -15,7 +15,7 @@ class InputConsoleUI(ConsoleUI):
     # noinspection PyShadowingBuiltins
     def __init__(self, id: ModuleID, dispatcher: 'Dispatcher'):
         # call the thread class
-        super().__init__(id=id, dispatcher=dispatcher)
+        super().__init__(id=id, name='InputConsoleUI', dispatcher=dispatcher)
         self._inputreader = InputReader(self.id, self)
 
     def stop(self):

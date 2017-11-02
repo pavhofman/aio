@@ -15,12 +15,14 @@ if TYPE_CHECKING:
 Message dispatcher
 """
 
+log = logging.getLogger("dispatcher")
+
 
 class Dispatcher:
     def __init__(self, name, gatewayIDs: List[ModuleID]):
         # call the thread class
         super().__init__()
-        self.name = name
+        self.name = 'Dispatcher ' + name
         self._gatewayIDs = gatewayIDs
         self._routeMap = self._initRouteMap(gatewayIDs)  # type: DefaultDict[ModuleID, ModuleID]
         self._groupMap = {}  # type: DefaultDict[GroupID, List[ModuleID]]
@@ -40,6 +42,7 @@ class Dispatcher:
         Distributing the message.
         :param senderID: bordering sender. Not the original sender (stored in msg.fromID)!
         """
+        log.debug(self.name + ": from sender " + str(getMsgConsumer(senderID)) + ": " + str(msg))
         self._updateRouteMap(msg, senderID)
         if msg.typeID == MsgID.IN_GROUPS_MSG:
             msg = msg  # type: IntegerMsg
@@ -82,12 +85,15 @@ class Dispatcher:
         consumer = getMsgConsumer(targetID)
         if consumer is not None:
             consumer.receive(msg)
-            logging.debug(self.name + ": submitted message " + str(msg) + " to " + str(consumer))
+            log.debug(self.name + ": to: " + str(consumer) + " submitted " + str(msg))
             # increment message counter
             self._msgCount += 1
 
     def printStats(self):
-        print("Dispatcher " + self.name + ": " + str(self._msgCount))
+        print(str(self) + ": " + str(self._msgCount))
+
+    def __str__(self) -> str:
+        return "Dispatcher " + self.name
 
 
 # noinspection PyShadowingBuiltins

@@ -19,7 +19,7 @@ Heartbeat thread periodically requesting status updates
 class Heartbeat(MsgConsumer):
     def __init__(self, dispatcher: 'Dispatcher'):
         # call the thread class
-        super().__init__(id=ModuleID.HEARTBEAT, dispatcher=dispatcher)
+        super().__init__(id=ModuleID.HEARTBEAT, name='Heartbeat', dispatcher=dispatcher)
 
     # noinspection PyShadowingNames
     def run(self):

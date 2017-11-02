@@ -18,9 +18,9 @@ class SerialSender(MsgConsumer):
     """
 
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher', otherSideReceiver: SerialReciever):
+    def __init__(self, id: ModuleID, name: str, dispatcher: 'Dispatcher', otherSideReceiver: SerialReciever):
         # call the thread class
-        super().__init__(id, dispatcher)
+        super().__init__(id, name='SerialSender ' + name, dispatcher=dispatcher)
         self.receiver = otherSideReceiver
 
     # consuming the message

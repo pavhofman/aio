@@ -15,7 +15,7 @@ class AnalogSource(Source):
     def __init__(self, dispatcher: 'Dispatcher'):
         # call the thread class
         self._status = PlaybackStatus.STOPPED
-        super().__init__(id=ModuleID.ANALOG_SOURCE, dispatcher=dispatcher)
+        super().__init__(id=ModuleID.ANALOG_SOURCE, name='AnalogSource', dispatcher=dispatcher)
 
     def _tryToActivate(self) -> bool:
         # TODO - switch input

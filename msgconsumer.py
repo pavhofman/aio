@@ -22,10 +22,11 @@ Abstract message consumer
 
 class MsgConsumer(CanSendMessage, Thread, abc.ABC):
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher'):
+    def __init__(self, id: ModuleID, name: str, dispatcher: 'Dispatcher'):
         CanSendMessage.__init__(self, id, dispatcher)
         # call the thread class
         Thread.__init__(self)
+        self.name = name
         self.dispatcher = dispatcher
         self.__event = Event()
         # command queue - contains XXXCommands
@@ -84,3 +85,6 @@ class MsgConsumer(CanSendMessage, Thread, abc.ABC):
 
     def _getGroupIDs(self) -> List[GroupID]:
         return []
+
+    def __str__(self) -> str:
+        return self.name

@@ -23,12 +23,12 @@ class Source(MsgConsumer, abc.ABC):
     """
 
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher'):
+    def __init__(self, id: ModuleID, name: str, dispatcher: 'Dispatcher'):
         self._initValuesForUnavailable()
         # status init value
         self._status = SourceStatus.UNAVAILABLE  # type: SourceStatus
         # call the thread class
-        super().__init__(id=id, dispatcher=dispatcher)
+        super().__init__(id=id, name=name, dispatcher=dispatcher)
 
     def _initializeInThread(self):
         super()._initializeInThread()

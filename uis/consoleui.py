@@ -21,14 +21,14 @@ UI
 
 class ConsoleUI(MsgConsumer, HasSourceParts):
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher'):
-        MsgConsumer.__init__(self, id=id, dispatcher=dispatcher)
+    def __init__(self, id: ModuleID, name: str, dispatcher: 'Dispatcher'):
+        MsgConsumer.__init__(self, id=id, name=name, dispatcher=dispatcher)
         HasSourceParts.__init__(self)
         self._volume = 0
 
     # consuming the message
     def _consume(self, msg: 'Message'):
-        print(self.__class__.__name__ + " received msg: " + msg.__str__())
+        logging.debug(self.__class__.__name__ + " received msg: " + msg.__str__())
         if msg.typeID == MsgID.CURRENT_VOL_INFO:
             msg = msg  # type: IntegerMsg
             self._handleVolMsg(msg)

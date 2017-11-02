@@ -35,7 +35,7 @@ class RadioSource(MPVTreeSource[Node]):
     def __init__(self, dispatcher: 'Dispatcher'):
         self._tree = None
         # XML tree must be loaded in the thread so that this constructor exits fast
-        super().__init__(ModuleID.RADIO_SOURCE, dispatcher, monitorTime=False)
+        super().__init__(ModuleID.RADIO_SOURCE, 'RadioSource', dispatcher, monitorTime=False)
 
     def _initializeInThread(self):
         self._tree = self._initTree()

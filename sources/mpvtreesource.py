@@ -23,9 +23,9 @@ if TYPE_CHECKING:
 
 class MPVTreeSource(TreeSource, UsesMPV, Generic[PATH]):
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher', monitorTime: bool):
+    def __init__(self, id: ModuleID, name: str, dispatcher: 'Dispatcher', monitorTime: bool):
         self._metadataParser = MetadataParser(rules=self._getMetadataParserRules())
-        TreeSource.__init__(self, id=id, dispatcher=dispatcher)
+        TreeSource.__init__(self, id=id, name=name, dispatcher=dispatcher)
         UsesMPV.__init__(self, monitorTime=monitorTime)
 
     def _changePlaybackStatusTo(self, newStatus: PlaybackStatus):

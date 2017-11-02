@@ -26,7 +26,7 @@ CD_READ_TRIES = 20
 class CDSource(MPVTreeSource[Node]):
     def __init__(self, dispatcher: 'Dispatcher'):
         self.__chapterToSwitch = None  # type: Optional[int]
-        super().__init__(ModuleID.CD_SOURCE, dispatcher, monitorTime=True)
+        super().__init__(ModuleID.CD_SOURCE, 'CDSource', dispatcher, monitorTime=True)
         self.__registerUdevCallback()
 
     def __registerUdevCallback(self):

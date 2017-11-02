@@ -13,8 +13,8 @@ sender - relay of messages between serial ports
 
 class SerialReciever(MsgConsumer):
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher', mySideSenderID: ModuleID):
-        super().__init__(id, dispatcher)
+    def __init__(self, id: ModuleID, name: str, dispatcher: 'Dispatcher', mySideSenderID: ModuleID):
+        super().__init__(id, name='SerialReceiver ' + name, dispatcher=dispatcher)
         self.senderID = mySideSenderID
 
     # consuming the message

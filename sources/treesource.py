@@ -25,9 +25,9 @@ class TreeSource(Source, abc.ABC, Generic[PATH]):
     """
 
     # noinspection PyShadowingBuiltins
-    def __init__(self, id: ModuleID, dispatcher: 'Dispatcher'):
+    def __init__(self, id: ModuleID, name: str, dispatcher: 'Dispatcher'):
         # call the thread class
-        super().__init__(id=id, dispatcher=dispatcher)
+        super().__init__(id=id, name=name, dispatcher=dispatcher)
 
     # consuming the message
     def _consume(self, msg: 'Message') -> bool:

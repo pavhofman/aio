@@ -20,7 +20,7 @@ Handles physical volume control
 class VolumeOperator(MsgConsumer):
     def __init__(self, dispatcher: 'Dispatcher'):
         # call the thread class
-        super().__init__(id=ModuleID.VOLUME_OPERATOR, dispatcher=dispatcher)
+        super().__init__(id=ModuleID.VOLUME_OPERATOR, name='VolOp', dispatcher=dispatcher)
 
     def _initializeInThread(self):
         super()._initializeInThread()
