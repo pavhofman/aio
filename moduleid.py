@@ -10,10 +10,10 @@ class ModuleID(Enum):
     WEBUI_PC = 4
     MCU_PC_SENDER = 5
     PC_MCU_RECEIVER = 6
-    UI_MAIN_DISPLAY = 7
+    UI_CONSOLE = 7
     PC_MCU_SENDER = 8
     MCU_PC_RECEIVER = 9
-    HEARTBEAT = 10  # warning - the id is not routable, heartbeat does not listen to incoming messages
+    HEARTBEAT = 10
     RADIO_SOURCE = 11
     CD_SOURCE = 12
     MCU_RC_SENDER = 13

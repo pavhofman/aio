@@ -23,20 +23,30 @@ from uis.webui import WebUI
 from volumeoperator import VolumeOperator
 
 """
+Modules for each segment:
 PC:
-    UI_CONSOLE
-    FILE_SOURCE
-    TO_MAIN_MCU_SENDER
-    FROM_MAIN_MCU_RECEIVER
+    FILE_SOURCE = 2
+    RADIO_SOURCE = 11
+    CD_SOURCE = 12
+    WEBUI_PC = 4
+    PC_MCU_SENDER = 8
+    MCU_PC_RECEIVER = 9
 
-MAIN_MCU:
-    VOLUME_OP
-    ANALOG_SOURCE
-    UI_MAIN_DISPLAY    
-    TO_PC_SENDER
-    FROM_PC_RECEIVER
-    
-RC: zatim nic
+MAIN_MCU:    
+    MCU_PC_SENDER = 5
+    PC_MCU_RECEIVER = 6
+    ANALOG_SOURCE = 1
+    VOLUME_OPERATOR = 3
+    HEARTBEAT = 10
+    MCU_RC_SENDER = 13
+    RC_MCU_RECEIVER = 14
+
+RC:    
+    RC_MCU_SENDER = 15
+    MCU_RC_RECEIVER = 16
+    UI_CONSOLE = 7
+    WEBUI_RC = 17
+
 """
 
 # list of all real sources modIDs
@@ -85,7 +95,7 @@ if __name__ == "__main__":
             receiverMCU_RC,
             VolumeOperator(dispatcherOnMCU),
             WebUI(id=ModuleID.WEBUI_PC, name='WebUI PC', dispatcher=dispatcherOnPC, port=8081),
-            InputConsoleUI(id=ModuleID.UI_MAIN_DISPLAY, dispatcher=dispatcherOnRC),
+            InputConsoleUI(id=ModuleID.UI_CONSOLE, dispatcher=dispatcherOnRC),
             AnalogSource(dispatcherOnMCU),
             FileSource(dispatcherOnPC),
             RadioSource(dispatcherOnPC),
